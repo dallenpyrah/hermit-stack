@@ -6,7 +6,6 @@
   "bin": {
     "agent-sources": "./src/agent-sources/agent-sources.cli.mjs",
     "check-scripts": "./src/fence/check-scripts.cli.mjs",
-    "checkout-lock": "./src/fence/checkout-lock.cli.mjs",
     "doc-paths": "./src/docs/doc-paths.cli.mjs",
     "file-fence": "./src/fence/file-fence.cli.mjs",
     "git-fence": "./src/fence/git-fence.cli.mjs",
@@ -37,7 +36,8 @@
   "scripts": {
     "build": "tsdown",
     "typecheck": "effect-tsgo tsrs --noEmit -p tsconfig.json",
-    "lint": "effect-tsgo --tsrs-lint oxlint -c oxlint.config.ts --type-aware src"
+    "lint": "effect-tsgo --tsrs-lint oxlint -c oxlint.config.ts --type-aware src",
+    "test": "node tests/oxlint/base.config.test.mjs && node --test \"tests/oxlint/anti-slop/**/*.test.ts\" \"tests/oxlint/testing/**/*.test.ts\" && node tests/env/rules-env.cli.test.mjs && node tests/fence/git-fence.cli.test.mjs && node tests/ratchet/ratchet.cli.test.mjs && node tests/mutants/mutants.pure.test.mjs && node tests/mutants/mutants.cli.test.mjs && node tests/agent-sources/agent-sources.cli.test.mjs && node tests/fence/check-scripts.cli.test.mjs && node tests/fence/runtime-pins.cli.test.mjs && node tests/fence/file-fence.cli.test.mjs && node tests/oxlint/role-imports.config.test.mjs && node tests/turbo/task-inputs.cli.test.mjs && node tests/docs/doc-paths.cli.test.mjs"
   },
   "dependencies": {
     "@oxlint/plugins": "catalog:",
@@ -51,6 +51,7 @@
     "oxlint": "catalog:",
     "oxlint-tsgolint": "catalog:",
     "tsdown": "catalog:",
+    "turbo": "catalog:",
     "typescript": "catalog:"
   }
 }

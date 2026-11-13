@@ -39,6 +39,11 @@
         "dependents": {
           "deny": ["kernel", "lib", "context", "adapter", "service", "infra", "app", "tooling"]
         }
+      },
+      "spec": {
+        "dependents": {
+          "deny": ["kernel", "lib", "context", "adapter", "service", "infra", "app", "tooling", "spec"]
+        }
       }
     }
   },
@@ -90,7 +95,7 @@
       "outputLogs": "errors-only"
     },
     "test": {
-      "dependsOn": ["transit"],
+      "dependsOn": ["transit", "//#runtime-pins"],
       "inputs": ["src/**", "tests/**", "vitest.config.ts", "package.json"],
       "outputs": [],
       "outputLogs": "errors-only"
@@ -104,6 +109,58 @@
     "//#sherif": {
       "inputs": ["**/package.json", "!**/node_modules/**", "pnpm-workspace.yaml", "pnpm-lock.yaml"],
       "outputs": [],
+      "outputLogs": "errors-only"
+    },
+    "//#knip": {
+      "dependsOn": ["@repo/rules#build"],
+      "inputs": [
+        "**/*.{ts,tsx,mts,cts,js,mjs,cjs,json,mdx}",
+        "!**/node_modules/**",
+        "!**/dist/**",
+        "!**/.next/**",
+        ".pi/**",
+        "knip.config.ts",
+        "pnpm-workspace.yaml"
+      ],
+      "outputs": [],
+      "outputLogs": "errors-only"
+    },
+    "//#ratchet": {
+      "dependsOn": ["@repo/rules#build"],
+      "cache": false,
+      "outputLogs": "errors-only"
+    },
+    "//#lint:inputs": {
+      "cache": false,
+      "outputLogs": "errors-only"
+    },
+    "//#lint:paths": {
+      "cache": false,
+      "outputLogs": "errors-only"
+    },
+    "//#lint:scripts": {
+      "inputs": ["package.json"],
+      "outputs": [],
+      "outputLogs": "errors-only"
+    },
+    "//#lint:env": {
+      "inputs": [
+        "**/*.{ts,tsx,mts,cts,js,mjs,cjs}",
+        "!**/node_modules/**",
+        "!**/dist/**",
+        ".env.schema",
+        "tools/rules/.env.schema"
+      ],
+      "outputs": [],
+      "outputLogs": "errors-only"
+    },
+    "//#gitleaks": {
+      "inputs": ["$TURBO_DEFAULT$"],
+      "outputs": [],
+      "outputLogs": "errors-only"
+    },
+    "//#runtime-pins": {
+      "cache": false,
       "outputLogs": "errors-only"
     }
   }

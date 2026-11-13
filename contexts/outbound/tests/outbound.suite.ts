@@ -2,12 +2,12 @@ import { Story } from "@alchemy.run/domain/Story";
 import { Layer } from "effect";
 
 import { Feed } from "#src/feed/feed.aggregate.js";
-import { EmailFake } from "#src/notification/email.fake.js";
 import { Push } from "#src/notification/push.external.js";
 import { OutboundHandlers } from "#src/outbound.layer.js";
 import { Outbound } from "#src/outbound.model.js";
 import { EndpointId } from "#src/webhook/endpoint.id.js";
 import { WebhookTransport } from "#src/webhook/webhook-transport.external.js";
+import { EmailFake } from "#tests/notification/email.fake";
 
 // Email goes through the in-memory fake, so a story sees what it sent; a story answers each Push and webhook call.
 const outboundStory = Story.make(Outbound, {

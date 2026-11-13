@@ -11,7 +11,7 @@ const uncapped = [
   /\.patch$/u,
   /\.gen\.[^/]+$/u,
   /(?:^|\/)(?:vendor|node_modules|dist)\//u,
-  /^(?:src|tests)\/oxlint\/anti-slop\//u,
+  /(?:^|\/)(?:src|tests)\/oxlint\/anti-slop\//u,
   /(?:^|\/)(?:openapi|contracts|package)\.json$/u,
   /(?:^|\/)mutants\.(?:baseline|equivalent)\.json$/u,
 ];

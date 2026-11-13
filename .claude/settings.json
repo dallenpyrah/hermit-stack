@@ -1,0 +1,24 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd \"$CLAUDE_PROJECT_DIR\" && node --input-type=module -e \"await import('@repo/rules/git-fence')\" -- --agent claude || { echo \"git-fence could not run, so this call is refused. Fix: run pnpm install --force in $CLAUDE_PROJECT_DIR.\" >&2; exit 2; }"
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write|MultiEdit|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd \"$CLAUDE_PROJECT_DIR\" && node --input-type=module -e \"await import('@repo/rules/git-fence')\" -- --agent claude || { echo \"git-fence could not run, so this call is refused. Fix: run pnpm install --force in $CLAUDE_PROJECT_DIR.\" >&2; exit 2; }"
+          }
+        ]
+      }
+    ]
+  }
+}

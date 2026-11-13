@@ -11,7 +11,7 @@
   },
   "exports": {
     "./email": "./src/notification/email.external.ts",
-    "./email-fake": "./src/notification/email.fake.ts",
+    "./email-fake": "./tests/notification/email.fake.ts",
     "./feed-commands": "./src/feed/feed.command.ts",
     "./handlers": "./src/outbound.layer.ts",
     "./model": "./src/outbound.model.ts",

@@ -19,6 +19,8 @@ import {
 import { layoutOf } from "../../src/ratchet/layout.pure.mjs";
 
 const root = path.resolve(import.meta.dirname, "../..");
+// The repo's own wiring lives at the monorepo root, two folders up from this package.
+const workspaceRoot = path.resolve(root, "../..");
 const cli = path.join(root, "src", "ratchet", "ratchet.cli.mjs");
 const run = promisify(execFile);
 const failures = [];
@@ -442,10 +444,10 @@ expect(
   `baseline survivors message: ${baselined.stderr}`,
 );
 
-const scripts = JSON.parse(readFileSync(path.join(root, "package.json"), "utf8")).scripts;
+const scripts = JSON.parse(readFileSync(path.join(workspaceRoot, "package.json"), "utf8")).scripts;
 expect(/\bratchet\b/u.test(scripts.check), "pnpm check does not run the ratchet");
 expect(
-  (await run("node", [cli], { cwd: root }).then(
+  (await run("node", [cli], { cwd: workspaceRoot }).then(
     () => 0,
     (error) => error.code,
   )) === 0,

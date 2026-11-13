@@ -122,7 +122,7 @@ for (const { outside, task } of walks) {
 
 for (const { glob, task } of deadGlobs) {
   console.error(
-    `${task.taskId} lists ${glob} outside the repo in its inputs, but hashes no file there. turbo drops every input outside the repo from a root (//#) task, matches only ** globs and exact files through a symlinked sibling, and hashes nothing for a glob that matches nothing. ${why}. Fix: move the glob to the inputs of a package task, such as sibling-inputs in a tooling package, and add that task to ${task.taskId}'s dependsOn; write it as a ** glob or an exact file; or correct it.`,
+    `${task.taskId} lists ${glob} outside the repo in its inputs, but hashes no file there. turbo drops every input outside the repo from a root (//#) task, matches no file through a symlinked sibling (turbo 2.11.11), and hashes nothing for a glob that matches nothing. ${why}. Fix: move the glob to the inputs of a package task, such as sibling-inputs in a tooling package, and add that task to ${task.taskId}'s dependsOn; point it at the real folder rather than a symlink to it; or correct it.`,
   );
 }
 

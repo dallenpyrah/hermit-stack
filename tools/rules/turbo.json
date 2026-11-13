@@ -14,6 +14,53 @@
     "lint": {
       "dependsOn": ["build"],
       "inputs": ["src/**", "tests/**", "package.json", "tsconfig.json", "tsconfig.base.json", "oxlint.config.ts"]
+    },
+    "test": {
+      "dependsOn": ["transit", "build", "//#runtime-pins"],
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "fixtures/**",
+        ".env.schema",
+        "$TURBO_ROOT$/package.json",
+        "$TURBO_ROOT$/ratchets.json",
+        "$TURBO_ROOT$/AGENTS.md",
+        "$TURBO_ROOT$/.gitignore",
+        "$TURBO_ROOT$/agent-sources.json",
+        "$TURBO_ROOT$/.claude/settings.json",
+        "$TURBO_ROOT$/.cursor/hooks.json",
+        "$TURBO_ROOT$/.pi/**"
+      ]
     }
+  },
+  "boundaries": {
+    "implicitDependencies": [
+      "@akter-cloud/billing",
+      "@akter-cloud/fixture",
+      "@alchemy.run/archil",
+      "@alchemy.run/cloudflare",
+      "@alchemy.run/domain",
+      "@aws-sdk/client-ec2",
+      "@distilled.cloud/archil",
+      "@effect/platform-bun",
+      "@effect/platform-node",
+      "@effect/platform-node-shared",
+      "@effect/sql-sqlite-bun",
+      "@effect/vitest",
+      "@octokit/rest",
+      "@typeonce/effect-machine",
+      "archil",
+      "cloudflare",
+      "disk",
+      "diskusage",
+      "foldkit",
+      "mdast",
+      "octokit",
+      "redis",
+      "resend",
+      "stripe",
+      "stripe-mock",
+      "unist-util-visit",
+      "vitest"
+    ]
   }
 }
