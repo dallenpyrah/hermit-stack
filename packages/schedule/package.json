@@ -1,0 +1,33 @@
+{
+  "name": "@repo/schedule",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Recurring work as a Domain aggregate that re-arms itself: each tick does the work and schedules the next one.",
+  "type": "module",
+  "sideEffects": false,
+  "imports": {
+    "#src/*": "./src/*",
+    "#tests/*": "./tests/*.ts"
+  },
+  "exports": {
+    "./rearm": "./src/recurring/rearm.policy.ts",
+    "./recurring": "./src/recurring/recurring.aggregate.ts",
+    "./recurring-commands": "./src/recurring/recurring.command.ts",
+    "./recurring-name": "./src/recurring/recurring.id.ts"
+  },
+  "scripts": {
+    "typecheck": "effect-tsgo tsrs --noEmit -p tsconfig.json",
+    "lint": "effect-tsgo --tsrs-lint oxlint -c ../../oxlint.config.ts --type-aware --tsconfig tsconfig.json src tests",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@alchemy.run/domain": "catalog:",
+    "alchemy": "catalog:",
+    "effect": "catalog:"
+  },
+  "devDependencies": {
+    "@effect/vitest": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
+  }
+}
