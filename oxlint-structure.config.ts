@@ -13,6 +13,14 @@ const domain = domainStructure({
   packages: imports.packages,
 });
 
+// The identity port is written in Domain's terms (a request context, a middleware, an id) and holds the sample model its
+// Session contract drives, so it takes Domain's roles too.
+const identity = domainStructure({
+  exports: imports.exports,
+  files: ["packages/identity/**"],
+  packages: imports.packages,
+});
+
 // FoldKit's roles (command, message, model, subscription, update) apply where a FoldKit app or component lives.
 const foldkitFiles = ["apps/web/**", "apps/panels/**", "packages/ui/**", "packages/client-data/**"];
 const foldkitRoles = ["command", "message", "model", "subscription", "update"];
@@ -31,6 +39,7 @@ export default defineConfig({
   overrides: [
     ...(structure.overrides ?? []),
     ...(domain.overrides ?? []),
+    ...(identity.overrides ?? []),
     ...(docs.overrides ?? []),
     {
       files: foldkitFiles,

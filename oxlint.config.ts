@@ -39,8 +39,21 @@ const domainLists = {
   rules: { "import/max-dependencies": ["error", { max: 20 }] },
 } as const;
 
+// The local auth database is Node's built-in SQLite, so better-auth runs in a local test with no native build.
+const localAuthDatabase = {
+  files: ["adapters/better-auth/src/sqlite.layer.ts"],
+  rules: { "import/no-nodejs-modules": ["error", { allow: ["node:sqlite"] }] },
+} as const;
+
 export default defineConfig({
   ...base,
   ignorePatterns: [...(base.ignorePatterns ?? []), "tools/rules/**"],
-  overrides: [...(base.overrides ?? []), ...(docs.overrides ?? []), specThroughApiOnly, entryPoints, domainLists],
+  overrides: [
+    ...(base.overrides ?? []),
+    ...(docs.overrides ?? []),
+    specThroughApiOnly,
+    entryPoints,
+    domainLists,
+    localAuthDatabase,
+  ],
 });

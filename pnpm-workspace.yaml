@@ -51,6 +51,7 @@ catalog:
   vite: "8.3.8"
   # Domain, infrastructure and actors
   "@alchemy.run/aws": "2.0.0-beta.87"
+  "@alchemy.run/better-auth": "2.0.0-beta.87"
   "@alchemy.run/cloudflare": "2.0.0-beta.87"
   "@alchemy.run/docker": "2.0.0-beta.87"
   "@alchemy.run/domain": "2.0.0-beta.87"
@@ -60,6 +61,8 @@ catalog:
   "@rivetkit/effect": "3.1.1"
   alchemy: "2.0.0-beta.87"
   rivetkit: "3.1.1"
+  # Auth, imported only by adapters/better-auth
+  better-auth: "1.7.22"
   # Checks
   "@effect/tsgo": "0.68.1"
   "@oxlint/plugins": "1.93.0"
