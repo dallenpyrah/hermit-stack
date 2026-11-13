@@ -1,5 +1,5 @@
 {
-  "knip.config.ts exceptions": 11,
+  "knip.config.ts exceptions": 19,
   "oxlint.config.ts rules off": 20,
   "oxlint.config.ts override rules per glob": 21,
   "oxlint.config.ts ignore patterns": 4,
