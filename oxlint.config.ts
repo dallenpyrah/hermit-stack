@@ -32,6 +32,12 @@ const entryPoints = {
   rules: { "vitest/require-hook": "off" },
 } as const;
 
+// A rollout bucket is a 32-bit hash, FNV-1a with MurmurHash3's finaliser, and those are written in XOR and shifts.
+const flagBucketHash = {
+  files: ["packages/flags/src/evaluate/bucket.pure.ts"],
+  rules: { "eslint/no-bitwise": "off" },
+} as const;
+
 // An aggregate names each of its commands and a model names each aggregate, policy and view, and every one of those
 // Classes has its own file, so these two list files import one module per class. Every other file keeps the cap of 10.
 const domainLists = {
@@ -42,5 +48,12 @@ const domainLists = {
 export default defineConfig({
   ...base,
   ignorePatterns: [...(base.ignorePatterns ?? []), "tools/rules/**"],
-  overrides: [...(base.overrides ?? []), ...(docs.overrides ?? []), specThroughApiOnly, entryPoints, domainLists],
+  overrides: [
+    ...(base.overrides ?? []),
+    ...(docs.overrides ?? []),
+    specThroughApiOnly,
+    entryPoints,
+    domainLists,
+    flagBucketHash,
+  ],
 });

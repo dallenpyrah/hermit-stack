@@ -15,7 +15,7 @@ Effect, FoldKit, Alchemy, Oxlint and StyleX always stay. Every vendor, host and 
 Run everything through mise so the pinned Node and pnpm are used.
 
 - `mise exec -- pnpm install`
-- `mise exec -- pnpm check`: boundaries, then format check, typecheck, lint, file roles, tests, build, knip, the ratchet, task inputs, doc paths, sherif, gitleaks, env reads and the check scripts, in one Turbo run. Done means this exits 0. `tools/rules/AGENTS.md` describes each check.
+- `mise exec -- pnpm check`: boundaries, then format check, typecheck, lint, file roles, tests, build, knip, the ratchet, task inputs, doc paths, sherif, gitleaks, env reads, the check scripts and flag dates, in one Turbo run. Done means this exits 0. `tools/rules/AGENTS.md` describes each check.
 - `mise exec -- pnpm check:affected`: the same tasks, limited to what changed on this branch.
 - `mise exec -- pnpm fmt`: format with oxfmt.
 - `mise exec -- pnpm exec turbo run test --filter=@repo/kernel`: one package's tests.
@@ -58,6 +58,7 @@ Files:
 - Tests live in `tests/`, mirroring `src/`: `src/telemetry/span-name.pure.ts` is tested by `tests/telemetry/span-name.pure.test.ts`.
 - A fake lives in `tests/` too, at the path and name of the `src/` file it stands in for: `src/notification/email.external.ts` has `tests/notification/email.fake.ts`. A package may export it for another package's tests. An in-memory implementation that a running target uses is not a fake: it is a `layer` in `src/`.
 - At most 10 code files directly in one folder, and at most 500 lines in a file.
+- A feature flag is declared in a `<name>.flag.ts` file with `Flag.release` or `Flag.ops` from `@repo/flags/flag`, and read with `Flags.get`. `pnpm check` fails once a flag passes its `removeBy` or `reviewBy` date.
 
 Imports:
 
