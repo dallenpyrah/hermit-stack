@@ -1,0 +1,20 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "plugins": [
+      {
+        "name": "@effect/language-service",
+        "allowedUnstableApis": ["@effect/vitest"],
+        "overrides": [
+          {
+            // Every Domain command carries its static rpc, an effect/rpc/Rpc marked unstable, and every aggregate,
+            // Policy and model that names a command carries it too, so none can be exported without exposing it.
+            "include": ["src/**/*.command.ts", "src/**/*.aggregate.ts", "src/**/*.policy.ts", "src/**/*.model.ts"],
+            "options": { "diagnosticSeverity": { "apiStabilityLeak": "off" } }
+          }
+        ]
+      }
+    ]
+  },
+  "include": ["src/**/*.ts", "tests/**/*.ts"]
+}
