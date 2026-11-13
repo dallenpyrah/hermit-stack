@@ -56,9 +56,19 @@ const notPackages: ReadonlyArray<Exception> = [
 
 const docExamples: ReadonlyArray<Exception> = [
   {
-    paths: ["@repo/kernel"],
+    paths: [
+      "@repo/kernel",
+      "@repo/conformance",
+      "@repo/ledger",
+      "@repo/outbound",
+      "@repo/schedule",
+      "@repo/ui",
+      "@alchemy.run/domain",
+      "@stylexjs/stylex",
+      "foldkit",
+    ],
     reason:
-      "The code blocks in the docs pages import it. They are written to the generated .fences folder and typechecked there, which knip does not read.",
+      "The code blocks in the docs pages import them. They are written to the generated .fences folder and typechecked there, which knip does not read.",
   },
 ];
 

@@ -1,0 +1,294 @@
+*,
+::before,
+::after {
+  box-sizing: border-box;
+  border: 0 solid;
+  margin: 0;
+  padding: 0;
+  overflow-anchor: none;
+}
+
+@font-face {
+  font-family: "Inter Fallback";
+  src: local("Arial");
+  ascent-override: 90.2%;
+  descent-override: 22.48%;
+  line-gap-override: 0%;
+  size-adjust: 107.4%;
+}
+
+@font-face {
+  font-family: "Geist Mono Fallback";
+  src: local("Arial");
+  ascent-override: 76.43%;
+  descent-override: 22.43%;
+  line-gap-override: 0%;
+  size-adjust: 131.49%;
+}
+
+@property --hs-fade-top {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0;
+}
+
+@property --hs-fade-bottom {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0;
+}
+
+@keyframes hs-scroll-fade {
+  0% {
+    --hs-fade-top: 0px;
+    --hs-fade-bottom: 32px;
+  }
+
+  1% {
+    --hs-fade-top: 32px;
+  }
+
+  99% {
+    --hs-fade-bottom: 32px;
+  }
+
+  100% {
+    --hs-fade-top: 32px;
+    --hs-fade-bottom: 0px;
+  }
+}
+
+@keyframes hs-fade {
+  0% {
+    opacity: 0;
+  }
+}
+
+@keyframes hs-pop {
+  0% {
+    opacity: 0;
+    scale: 0.95;
+  }
+}
+
+/*
+ * The palette. Neutrals match @repo/ui (src/tokens/tokens.stylex.ts and src/theme/theme.view.ts) so the docs and the
+ * product look related; they are copied, not imported, because the docs are plain CSS. The accent is the one color
+ * of the brand: change --accent-light and --accent-dark and links, the active sidebar row, callouts and the hero all
+ * follow.
+ */
+:root {
+  --accent-light: oklch(0.56 0.105 185);
+  --accent-dark: oklch(0.78 0.13 182);
+
+  --color-ink: oklch(0.145 0 0);
+  --color-well: oklch(0.17 0 0);
+  --color-panel: oklch(0.175 0 0);
+  --color-tile: oklch(0.205 0 0);
+  --color-rule: oklch(0.235 0 0);
+  --color-line: oklch(1 0 0 / 10%);
+  --color-edge: oklch(1 0 0 / 14%);
+  --color-bone: oklch(0.985 0 0);
+  --color-mist: oklch(0.82 0 0);
+  --color-stone: oklch(0.708 0 0);
+  --color-code: oklch(0.9 0 0);
+  --color-code-well: oklch(0.165 0 0);
+  --color-on-accent: oklch(0.145 0 0);
+
+  --font-sans: var(--font-inter), "Inter", "Inter Fallback", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), "Geist Mono", "Geist Mono Fallback", ui-monospace, monospace;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --text-base: 16px;
+  --text-code: 13px;
+  --text-h3: 24px;
+  --text-nav: 14px;
+  --leading-body: 27px;
+  --leading-h3: 30px;
+
+  --code-ink: light-dark(oklch(0.27 0 0), var(--color-code));
+  --code-comment: light-dark(oklch(0.556 0 0), oklch(0.6 0 0));
+  --code-keyword: light-dark(color-mix(in oklch, var(--accent-light) 85%, black), var(--accent-dark));
+  --code-string: light-dark(oklch(0.5 0.12 145), oklch(0.82 0.1 145));
+  --code-number: light-dark(oklch(0.55 0.15 50), oklch(0.8 0.12 60));
+
+  --hero: color-mix(in oklch, var(--accent-dark) 72%, var(--accent-light));
+  --hero-glow: color-mix(in oklch, var(--accent-dark) 55%, white);
+  --hero-deep: color-mix(in oklch, var(--accent-light) 70%, black);
+}
+
+:root {
+  color-scheme: dark;
+
+  --bg: light-dark(oklch(0.97 0 0), var(--color-ink));
+  --panel: light-dark(oklch(1 0 0), var(--color-panel));
+  --card: light-dark(oklch(1 0 0), var(--color-tile));
+  --card-hover: light-dark(oklch(0.985 0 0), var(--color-rule));
+  --popover: light-dark(oklch(1 0 0), var(--color-tile));
+  --popover-hover: light-dark(rgb(0 0 0 / 0.04), rgb(255 255 255 / 0.065));
+  --input: var(--card);
+  --button: light-dark(oklch(1 0 0), color-mix(in srgb, white 7%, var(--bg)));
+  --button-hover: light-dark(oklch(0.985 0 0), color-mix(in srgb, white 10%, var(--bg)));
+  --secondary: light-dark(rgb(0 0 0 / 0.05), rgb(255 255 255 / 0.08));
+  --secondary-hover: light-dark(rgb(0 0 0 / 0.08), rgb(255 255 255 / 0.11));
+  --section: light-dark(rgb(0 0 0 / 0.04), rgb(255 255 255 / 0.035));
+  --muted: light-dark(oklch(0.922 0 0), oklch(0.269 0 0));
+  --overlay: light-dark(rgb(0 0 0 / 0.4), rgb(0 0 0 / 0.55));
+
+  --text: light-dark(oklch(0.145 0 0), var(--color-bone));
+  --muted-foreground-1: light-dark(
+    color-mix(in oklch, var(--text) 62%, var(--bg)),
+    color-mix(in oklch, var(--text) 68%, var(--bg))
+  );
+  --muted-foreground-2: light-dark(
+    color-mix(in oklch, var(--text) 48%, var(--bg)),
+    color-mix(in oklch, var(--text) 52%, var(--bg))
+  );
+  --muted-foreground-3: light-dark(
+    color-mix(in oklch, var(--text) 36%, var(--bg)),
+    color-mix(in oklch, var(--text) 38%, var(--bg))
+  );
+  --icon-muted: light-dark(
+    color-mix(in oklch, var(--text) 42%, var(--bg)),
+    color-mix(in oklch, var(--text) 40%, var(--bg))
+  );
+
+  --border-1: light-dark(rgb(0 0 0 / 0.08), rgb(255 255 255 / 0.08));
+  --border-2: light-dark(oklch(0.922 0 0), oklch(1 0 0 / 10%));
+  --border-3: light-dark(rgb(0 0 0 / 0.15), rgb(255 255 255 / 0.16));
+  --card-hairline: light-dark(transparent, var(--border-1));
+  --highlight-top: light-dark(transparent, rgb(255 255 255 / 0.04));
+
+  --primary: light-dark(var(--accent-light), var(--accent-dark));
+  --primary-text: light-dark(oklch(1 0 0), var(--color-on-accent));
+  --primary-soft: light-dark(
+    color-mix(in oklch, var(--primary) 20%, transparent),
+    color-mix(in oklch, var(--primary) 24%, transparent)
+  );
+  --ring: light-dark(color-mix(in oklch, var(--primary) 92%, black), var(--primary));
+  --text-link: light-dark(color-mix(in oklch, var(--accent-light) 85%, black), var(--accent-dark));
+  --info: #0083e3;
+  --success: #00a20b;
+  --destructive: #c7332f;
+  --warning-fg: light-dark(oklch(0.55 0.13 75), oklch(0.85 0.13 90));
+
+  --sh-card: 0 0 0 0.5px rgb(0 0 0 / 0.11);
+  --sh-plate: 0 1px 2px rgb(0 0 0 / 0.05);
+  --sh-overlay: 0 6px 18px rgb(0 0 0 / 0.03), 0 3px 9px rgb(0 0 0 / 0.04), 0 1px 1px rgb(0 0 0 / 0.05);
+
+  --text-2xl: 28px;
+  --text-xl: 24px;
+  --text-lg: 20px;
+  --text-ui: 16px;
+  --text-sm: 15px;
+  --text-xs: 14px;
+  --text-2xs: 13px;
+  --text-markdown: 15px;
+  --text-code-block: 0.9375rem;
+  --icon-base: 18px;
+  --icon-sm: 15px;
+  --icon-xs: 14px;
+  --spacing-page-padding: 24px;
+  --h-control-xs: 28px;
+  --h-control-sm: 32px;
+  --h-control-base: 36px;
+  --h-menu-row: 36px;
+  --h-palette-row: 44px;
+  --h-badge-sm: 24px;
+
+  --text-2xl--letter-spacing: -0.025em;
+  --text-xl--letter-spacing: -0.02em;
+  --text-lg--letter-spacing: -0.02em;
+  --text-sm--letter-spacing: -0.01em;
+  --text-xs--letter-spacing: 0em;
+  --text-markdown--letter-spacing: -0.01em;
+  --text-code-block--letter-spacing: -0.01em;
+  --text-2xl--line-height: 1.2;
+  --text-xl--line-height: 1.2;
+  --text-lg--line-height: 1.2;
+  --text-markdown--line-height: 1.5;
+
+  --font-weight-normal: 450;
+  --radius: 0.375rem;
+  --radius-sm: 0.1875rem;
+  --radius-kbd: 0.1875rem;
+  --radius-overlay: 0.5rem;
+  --radius-panel: 0.75rem;
+  --duration-fast: 0.15s;
+  --duration-base: 0.2s;
+  --ease-out-quint: cubic-bezier(0.23, 1, 0.32, 1);
+
+  --hs-sidebar-w: 264px;
+  --hs-measure: 720px;
+  --hs-toc-w: 184px;
+
+  --hs-main: light-dark(oklch(1 0 0), var(--color-well));
+  --hs-line: light-dark(oklch(0.922 0 0), var(--color-line));
+  --hs-tile: light-dark(oklch(0.97 0 0), var(--color-rule));
+  --hs-tile-line: light-dark(oklch(0.9 0 0), var(--color-edge));
+  --hs-ink-2: light-dark(oklch(0.37 0 0), var(--color-mist));
+  --hs-stone: light-dark(oklch(0.556 0 0), var(--color-stone));
+  --hs-code-bg: light-dark(oklch(0.985 0 0), var(--color-code-well));
+  --hs-code-ink: light-dark(oklch(0.27 0 0), var(--color-code));
+  --hs-callout-bg: color-mix(in oklch, var(--primary) 8%, var(--hs-main));
+  --hs-callout-line: color-mix(in oklch, var(--primary) 32%, var(--hs-main));
+  --hs-text-nav: var(--text-nav);
+  --hs-text-body: var(--text-base);
+  --hs-leading-body: var(--leading-body);
+  --hs-text-code: var(--text-code);
+  --hs-leading-code: 21px;
+  --hs-text-title: 36px;
+  --hs-leading-title: 42px;
+  --hs-text-h2: var(--text-h3);
+  --hs-leading-h2: var(--leading-h3);
+  --hs-text-section: 22px;
+  --hs-leading-section: 28px;
+  --hs-radius-card: 10px;
+  --hs-radius-tile: 7px;
+}
+
+:root.light {
+  color-scheme: light;
+}
+
+:root.system {
+  color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root.system {
+    --sh-card: 0 0 0 1px rgb(0 0 0 / 0.3);
+    --sh-plate: 0 0.5px 1px 1px rgb(0 0 0 / 0.3);
+    --sh-overlay: 0 3px 8px rgb(0 0 0 / 0.13), 0 2px 5px rgb(0 0 0 / 0.13), 0 1px 1px rgb(0 0 0 / 0.13);
+  }
+}
+
+:root:not(.light, .system) {
+  --sh-card: 0 0 0 1px rgb(0 0 0 / 0.3);
+  --sh-plate: 0 0.5px 1px 1px rgb(0 0 0 / 0.3);
+  --sh-overlay: 0 3px 8px rgb(0 0 0 / 0.13), 0 2px 5px rgb(0 0 0 / 0.13), 0 1px 1px rgb(0 0 0 / 0.13);
+}
+
+@media (min-width: 768px), (hover: hover) and (pointer: fine) {
+  :root {
+    --text-2xl: 26px;
+    --text-xl: 22px;
+    --text-lg: 18px;
+    --text-ui: 14px;
+    --text-sm: 13px;
+    --text-xs: 12px;
+    --text-2xs: 11px;
+    --text-markdown: 13px;
+    --text-code-block: 0.8125rem;
+    --icon-base: 16px;
+    --icon-sm: 14px;
+    --icon-xs: 12px;
+    --spacing-page-padding: 48px;
+    --h-control-xs: 24px;
+    --h-control-sm: 28px;
+    --h-control-base: 32px;
+    --h-menu-row: 28px;
+    --h-palette-row: 40px;
+    --h-badge-sm: 20px;
+  }
+}
