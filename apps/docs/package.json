@@ -2,7 +2,7 @@
   "name": "@repo/docs",
   "version": "0.0.0",
   "private": true,
-  "description": "The hermitstack docs: Fumadocs on Next.js, built as a static export. The only React and Tailwind in the repo, and nothing may depend on it.",
+  "description": "The hermitstack docs: Next.js 16 with fumadocs-core and fumadocs-mdx, built as a static export. The only React in the repo, and nothing may depend on it.",
   "type": "module",
   "imports": {
     "#source/*": "./.source/*",
@@ -14,25 +14,43 @@
     "typecheck": "tsc --noEmit -p tsconfig.json && effect-tsgo tsrs --noEmit -p tsconfig.fences.json",
     "lint": "effect-tsgo --tsrs-lint oxlint -c ../../oxlint.config.ts --type-aware --tsconfig tsconfig.json src tests next.config.ts source.config.ts",
     "test": "vitest run",
-    "build": "next build"
+    "build": "next build && node src/export/finish-export.cli.ts"
   },
   "dependencies": {
+    "@radix-ui/react-dropdown-menu": "catalog:",
+    "@radix-ui/react-focus-scope": "catalog:",
     "fumadocs-core": "catalog:",
     "fumadocs-mdx": "catalog:",
-    "fumadocs-ui": "catalog:",
+    "github-slugger": "catalog:",
+    "lucide-react": "catalog:",
     "next": "catalog:",
     "react": "catalog:",
-    "react-dom": "catalog:"
+    "react-dom": "catalog:",
+    "remark-gfm": "catalog:",
+    "remark-parse": "catalog:",
+    "remark-stringify": "catalog:",
+    "shiki": "catalog:",
+    "unified": "catalog:",
+    "unist-util-visit": "catalog:",
+    "vfile": "catalog:",
+    "zod": "catalog:"
   },
   "devDependencies": {
+    "@alchemy.run/domain": "catalog:",
     "@effect/vitest": "catalog:",
+    "@repo/conformance": "workspace:*",
     "@repo/kernel": "workspace:*",
-    "@tailwindcss/postcss": "catalog:",
+    "@repo/ledger": "workspace:*",
+    "@repo/outbound": "workspace:*",
+    "@repo/schedule": "workspace:*",
+    "@repo/ui": "workspace:*",
+    "@stylexjs/stylex": "catalog:",
+    "@types/mdast": "catalog:",
     "@types/mdx": "catalog:",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "effect": "catalog:",
-    "tailwindcss": "catalog:",
+    "foldkit": "catalog:",
     "vite": "catalog:",
     "vitest": "catalog:"
   }
