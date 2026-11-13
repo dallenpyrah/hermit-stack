@@ -1,0 +1,28 @@
+{
+  "name": "@repo/spec",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Behaviour through the Api's typed client only: the conformance suite run against each way of reaching the local target. It never imports a context's src.",
+  "type": "module",
+  "sideEffects": false,
+  "imports": {
+    "#tests/*": "./tests/*.ts"
+  },
+  "scripts": {
+    "typecheck": "effect-tsgo tsrs --noEmit -p tsconfig.json",
+    "lint": "effect-tsgo --tsrs-lint oxlint -c ../oxlint.config.ts --type-aware --tsconfig tsconfig.json tests",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@alchemy.run/domain": "catalog:",
+    "@effect/platform-node": "catalog:",
+    "@effect/vitest": "catalog:",
+    "@repo/api": "workspace:*",
+    "@repo/conformance": "workspace:*",
+    "@repo/ledger": "workspace:*",
+    "alchemy": "catalog:",
+    "effect": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
+  }
+}

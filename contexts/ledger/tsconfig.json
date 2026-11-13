@@ -1,0 +1,19 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "plugins": [
+      {
+        "name": "@effect/language-service",
+        "allowedUnstableApis": ["@effect/vitest", "effect/rpc"],
+        "diagnosticSeverity": {
+          // A Domain command carries its Effect RPC, so every exported command class exposes effect/rpc by design.
+          "apiStabilityLeak": "off",
+          // Domain types Rejection.make as returning the plain fields, not the error class decide must return, so a
+          // Rejection is built with new.
+          "newSchemaClass": "off"
+        }
+      }
+    ]
+  },
+  "include": ["src/**/*.ts", "tests/**/*.ts"]
+}

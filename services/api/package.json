@@ -1,0 +1,34 @@
+{
+  "name": "@repo/api",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Where a host is chosen and the ledger Api is served: HTTP with OpenAPI, the typed client's RPC endpoint, and MCP, all derived from the Api.",
+  "type": "module",
+  "sideEffects": false,
+  "imports": {
+    "#src/*": "./src/*",
+    "#tests/*": "./tests/*.ts"
+  },
+  "exports": {
+    "./host": "./src/host.layer.ts",
+    "./http": "./src/http.layer.ts",
+    "./mcp": "./src/mcp.layer.ts"
+  },
+  "scripts": {
+    "typecheck": "effect-tsgo tsrs --noEmit -p tsconfig.json",
+    "lint": "effect-tsgo --tsrs-lint oxlint -c ../../oxlint.config.ts --type-aware --tsconfig tsconfig.json src tests",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@alchemy.run/domain": "catalog:",
+    "@effect/platform-node": "catalog:",
+    "@repo/ledger": "workspace:*",
+    "alchemy": "catalog:",
+    "effect": "catalog:"
+  },
+  "devDependencies": {
+    "@effect/vitest": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
+  }
+}

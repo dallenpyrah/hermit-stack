@@ -8,8 +8,26 @@ const docs = next({
   clientFiles: ["apps/docs/**/*.view.tsx"],
 });
 
+// The spec reaches a context only through its Api, so it keeps passing when the implementation is rewritten.
+const specThroughApiOnly = {
+  files: ["spec/**"],
+  rules: {
+    "eslint/no-restricted-imports": [
+      "error",
+      {
+        patterns: [
+          {
+            group: ["**/contexts/**", "**/src/**", "@repo/*/model", "#src/**"],
+            message: "The spec reaches a context only through its Api and the derived client.",
+          },
+        ],
+      },
+    ],
+  },
+} as const;
+
 export default defineConfig({
   ...base,
   ignorePatterns: [...(base.ignorePatterns ?? []), "tools/rules/**"],
-  overrides: [...(base.overrides ?? []), ...(docs.overrides ?? [])],
+  overrides: [...(base.overrides ?? []), ...(docs.overrides ?? []), specThroughApiOnly],
 });
