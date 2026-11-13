@@ -1,0 +1,57 @@
+---
+title: Getting started
+description: Install the pinned tools and dependencies, and run the one command that says whether the repo is sound.
+---
+
+## What you need
+
+[mise](https://mise.jdx.dev) installs and pins the tools. `mise.toml` at the root names their versions: Node, pnpm, Bun and gitleaks. You do not need any of them installed yourself.
+
+## Three commands
+
+From the root of your fork:
+
+```sh
+mise install
+mise exec -- pnpm install
+mise exec -- pnpm check
+```
+
+- `mise install` downloads the pinned Node, pnpm, Bun and gitleaks.
+- `pnpm install` installs the workspace and sets up the Git hooks through lefthook.
+- `pnpm check` runs every check. **Done means it exits 0.**
+
+Run every command through `mise exec --`, or run `mise activate` in your shell once, so the pinned versions are the ones used.
+
+## What `pnpm check` runs
+
+`pnpm check` first runs `turbo boundaries`, then one Turbo run of these tasks across every package:
+
+| Task             | What it checks                                                                                                 |
+| ---------------- | -------------------------------------------------------------------------------------------------------------- |
+| `boundaries`     | No package imports a package its tag may not depend on. See [Repository layout](/docs/layout).                 |
+| `fmt:check`      | Every file is formatted by oxfmt.                                                                              |
+| `typecheck`      | Types, with the Effect diagnostics at error. In `apps/docs` it also typechecks the code blocks on these pages. |
+| `lint`           | The Oxlint rules from `tools/rules`, with type information.                                                    |
+| `lint:structure` | Every file names its role, and imports follow the role rules.                                                  |
+| `test`           | Each package's Vitest suites.                                                                                  |
+| `build`          | Packages that build, such as the rules and this docs site.                                                     |
+| `sherif`         | The `package.json` files agree with each other and with the catalog.                                           |
+
+Turbo caches each task by its inputs, so a second run with no changes takes seconds.
+
+## Smaller commands
+
+- `mise exec -- pnpm check:affected` runs the same tasks, limited to what changed on your branch.
+- `mise exec -- pnpm fmt` formats the repo with oxfmt.
+- `mise exec -- pnpm exec turbo run test --filter=@repo/kernel` runs one package's tests.
+- `mise exec -- pnpm --filter @repo/docs dev` serves this site at `http://localhost:3000`.
+
+## The Git hooks
+
+`lefthook.yml` installs two hooks. They are part of the checks, so do not skip them with `--no-verify`.
+
+- **Before a commit:** format the staged files, refuse a file over 500 lines or one that turns a rule off inline, scan the staged changes for secrets with gitleaks, check boundaries when a `package.json` or `turbo.json` changed, then typecheck, lint and check file roles.
+- **Before a push:** typecheck, lint, check file roles and build.
+
+The hooks never run tests. Tests run in `pnpm check`.

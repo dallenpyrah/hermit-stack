@@ -1,5 +1,6 @@
 import { structure } from "@repo/rules/oxlint";
 import { domainStructure } from "@repo/rules/oxlint/domain";
+import { nextStructure } from "@repo/rules/oxlint/next";
 import { roleImports } from "@repo/rules/oxlint/role-imports";
 import { defineConfig } from "oxlint";
 
@@ -17,6 +18,9 @@ const foldkitFiles = ["apps/web/**", "apps/panels/**", "packages/ui/**", "packag
 const foldkitRoles = ["command", "message", "model", "subscription", "update"];
 const foldkitPackages = ["foldkit", "@foldkit/ui", "@stylexjs/stylex"];
 
+// The docs app is Next.js: its framework files keep Next's names, and its build-time helpers take the .build role.
+const docs = nextStructure({ appFiles: ["apps/docs/**"] });
+
 export default defineConfig({
   ...structure,
   ignorePatterns: [
@@ -27,6 +31,7 @@ export default defineConfig({
   overrides: [
     ...(structure.overrides ?? []),
     ...(domain.overrides ?? []),
+    ...(docs.overrides ?? []),
     {
       files: foldkitFiles,
       rules: {

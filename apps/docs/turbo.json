@@ -1,0 +1,54 @@
+{
+  "extends": ["//"],
+  "tags": ["app"],
+  "tasks": {
+    "generate": {
+      "inputs": ["content/**", "source.config.ts", "src/fences/**", "package.json"],
+      "outputs": [".source/**", ".fences/**"]
+    },
+    "typecheck": {
+      "dependsOn": ["transit", "generate"],
+      "inputs": [
+        "content/**",
+        "src/**",
+        "tests/**",
+        "next.config.ts",
+        "source.config.ts",
+        "package.json",
+        "tsconfig.json",
+        "tsconfig.fences.json",
+        "$TURBO_ROOT$/tsconfig.base.json",
+        "$TURBO_ROOT$/tools/rules/tsconfig.base.json"
+      ]
+    },
+    "lint": {
+      "dependsOn": ["transit", "generate", "@repo/rules#build"],
+      "inputs": [
+        "src/**",
+        "tests/**",
+        "next.config.ts",
+        "source.config.ts",
+        "package.json",
+        "tsconfig.json",
+        "$TURBO_ROOT$/tsconfig.base.json",
+        "$TURBO_ROOT$/tools/rules/tsconfig.base.json",
+        "$TURBO_ROOT$/oxlint.config.ts"
+      ]
+    },
+    "build": {
+      "dependsOn": ["^build", "generate"],
+      "inputs": [
+        "content/**",
+        "src/**",
+        "next.config.ts",
+        "source.config.ts",
+        "postcss.config.mjs",
+        "package.json",
+        "tsconfig.json",
+        "$TURBO_ROOT$/tsconfig.base.json"
+      ],
+      "outputs": ["out/**"],
+      "env": ["NEXT_TELEMETRY_DISABLED"]
+    }
+  }
+}

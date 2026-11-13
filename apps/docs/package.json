@@ -1,0 +1,39 @@
+{
+  "name": "@repo/docs",
+  "version": "0.0.0",
+  "private": true,
+  "description": "The hermitstack docs: Fumadocs on Next.js, built as a static export. The only React and Tailwind in the repo, and nothing may depend on it.",
+  "type": "module",
+  "imports": {
+    "#source/*": "./.source/*",
+    "#src/*": "./src/*"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "generate": "fumadocs-mdx && node src/fences/code-fences.cli.ts",
+    "typecheck": "tsc --noEmit -p tsconfig.json && effect-tsgo tsrs --noEmit -p tsconfig.fences.json",
+    "lint": "effect-tsgo --tsrs-lint oxlint -c ../../oxlint.config.ts --type-aware --tsconfig tsconfig.json src tests next.config.ts source.config.ts",
+    "test": "vitest run",
+    "build": "next build"
+  },
+  "dependencies": {
+    "fumadocs-core": "catalog:",
+    "fumadocs-mdx": "catalog:",
+    "fumadocs-ui": "catalog:",
+    "next": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:"
+  },
+  "devDependencies": {
+    "@effect/vitest": "catalog:",
+    "@repo/kernel": "workspace:*",
+    "@tailwindcss/postcss": "catalog:",
+    "@types/mdx": "catalog:",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "effect": "catalog:",
+    "tailwindcss": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
+  }
+}

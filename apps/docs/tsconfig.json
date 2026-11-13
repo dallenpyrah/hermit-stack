@@ -1,0 +1,21 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "allowImportingTsExtensions": true,
+    "jsx": "react-jsx",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "module": "Preserve",
+    "moduleResolution": "Bundler",
+    "resolveJsonModule": true,
+    "types": ["node"]
+  },
+  "include": [
+    "next-env.d.ts",
+    "next.config.ts",
+    "source.config.ts",
+    "src",
+    "tests",
+    ".source/**/*.ts",
+    ".next/types/**/*.ts"
+  ]
+}

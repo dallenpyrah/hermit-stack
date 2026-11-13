@@ -1,0 +1,50 @@
+---
+title: What hermitstack is
+description: A template monorepo to fork for a new product, and the principles its checks enforce.
+---
+
+hermitstack is a template you fork to start a product. It is one Effect program from the browser to the infrastructure. The parts that change from product to product are each supplied as a Layer at the edge of that program, so swapping one is a one-line change and not a rewrite.
+
+## One program, three kinds of Layer
+
+A **Layer** is Effect's unit of dependency injection: code says which services it needs, and a Layer supplies them when the program starts. hermitstack uses three kinds:
+
+- **The domain model.** Your aggregates, commands, events and projections, written with Alchemy Domain in `contexts/`. This is the part that is your product.
+- **The host.** What runs each aggregate as an actor: in memory, Rivet, Cloudflare Durable Objects or Effect Cluster.
+- **The cloud.** Where the host runs: your machine, GCP, AWS or Cloudflare.
+
+A **target** is one named choice of host, cloud and adapters, such as `local` or `cloudflare`. Deploying to a different cloud and moving from Rivet to Durable Objects are then the same kind of change: pick a different target.
+
+Effect, FoldKit, Alchemy, StyleX and Oxlint always stay. Every vendor, host and cloud can be swapped. An **adapter** is the one package that talks to a vendor's SDK, and it is the only place that SDK is imported.
+
+## What exists today
+
+The template is being built now. On this branch you get:
+
+- The workspace: pnpm catalogs, Turborepo, mise for the tool versions, and Git hooks.
+- `tools/rules`: the lint and type rules, copied from `rika-labs/rules`.
+- `packages/kernel`: the ids, errors and span names every context shares. Today it holds the span name helper.
+- `apps/docs`: this site.
+
+The web app, the contexts, the adapters, the API service, the infrastructure stacks and the behaviour tests are planned. The [layout page](/docs/layout) lists where each one will go.
+
+## Principles
+
+A principle with no check drifts. Each principle below names the check that enforces it and whether that check runs today.
+
+| Principle                         | What it means                                                                                                             | Checked by                                                                               | Status                                                                                                                         |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| One program                       | Frontend, backend, infrastructure and tests are Effect. Errors are typed, and a function's dependencies show in its type. | `effect-tsgo`, with every Effect diagnostic at error in `tools/rules/tsconfig.base.json` | Runs in `pnpm check`                                                                                                           |
+| Every choice is a Layer           | A vendor, host, cloud or telemetry backend is one `Layer.provide` line. Removing one keeps the checks green.              | Turbo `boundaries` tags, so a context cannot import a service or an adapter              | Tags run in `pnpm check`. A job that deletes each target and reruns the check is planned.                                      |
+| State lives in actors             | No shared mutable state. A lifecycle is a state machine that runs inside an actor.                                        | `@typeonce/oxlint-plugin-effect-machine` in the lint config                              | Runs in `pnpm check`                                                                                                           |
+| The domain is the source of truth | The API, the client and the storage are derived from the model, never written again by hand.                              | Contract tests on the derived API                                                        | Planned                                                                                                                        |
+| Every file names its role         | `open-account.command.ts`, `span-name.pure.ts`. Tests mirror `src/`.                                                      | `oxlint-structure.config.ts`                                                             | File roles run in `pnpm check`. The folder cap and the test mirror are counted by `ratchet`, which is not in `pnpm check` yet. |
+| Every rule is an error            | There are no warnings. A rule is either on at error or turned off in one table, with a reason.                            | The Oxlint base config in `tools/rules`                                                  | Runs in `pnpm check`                                                                                                           |
+| Debt only shrinks                 | Existing exceptions are counted, and the count may only go down.                                                          | `ratchet` in `tools/rules`                                                               | Copied, not in `pnpm check` yet                                                                                                |
+| Observable by construction        | Telemetry is a required Layer, so a program without it does not typecheck.                                                | The host's type requires the telemetry service                                           | Planned                                                                                                                        |
+| Tests are the outside judge       | One suite runs unchanged against every target, and mutation testing checks the tests can fail.                            | A conformance suite per target, and `mutants`                                            | `mutants` is copied, not in `pnpm check` yet. The conformance suite is planned.                                                |
+| Feedback has a budget             | Typecheck and lint each stay under a fixed time per package.                                                              | A task that times the checkers                                                           | Planned                                                                                                                        |
+
+## How to check it
+
+Run `mise exec -- pnpm check` from the repo root. It exits 0 when every check in the "Runs in `pnpm check`" rows passes. [Getting started](/docs/getting-started) says what each step does.

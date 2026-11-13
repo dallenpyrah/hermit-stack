@@ -1,0 +1,3 @@
+# Code blocks the typecheck writes out of the pages, and the static export.
+.fences/
+out/
