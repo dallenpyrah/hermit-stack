@@ -1,0 +1,46 @@
+{
+  "name": "@repo/ui",
+  "version": "0.0.0",
+  "private": true,
+  "description": "The design system: StyleX tokens and themes, and styled FoldKit views over the @foldkit/ui primitives.",
+  "type": "module",
+  "sideEffects": false,
+  "imports": {
+    "#src/*": "./src/*",
+    "#tests/*": "./tests/*.ts"
+  },
+  "exports": {
+    "./badge": "./src/badge/badge.view.ts",
+    "./button": "./src/button/button.view.ts",
+    "./card": "./src/card/card.view.ts",
+    "./dialog": "./src/dialog/dialog.view.ts",
+    "./input": "./src/input/input.view.ts",
+    "./label": "./src/label/label.view.ts",
+    "./style": "./src/style/style.view.ts",
+    "./theme": "./src/theme/theme.view.ts",
+    "./tokens.stylex": "./src/tokens/tokens.stylex.ts",
+    "./vite": "./src/vite/stylex.plugin.ts"
+  },
+  "scripts": {
+    "typecheck": "effect-tsgo tsrs --noEmit -p tsconfig.json",
+    "lint": "effect-tsgo --tsrs-lint oxlint -c ../../oxlint.config.ts --type-aware --tsconfig tsconfig.json src tests gallery",
+    "test": "vitest run",
+    "build": "vite build",
+    "dev": "vite"
+  },
+  "dependencies": {
+    "@effect/platform-browser": "catalog:",
+    "@foldkit/ui": "catalog:",
+    "@stylexjs/stylex": "catalog:",
+    "@stylexjs/unplugin": "catalog:",
+    "effect": "catalog:",
+    "foldkit": "catalog:",
+    "unplugin": "catalog:"
+  },
+  "devDependencies": {
+    "@effect/vitest": "catalog:",
+    "@foldkit/vite-plugin": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
+  }
+}

@@ -26,8 +26,14 @@ const specThroughApiOnly = {
   },
 } as const;
 
+// An entry point starts its program at the top level by design, and vitest/require-hook is written for test files.
+const entryPoints = {
+  files: ["**/*.main.ts"],
+  rules: { "vitest/require-hook": "off" },
+} as const;
+
 export default defineConfig({
   ...base,
   ignorePatterns: [...(base.ignorePatterns ?? []), "tools/rules/**"],
-  overrides: [...(base.overrides ?? []), ...(docs.overrides ?? []), specThroughApiOnly],
+  overrides: [...(base.overrides ?? []), ...(docs.overrides ?? []), specThroughApiOnly, entryPoints],
 });

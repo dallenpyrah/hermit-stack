@@ -1,0 +1,10 @@
+{
+  "extends": ["//"],
+  "tags": ["lib"],
+  "tasks": {
+    "typecheck": { "inputs": ["$TURBO_EXTENDS$", "gallery/**"] },
+    "lint": { "inputs": ["$TURBO_EXTENDS$", "gallery/**"] },
+    "test": { "inputs": ["$TURBO_EXTENDS$", "vite.config.ts"] },
+    "build": { "inputs": ["$TURBO_EXTENDS$", "gallery/**", "vite.config.ts"] }
+  }
+}

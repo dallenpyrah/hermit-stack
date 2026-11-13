@@ -1,0 +1,8 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    // The views and the gallery run in a browser and reach DOM types through FoldKit.
+    "lib": ["ES2023", "DOM", "DOM.Iterable"]
+  },
+  "include": ["src/**/*.ts", "tests/**/*.ts", "gallery/**/*.ts"]
+}
