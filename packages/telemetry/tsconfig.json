@@ -1,0 +1,20 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "plugins": [
+      {
+        "name": "@effect/language-service",
+        // Effect marks its OTLP exporter and HTTP server unstable. The exporter glue reads the exporter's Flusher, and
+        // The OTLP collector fake serves HTTP.
+        "allowedUnstableApis": [
+          "@effect/platform-node/NodeHttpServer",
+          "@effect/vitest",
+          "effect/http",
+          "effect/net/NetAddress",
+          "effect/observability/OtlpExporter#Flusher"
+        ]
+      }
+    ]
+  },
+  "include": ["src/**/*.ts", "tests/**/*.ts"]
+}

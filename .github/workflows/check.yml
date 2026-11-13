@@ -1,6 +1,6 @@
-# Runs hermitstack's gate, `pnpm check`, on every pull request, and every night with the Turbo cache off,
+# Runs hermit-stack's gate, `pnpm check`, on every pull request, and every night with the Turbo cache off,
 # so a pass replayed from the cache can't hide a check that now fails.
-name: hermitstack check
+name: hermit-stack check
 
 on:
   pull_request:

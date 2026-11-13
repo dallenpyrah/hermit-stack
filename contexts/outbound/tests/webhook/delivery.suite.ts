@@ -32,12 +32,25 @@ const invoicePaid = {
 // What every attempt sends to the transport. A story follows the steps below with this call, then answers it.
 const attempt = { endpointId, event: invoicePaid, position: 1, url };
 
+// The endpoint as history: active, with no failures counted.
+const registered = given(endpoints, EndpointRegistered.make({ endpointId, eventTypes: ["invoice.paid"], url }));
+
 // Registers the endpoint, publishes the event and starts the delivery.
 const published = [
-  given(endpoints, EndpointRegistered.make({ endpointId, eventTypes: ["invoice.paid"], url })),
+  registered,
   when(feed, Publish.make({ event: invoicePaid }), { commandId: invoicePaid.id }),
   then(feed, Published.make({ event: invoicePaid, position: 1, tenant: feed.id })),
   then(delivery, DeliveryStarted.make({ endpointId, event: invoicePaid, position: 1, tenant: feed.id, url })),
 ] as const satisfies readonly Step[];
 
-export { attempt, delivery, endpointId, endpoints, published };
+// A second event of the same type, for a story that has disabled the endpoint.
+const invoicePaidAgain = { ...invoicePaid, id: "event-2" };
+
+// Publishes the second event and checks that no delivery starts for it.
+const publishedAgain = [
+  when(feed, Publish.make({ event: invoicePaidAgain }), { commandId: invoicePaidAgain.id }),
+  then(feed, Published.make({ event: invoicePaidAgain, position: 2, tenant: feed.id })),
+  then(Delivery.ref("endpoint-1:event-2")),
+] as const satisfies readonly Step[];
+
+export { attempt, delivery, endpointId, endpoints, published, publishedAgain, registered };

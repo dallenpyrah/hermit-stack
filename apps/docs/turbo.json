@@ -24,6 +24,7 @@
     "lint": {
       "dependsOn": ["transit", "generate", "@repo/rules#build"],
       "inputs": [
+        "content/**",
         "src/**",
         "tests/**",
         "next.config.ts",
@@ -42,7 +43,7 @@
         "src/**",
         "next.config.ts",
         "source.config.ts",
-        "postcss.config.mjs",
+        "assets/**",
         "package.json",
         "tsconfig.json",
         "$TURBO_ROOT$/tsconfig.base.json"

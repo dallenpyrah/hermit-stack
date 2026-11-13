@@ -23,11 +23,11 @@ const view: {
   (model: Model, html: HtmlBuilder<Message>): Document;
 } = Fn.dual(viewArity, (model: Model, html: HtmlBuilder<Message>): Document => ({
   body: html.main(styleAttributes(styles.page), [
-    html.h1(styleAttributes(shared.visuallyHidden), ["hermitstack design system"]),
+    html.h1(styleAttributes(shared.visuallyHidden), ["hermit-stack design system"]),
     column({ html, model, side: "light" }),
     column({ html, model, side: "dark" }),
   ]),
-  title: "hermitstack design system",
+  title: "hermit-stack design system",
 }));
 
 export { view };

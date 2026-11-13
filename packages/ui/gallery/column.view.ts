@@ -64,7 +64,7 @@ type ColumnContext = Readonly<{ html: HtmlBuilder<Message>; model: Model; side: 
 
 const column = ({ html, model, side }: ColumnContext): Html => {
   const title = html.h2(styleAttributes(styles.columnTitle), [`${sideNames[side]} theme`]);
-  const intro = html.p(styleAttributes(styles.intro), ["Every hermitstack component, in every variant and size."]);
+  const intro = html.p(styleAttributes(styles.intro), ["Every hermit-stack component, in every variant and size."]);
   const header = html.header(styleAttributes(styles.header), [title, intro]);
 
   return html.div(

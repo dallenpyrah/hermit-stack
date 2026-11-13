@@ -1,0 +1,21 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "allowImportingTsExtensions": true,
+    "plugins": [
+      {
+        "name": "@effect/language-service",
+        "allowedUnstableApis": [
+          "@effect/platform-node",
+          "@effect/vitest",
+          "effect/FileSystem",
+          "effect/Path",
+          "effect/PlatformError",
+          "effect/Stdio",
+          "effect/process"
+        ]
+      }
+    ]
+  },
+  "include": ["src/**/*.ts", "tests/**/*.ts"]
+}
