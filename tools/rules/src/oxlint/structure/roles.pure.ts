@@ -17,6 +17,7 @@ const roleNames = [
   "event",
   "external",
   "fake",
+  "flag",
   "gen",
   "handlers",
   "id",

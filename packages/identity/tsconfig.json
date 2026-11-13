@@ -1,0 +1,21 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "plugins": [
+      {
+        "name": "@effect/language-service",
+        // A Domain middleware is an Effect RPC middleware that reads request headers, and Effect marks both modules unstable.
+        "allowedUnstableApis": ["@effect/vitest", "effect/http/Headers", "effect/rpc"],
+        "overrides": [
+          {
+            // The Session port is an RpcMiddleware service and a Domain command carries its static rpc, both marked
+            // Unstable, so neither can be exported without exposing effect/rpc.
+            "include": ["src/**/*.command.ts", "src/**/*.middleware.ts"],
+            "options": { "diagnosticSeverity": { "apiStabilityLeak": "off" } }
+          }
+        ]
+      }
+    ]
+  },
+  "include": ["src/**/*.ts", "tests/**/*.ts"]
+}

@@ -1,0 +1,36 @@
+{
+  "name": "@repo/flags",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Feature flags: a flag is a typed value declared in a <name>.flag.ts file and read through the Flags service, and where values are stored is a Layer.",
+  "type": "module",
+  "sideEffects": false,
+  "imports": {
+    "#src/*": "./src/*",
+    "#tests/*": "./tests/*.ts"
+  },
+  "exports": {
+    "./flag": "./src/flag/flag.pure.ts",
+    "./flags": "./src/flags/flags.service.ts",
+    "./flag-store": "./src/store/flag-store.service.ts",
+    "./flag-store-error": "./src/store/flag-store.errors.ts",
+    "./evaluate": "./src/evaluate/evaluate.pure.ts",
+    "./flag-store-fake": "./tests/store/flag-store.fake.ts"
+  },
+  "scripts": {
+    "typecheck": "effect-tsgo tsrs --noEmit -p tsconfig.json",
+    "lint": "effect-tsgo --tsrs-lint oxlint -c ../../oxlint.config.ts --type-aware --tsconfig tsconfig.json src tests",
+    "test": "vitest run",
+    "flags:check": "node src/check/flags-check.cli.ts ../.."
+  },
+  "dependencies": {
+    "@effect/platform-node": "catalog:",
+    "effect": "catalog:"
+  },
+  "devDependencies": {
+    "@effect/vitest": "catalog:",
+    "@types/node": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
+  }
+}

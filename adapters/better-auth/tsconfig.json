@@ -1,0 +1,13 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "plugins": [
+      {
+        "name": "@effect/language-service",
+        // The Session port is an Effect RPC middleware over request headers, and Effect marks both modules unstable.
+        "allowedUnstableApis": ["@effect/vitest", "effect/http", "effect/rpc"]
+      }
+    ]
+  },
+  "include": ["src/**/*.ts", "tests/**/*.ts"]
+}

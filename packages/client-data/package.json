@@ -1,0 +1,32 @@
+{
+  "name": "@repo/client-data",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Cache policy over FoldKit's Query: stale time, revalidation on focus and reconnect, prefetch as a Message, and a least-recently-used cap per query.",
+  "type": "module",
+  "sideEffects": false,
+  "imports": {
+    "#src/*": "./src/*",
+    "#tests/*": "./tests/*.ts"
+  },
+  "exports": {
+    "./cached-query": "./src/cached-query/cached-query.update.ts",
+    "./revalidate": "./src/revalidate/revalidate.subscription.ts"
+  },
+  "scripts": {
+    "typecheck": "effect-tsgo tsrs --noEmit -p tsconfig.json",
+    "lint": "effect-tsgo --tsrs-lint oxlint -c ../../oxlint.config.ts --type-aware --tsconfig tsconfig.json src tests",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "effect": "catalog:",
+    "foldkit": "catalog:"
+  },
+  "devDependencies": {
+    "@alchemy.run/domain": "catalog:",
+    "@effect/vitest": "catalog:",
+    "@repo/ledger": "workspace:*",
+    "vite": "catalog:",
+    "vitest": "catalog:"
+  }
+}
