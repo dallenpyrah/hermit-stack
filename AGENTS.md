@@ -70,6 +70,16 @@ Code:
 - No inline rule suppressions. A rule is turned off only in the off table in `tools/rules/src/oxlint/base.config.ts`, with a reason.
 - Comments start with a capital letter and say why, not what.
 
+Domain code (`contexts/**` and `packages/schedule/**`):
+
+- One class per file. Copy `contexts/ledger/src/account/`.
+- Each use case has its own folder beside its aggregate, such as `contexts/ledger/src/account/deposit/`. It holds the command, the events that command records, its rejections, and the policy that sends the command, if one does.
+- The command file also holds the command's rule, exported as `decide<Command>`. The aggregate file lists the commands and holds how events change the state.
+- The aggregate's state is in `<aggregate>-state.schema.ts` beside the aggregate, so every command file can read it.
+- A command's `input` lists its own fields. An event's `.fields` include the event's tag, so do not reuse them as an input.
+- Tests mirror the folders: `contexts/ledger/tests/account/deposit/deposit-money.command.test.ts`. Steps that several stories share go in a `.suite.ts` under `tests/`, exported `as const satisfies readonly Step[]`. A suite does not import another suite.
+- An `.aggregate.ts` or `.model.ts` file may import 20 modules, because it lists one class per file. Every other file keeps the cap of 10.
+
 Tests:
 
 - `import { describe, expect, it } from "@effect/vitest"`. Each case is a named function run with `it.effect("...", () => Effect.sync(fn))`, or an `Effect.fn`.

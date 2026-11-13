@@ -1,0 +1,18 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "plugins": [
+      {
+        "name": "@effect/language-service",
+        // Effect marks its OTLP exporters and HTTP client unstable, and this adapter is built on them.
+        "allowedUnstableApis": [
+          "@effect/vitest",
+          "@repo/telemetry/telemetry-exporter.layer",
+          "effect/http",
+          "effect/observability"
+        ]
+      }
+    ]
+  },
+  "include": ["src/**/*.ts", "tests/**/*.ts"]
+}
