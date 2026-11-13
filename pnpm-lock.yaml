@@ -337,6 +337,34 @@ importers:
         specifier: 'catalog:'
         version: 7.0.2
 
+  apps/cli:
+    dependencies:
+      '@alchemy.run/domain':
+        specifier: 'catalog:'
+        version: 2.0.0-beta.87(alchemy@2.0.0-beta.87(@effect/platform-node@4.1.4(effect@4.1.4))(@types/react@19.2.2)(effect@4.1.4)(vite@8.3.8(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.23.0))(effect@4.1.4)(foldkit@0.170.0(@effect/platform-browser@4.1.4(effect@4.1.4))(effect@4.1.4))
+      '@effect/platform-node':
+        specifier: 'catalog:'
+        version: 4.1.4(effect@4.1.4)
+      '@repo/ledger':
+        specifier: workspace:*
+        version: link:../../contexts/ledger
+      alchemy:
+        specifier: 'catalog:'
+        version: 2.0.0-beta.87(@effect/platform-node@4.1.4(effect@4.1.4))(@types/react@19.2.2)(effect@4.1.4)(vite@8.3.8(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.23.0)
+      effect:
+        specifier: 'catalog:'
+        version: 4.1.4
+    devDependencies:
+      '@effect/vitest':
+        specifier: 'catalog:'
+        version: 4.1.4(effect@4.1.4)(vitest@5.1.0(@types/node@24.19.2)(vite@8.3.8(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)))
+      vite:
+        specifier: 'catalog:'
+        version: 8.3.8(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)
+      vitest:
+        specifier: 'catalog:'
+        version: 5.1.0(@types/node@24.19.2)(vite@8.3.8(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
+
   apps/docs:
     dependencies:
       fumadocs-core:

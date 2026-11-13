@@ -6,6 +6,8 @@
   "oxlint-structure.config.ts rules off": 0,
   "oxlint-structure.config.ts override rules per glob": 14,
   "oxlint-structure.config.ts ignore patterns": 5,
+  "apps/cli/tsconfig.json diagnostics off": 1,
+  "apps/cli/tsconfig.json allowed unstable APIs": 6,
   "contexts/ledger/tsconfig.json diagnostics off": 2,
   "contexts/ledger/tsconfig.json allowed unstable APIs": 2,
   "contexts/outbound/tsconfig.json override diagnostics per glob": 4,
