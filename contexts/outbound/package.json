@@ -1,0 +1,37 @@
+{
+  "name": "@repo/outbound",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Tells the outside world that something happened: the public event feed, notifications and outbound webhooks.",
+  "type": "module",
+  "sideEffects": false,
+  "imports": {
+    "#src/*": "./src/*",
+    "#tests/*": "./tests/*.ts"
+  },
+  "exports": {
+    "./email": "./src/notification/email.external.ts",
+    "./email-fake": "./src/notification/email.fake.ts",
+    "./feed-commands": "./src/feed/feed.command.ts",
+    "./handlers": "./src/outbound.layer.ts",
+    "./model": "./src/outbound.model.ts",
+    "./public-event": "./src/feed/public-event.schema.ts",
+    "./push": "./src/notification/push.external.ts",
+    "./webhook-transport": "./src/webhook/webhook-transport.external.ts"
+  },
+  "scripts": {
+    "typecheck": "effect-tsgo tsrs --noEmit -p tsconfig.json",
+    "lint": "effect-tsgo --tsrs-lint oxlint -c ../../oxlint.config.ts --type-aware --tsconfig tsconfig.json src tests",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@alchemy.run/domain": "catalog:",
+    "alchemy": "catalog:",
+    "effect": "catalog:"
+  },
+  "devDependencies": {
+    "@effect/vitest": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
+  }
+}
