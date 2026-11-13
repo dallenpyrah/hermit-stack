@@ -1,11 +1,13 @@
 {
   "knip.config.ts exceptions": 11,
   "oxlint.config.ts rules off": 20,
-  "oxlint.config.ts override rules per glob": 17,
+  "oxlint.config.ts override rules per glob": 19,
   "oxlint.config.ts ignore patterns": 4,
   "oxlint-structure.config.ts rules off": 0,
   "oxlint-structure.config.ts override rules per glob": 14,
   "oxlint-structure.config.ts ignore patterns": 5,
+  "adapters/cloudflare/tsconfig.json diagnostics off": 1,
+  "adapters/rivet/tsconfig.json diagnostics off": 1,
   "contexts/ledger/tsconfig.json diagnostics off": 2,
   "contexts/ledger/tsconfig.json allowed unstable APIs": 2,
   "contexts/outbound/tsconfig.json override diagnostics per glob": 4,
@@ -17,11 +19,11 @@
   "services/api/tsconfig.json diagnostics off": 1,
   "services/api/tsconfig.json allowed unstable APIs": 6,
   "spec/tsconfig.json diagnostics off": 1,
-  "spec/tsconfig.json allowed unstable APIs": 6,
+  "spec/tsconfig.json allowed unstable APIs": 9,
   "tsconfig.base.json allowed unstable APIs": 1,
   "inline suppressions": 0,
   "patched dependencies": 1,
   "trust policy exceptions": 1,
   "files over 500 lines": 0,
-  "tests outside the mirror in spec": 1
+  "tests outside the mirror in spec": 2
 }

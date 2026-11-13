@@ -9,8 +9,11 @@
           "@effect/platform-node",
           "@effect/vitest",
           "effect/ai",
+          "effect/FileSystem",
           "effect/http",
           "effect/http-api",
+          "effect/Path",
+          "effect/process",
           "effect/rpc"
         ],
         "diagnosticSeverity": {

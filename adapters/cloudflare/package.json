@@ -1,0 +1,27 @@
+{
+  "name": "@repo/cloudflare",
+  "version": "0.0.0",
+  "private": true,
+  "description": "The Cloudflare host: each aggregate instance of a Domain model is one Durable Object.",
+  "type": "module",
+  "sideEffects": false,
+  "imports": {
+    "#src/*": "./src/*",
+    "#tests/*": "./tests/*.ts"
+  },
+  "exports": {
+    "./durable-objects": "./src/durable-objects.layer.ts",
+    "./stack-providers": "./src/stack-providers.layer.ts",
+    "./worker": "./src/worker.resource.ts"
+  },
+  "scripts": {
+    "typecheck": "effect-tsgo tsrs --noEmit -p tsconfig.json",
+    "lint": "effect-tsgo --tsrs-lint oxlint -c ../../oxlint.config.ts --type-aware --tsconfig tsconfig.json src"
+  },
+  "dependencies": {
+    "@alchemy.run/cloudflare": "catalog:",
+    "@alchemy.run/domain": "catalog:",
+    "alchemy": "catalog:",
+    "effect": "catalog:"
+  }
+}

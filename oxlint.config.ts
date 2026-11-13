@@ -32,8 +32,15 @@ const entryPoints = {
   rules: { "vitest/require-hook": "off" },
 } as const;
 
+// Alchemy loads a stack and a Worker by their module's default export: the CLI imports the stack file, and the bundler
+// Builds the Worker's entry around its module's default export.
+const alchemyEntries = {
+  files: ["services/api/src/**/*.stack.ts", "services/api/src/**/*.worker.ts"],
+  rules: { "import/no-default-export": "off" },
+} as const;
+
 export default defineConfig({
   ...base,
   ignorePatterns: [...(base.ignorePatterns ?? []), "tools/rules/**"],
-  overrides: [...(base.overrides ?? []), ...(docs.overrides ?? []), specThroughApiOnly, entryPoints],
+  overrides: [...(base.overrides ?? []), ...(docs.overrides ?? []), specThroughApiOnly, entryPoints, alchemyEntries],
 });
