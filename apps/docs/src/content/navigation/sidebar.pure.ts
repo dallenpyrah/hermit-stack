@@ -33,7 +33,7 @@ interface Sidebar {
 // Shown in the search palette before anything is typed.
 const suggestedHrefs: readonly string[] = [
   "/quickstart",
-  "/why-hermitstack",
+  "/why-hermit-stack",
   "/concepts/layers-and-ports",
   "/reference/conventions",
   "/reference/scripts-and-checks",

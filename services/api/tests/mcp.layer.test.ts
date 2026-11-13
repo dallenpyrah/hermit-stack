@@ -18,7 +18,7 @@ const served = HttpRouter.serve(mcp, { disableListenLog: true, disableLogger: tr
 );
 
 const agent = McpClient.layerHttp({
-  name: "hermitstack-test-agent",
+  name: "hermit-stack-test-agent",
   protocol: McpProtocol.v2025_11_25,
   url: "/mcp",
   version: "0.0.0",

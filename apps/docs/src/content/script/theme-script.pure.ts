@@ -1,4 +1,4 @@
-const themeStorageKey = "hermitstack-theme";
+const themeStorageKey = "hermit-stack-theme";
 
 const themeScript = [
   "(function(){try{",

@@ -4,7 +4,7 @@ description: "Server render on first load, then live updates to every open scree
 status: planned
 ---
 
-A page in hermitstack arrives complete: the server renders it with real data, and the browser then keeps it current as the data changes, in every tab and on every device that has it open. The two halves share one value, a cursor, so nothing is missed and nothing arrives twice.
+A page in hermit-stack arrives complete: the server renders it with real data, and the browser then keeps it current as the data changes, in every tab and on every device that has it open. The two halves share one value, a cursor, so nothing is missed and nothing arrives twice.
 
 ## The design
 
@@ -33,7 +33,7 @@ Sketch of the planned flow:
 - **Anything a screen shows comes from a view.** A view has `snapshot` and `watch`; a query answers once and can go stale.
 - **The document never renders a loading state.** `Loading` exists only for navigation the user started.
 - **One origin.** The document, the Api and live reads share one origin, because live reads authenticate by cookie.
-- **No second cache.** FoldKit's Model is the cache. A view never refetches, because `watch` pushes. A query keeps its state as `AsyncData` in the Model, with `foldkit/experimental/query` for keyed entries. This is why hermitstack does not use TanStack Query: it would put a cache outside the Model, where neither a test nor the server render can see it.
+- **No second cache.** FoldKit's Model is the cache. A view never refetches, because `watch` pushes. A query keeps its state as `AsyncData` in the Model, with `foldkit/experimental/query` for keyed entries. This is why hermit-stack does not use TanStack Query: it would put a cache outside the Model, where neither a test nor the server render can see it.
 - **Tabs each hold a socket.** A `BroadcastChannel` carries only what the server cannot send, such as "this tab logged out".
 
 A small `packages/client-data/**` package is planned for the read policy of queries: revalidate on focus and on reconnect, prefetch, a stale-time check and a cap on kept entries.

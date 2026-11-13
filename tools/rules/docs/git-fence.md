@@ -10,7 +10,7 @@
 | Cursor      | `.cursor/hooks.json`                  | `beforeShellExecution`                                                     | `permission: "deny"`, with the message for the agent and the user |
 | Pi          | `.pi/extensions/git-fence.adapter.js` | `tool_call` on `bash`, `edit` and `write`                                  | `{ block: true, reason }`                                         |
 
-Each config sits at the repo root. Claude Code and Pi load the script through the `@repo/rules/git-fence` export, which the root `package.json` links, and Cursor runs `tools/rules/src/fence/git-fence.cli.mjs` by path. Upstream also wires an Amp plugin (`git-fence.adapter.js` in its Amp plugins folder); hermitstack does not have one yet.
+Each config sits at the repo root. Claude Code and Pi load the script through the `@repo/rules/git-fence` export, which the root `package.json` links, and Cursor runs `tools/rules/src/fence/git-fence.cli.mjs` by path. Upstream also wires an Amp plugin (`git-fence.adapter.js` in its Amp plugins folder); hermit-stack does not have one yet.
 
 Each hook fails closed. When the script can't be found or exits with an unexpected code, the Claude Code command exits 2, the Cursor hook sets `failClosed: true`, and the Pi extension returns `{ block: true }`. Each one refuses the call with `git-fence could not run, so this call is refused. Fix: run pnpm install --force …`. An agent never runs the call unchecked.
 

@@ -2,7 +2,7 @@
   "name": "@repo/docs",
   "version": "0.0.0",
   "private": true,
-  "description": "The hermitstack docs: Next.js 16 with fumadocs-core and fumadocs-mdx, built as a static export. The only React in the repo, and nothing may depend on it.",
+  "description": "The hermit-stack docs: Next.js 16 with fumadocs-core and fumadocs-mdx, built as a static export. The only React in the repo, and nothing may depend on it.",
   "type": "module",
   "imports": {
     "#source/*": "./.source/*",

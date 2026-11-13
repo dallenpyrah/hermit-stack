@@ -3,17 +3,17 @@ interface RepositoryTarget {
   readonly path: string;
 }
 
-const siteName = "hermitstack";
+const siteName = "hermit-stack";
 
 const siteDescription =
   "A template monorepo to fork for a new product: one Effect program, where the host, the cloud and every vendor are Layers you swap.";
 
 // Where the site will be served. Absolute links in llms.txt, the sitemap and the Markdown twins start here; nothing is
 // Hosted yet, so change this one value when the site gets a domain.
-const siteUrl = "https://docs.hermitstack.dev";
+const siteUrl = "https://docs.hermit-stack.dev";
 
 // The repository behind "Edit this page", the sidebar link and links to files in the pages.
-const repositoryUrl = "https://github.com/dallenpyrah/hermitstack";
+const repositoryUrl = "https://github.com/dallenpyrah/hermit-stack";
 
 const repositoryBranch = "main";
 

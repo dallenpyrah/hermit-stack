@@ -1,4 +1,4 @@
-# Strata
+# hermit-stack
 
 A template monorepo to fork for new products. One Effect program: the domain model, the host that runs its actors, and the cloud are each supplied as a Layer, so a deploy target is a named composition of Layers.
 
@@ -96,7 +96,8 @@ Packages:
 
 ## Do not
 
-- Do not push, publish, deploy or add a git remote. Everything stays local until Dallen says otherwise.
+- Do not push, publish or deploy unless Dallen asks for it in that turn.
+- Do not use FoldCN or copy from it. Components in `packages/ui` are designed from the tokens.
 - Do not skip hooks with `--no-verify`.
 - Do not import a vendor SDK outside `adapters/*`.
 - Do not hand-write a shape the domain model already derives (API, client, storage).

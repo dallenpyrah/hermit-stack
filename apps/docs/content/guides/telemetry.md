@@ -4,7 +4,7 @@ description: "Traces, metrics and logs from Effect, exported to whichever backen
 status: planned
 ---
 
-Telemetry in hermitstack is a required Layer: a host that is not given one does not typecheck. Spans come from Effect itself, and the backend they go to is one Layer per target.
+Telemetry in hermit-stack is a required Layer: a host that is not given one does not typecheck. Spans come from Effect itself, and the backend they go to is one Layer per target.
 
 ## What is on `main` today
 

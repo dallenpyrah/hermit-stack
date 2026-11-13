@@ -1,10 +1,10 @@
 ---
-title: "Why hermitstack"
+title: "Why hermit-stack"
 description: "The principles behind the template, and the check that holds each one in place."
 status: built
 ---
 
-hermitstack is one Effect program. The domain model, the host that runs its actors, the cloud underneath and every vendor are each supplied as a Layer, so a deploy target is a named composition of Layers and moving to another one is a configuration change, not a rewrite.
+hermit-stack is one Effect program. The domain model, the host that runs its actors, the cloud underneath and every vendor are each supplied as a Layer, so a deploy target is a named composition of Layers and moving to another one is a configuration change, not a rewrite.
 
 A principle without a check is a style guide, and style guides drift. So every principle on this page names the check that enforces it, and says whether that check runs in `pnpm check` today.
 
@@ -46,7 +46,7 @@ Everything else (the actor host, the cloud, email, payments, auth, telemetry bac
 
 **Deleting is safer than generating.** The template carries every part, each tested together. A fork deletes what it does not want, and knip and the catalog prune what that leaves unused.
 
-## What hermitstack does not use
+## What hermit-stack does not use
 
 These were considered and decided against. A page that suggests otherwise is wrong.
 

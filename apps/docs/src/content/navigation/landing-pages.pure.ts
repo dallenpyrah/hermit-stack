@@ -28,10 +28,10 @@ interface LandingPage {
 // Each card is a page slug; its title, icon and one-sentence description come from that page.
 const welcomePage: LandingPage = {
   description: siteDescription,
-  lead: "hermitstack is one Effect program you fork to start a product. The crab is the part that never changes: Effect, FoldKit, Alchemy, StyleX and Oxlint. The shell is everything a fork swaps: the host that runs your actors, the cloud it runs on, and every vendor behind a port. Moving into a new shell is a Layer, not a rewrite.",
+  lead: "hermit-stack is one Effect program you fork to start a product. The crab is the part that never changes: Effect, FoldKit, Alchemy, StyleX and Oxlint. The shell is everything a fork swaps: the host that runs your actors, the cloud it runs on, and every vendor behind a port. Moving into a new shell is a Layer, not a rewrite.",
   sections: [
     {
-      cards: ["quickstart", "why-hermitstack", "repository-layout", "reference/scripts-and-checks"],
+      cards: ["quickstart", "why-hermit-stack", "repository-layout", "reference/scripts-and-checks"],
       columns: PAIR,
       heading: "Start here",
       variant: "feature",
@@ -71,7 +71,7 @@ const welcomePage: LandingPage = {
   ],
   slug: "welcome",
   tagline: "Same crab, new shell.",
-  title: "Welcome to hermitstack",
+  title: "Welcome to hermit-stack",
 };
 
 interface CardText {

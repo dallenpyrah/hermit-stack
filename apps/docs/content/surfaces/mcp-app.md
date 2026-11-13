@@ -4,7 +4,7 @@ description: "The Api as MCP tools for agents today, and MCP Apps panels that sh
 status: planned
 ---
 
-Agents call hermitstack through the Model Context Protocol. Half of this is on `main`: the ledger's commands and view are MCP tools at `/mcp`. The other half, MCP Apps, is planned: a tool that shows a small FoldKit panel inside an agent host such as Claude, ChatGPT or VS Code.
+Agents call hermit-stack through the Model Context Protocol. Half of this is on `main`: the ledger's commands and view are MCP tools at `/mcp`. The other half, MCP Apps, is planned: a tool that shows a small FoldKit panel inside an agent host such as Claude, ChatGPT or VS Code.
 
 ## On `main`: MCP tools
 
@@ -20,7 +20,7 @@ Sketch of the planned shape:
  agent host                                           our MCP server
 ┌───────────────────────────────┐   tools/list       ┌──────────────────────────────────┐
 │ the model calls a tool        │◀───────────────────│ tool with _meta.ui.resourceUri   │
-│ the host reads the resource   │── resources/read ─▶│ ui://hermitstack/<panel>, 1 HTML │
+│ the host reads the resource   │── resources/read ─▶│ ui://hermit-stack/<panel>, 1 HTML │
 │ ┌───────────────────────────┐ │                    └──────────────────────────────────┘
 │ │ sandboxed frame           │ │   tools/call
 │ │ FoldKit panel             │─┼───────────────────▶

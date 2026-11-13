@@ -4,7 +4,7 @@ description: "Everything is an Effect Layer, and every vendor sits behind a port
 status: built
 ---
 
-A Layer is Effect's unit of dependency injection: it builds a service, and a program that needs the service says so in its type. hermitstack uses Layers for every choice that might change: the host that runs your aggregates, the vendor that sends email, the backend that stores traces. Swapping one is a different Layer in one place, and the code that uses the service does not change.
+A Layer is Effect's unit of dependency injection: it builds a service, and a program that needs the service says so in its type. hermit-stack uses Layers for every choice that might change: the host that runs your aggregates, the vendor that sends email, the backend that stores traces. Swapping one is a different Layer in one place, and the code that uses the service does not change.
 
 ## Three kinds of seam
 

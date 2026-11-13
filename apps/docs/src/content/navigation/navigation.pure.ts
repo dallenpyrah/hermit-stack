@@ -3,7 +3,7 @@ interface NavigationGroup {
   readonly pages: readonly string[];
 }
 
-// The section the sidebar header names. hermitstack has one, so the header is static rather than a switcher.
+// The section the sidebar header names. hermit-stack has one, so the header is static rather than a switcher.
 const section = {
   description: "Guides and concepts",
   title: "Documentation",
@@ -15,7 +15,7 @@ const welcomeSlug = "welcome";
 const navigation: readonly NavigationGroup[] = [
   {
     group: "Get started",
-    pages: ["quickstart", "why-hermitstack", "repository-layout"],
+    pages: ["quickstart", "why-hermit-stack", "repository-layout"],
   },
   {
     group: "Core concepts",

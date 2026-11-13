@@ -65,7 +65,7 @@ const iconBySlug = {
   "surfaces/mobile": "smartphone",
   "surfaces/web": "globe",
   welcome: "rocket",
-  "why-hermitstack": "list-checks",
+  "why-hermit-stack": "list-checks",
 } as const satisfies Readonly<Record<string, IconName>>;
 
 const pageIcons: ReadonlyMap<string, IconName> = new Map(Object.entries(iconBySlug));

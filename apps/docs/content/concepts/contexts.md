@@ -4,7 +4,7 @@ description: "One package per bounded context, modelled with Alchemy Domain: agg
 status: built
 ---
 
-A bounded context is one part of the business with its own model and its own words. In hermitstack each context is one package under `contexts/`, written with Alchemy Domain (`@alchemy.run/domain`). You declare its aggregates, commands, events and views once, and the API, the typed client and storage are derived from that declaration.
+A bounded context is one part of the business with its own model and its own words. In hermit-stack each context is one package under `contexts/`, written with Alchemy Domain (`@alchemy.run/domain`). You declare its aggregates, commands, events and views once, and the API, the typed client and storage are derived from that declaration.
 
 The ledger, in `contexts/ledger`, is the worked example. This page follows it.
 

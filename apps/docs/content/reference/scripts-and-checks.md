@@ -43,5 +43,5 @@ Run each through `mise exec --` so the pinned Node and pnpm are used.
 ## Not in `pnpm check` yet
 
 - **Mutation testing.** The `mutants` gate is copied (`tools/rules/docs/mutants.md`) but no package runs it.
-- **A checker time budget** per package, from principle 9 in [Why hermitstack](/why-hermitstack).
+- **A checker time budget** per package, from principle 9 in [Why hermit-stack](/why-hermit-stack).
 - **Deleting each target and rerunning the check**, once there is more than one target.

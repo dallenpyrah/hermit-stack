@@ -4,7 +4,7 @@ description: "Outbound messages, outbound webhooks and scheduled work, modelled 
 status: built
 ---
 
-Three things every product ends up needing: telling a person something happened, telling another system something happened, and doing work at a time rather than on a request. In hermitstack all three are ordinary domain code (aggregates, commands and policies) with every vendor behind a port. Two packages hold them:
+Three things every product ends up needing: telling a person something happened, telling another system something happened, and doing work at a time rather than on a request. In hermit-stack all three are ordinary domain code (aggregates, commands and policies) with every vendor behind a port. Two packages hold them:
 
 - `contexts/outbound` (`@repo/outbound`): public events, notifications and outbound webhooks, in one model.
 - `packages/schedule` (`@repo/schedule`): the `Recurring` aggregate and its `Rearm` policy.
