@@ -1,8 +1,9 @@
 import { View } from "@alchemy.run/domain";
 import { Array as Arr, Number as Num, Schema } from "effect";
 
+import type { NotificationRead } from "#src/notification/mark-read/notification-read.event.js";
+import type { NotificationQueued } from "#src/notification/notify/notification-queued.event.js";
 import { Recipient } from "#src/notification/recipient.aggregate.js";
-import type { NotificationQueued, NotificationRead } from "#src/notification/recipient.command.js";
 
 const InboxItem = Schema.Struct({
   kind: Schema.String,

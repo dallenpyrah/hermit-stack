@@ -38,8 +38,22 @@ const flagBucketHash = {
   rules: { "eslint/no-bitwise": "off" },
 } as const;
 
+// An aggregate names each of its commands and a model names each aggregate, policy and view, and every one of those
+// Classes has its own file, so these two list files import one module per class. Every other file keeps the cap of 10.
+const domainLists = {
+  files: ["contexts/**/*.{aggregate,model}.ts", "packages/schedule/**/*.{aggregate,model}.ts"],
+  rules: { "import/max-dependencies": ["error", { max: 20 }] },
+} as const;
+
 export default defineConfig({
   ...base,
   ignorePatterns: [...(base.ignorePatterns ?? []), "tools/rules/**"],
-  overrides: [...(base.overrides ?? []), ...(docs.overrides ?? []), specThroughApiOnly, entryPoints, flagBucketHash],
+  overrides: [
+    ...(base.overrides ?? []),
+    ...(docs.overrides ?? []),
+    specThroughApiOnly,
+    entryPoints,
+    domainLists,
+    flagBucketHash,
+  ],
 });

@@ -9,6 +9,7 @@ Changes made on copy:
 - The repo-level files (`mise.toml`, `lefthook.yml`, `.oxfmtrc.json`, `pnpm-workspace.yaml`, the root `turbo.json`) live at the repo root.
 - `patches/mutant-cafe@0.1.6.patch` moved to the root `patches/`.
 - `domainStructure` takes an optional `exports` map and passes it to `structure/role-imports`, so a Domain file can import a workspace package by its role file.
+- `domainStructure` lets a `.schema` file import a `.id` file. With one class per file, an aggregate's state lives in a `.schema` file so each command file can read it, and that state names ids.
 
 Changes made while wiring `pnpm check` (the root `package.json`, `turbo.json` and the files below run the checks upstream's own `check` ran):
 
