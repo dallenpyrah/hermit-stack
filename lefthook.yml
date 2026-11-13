@@ -1,0 +1,29 @@
+# Hooks format, scan staged changes for secrets, check boundaries, typecheck and lint. They never run tests: tests run in `pnpm check`.
+glob_matcher: doublestar
+
+pre-commit:
+  piped: true
+  jobs:
+    - name: format
+      glob: "**/*.{ts,tsx,mts,cts,js,mjs,cjs,json,jsonc,md,yml,yaml}"
+      run: pnpm exec oxfmt --no-error-on-unmatched-pattern {staged_files}
+      stage_fixed: true
+    - name: line cap and inline suppressions
+      # Vendored and fixture files stay byte-for-byte as copied, the same carve-out the formatter has.
+      exclude:
+        - "tools/rules/fixtures/**"
+        - "tools/rules/src/oxlint/anti-slop/**"
+        - "tools/rules/tests/oxlint/anti-slop/**"
+      run: node tools/rules/src/fence/file-fence.cli.mjs {staged_files}
+    - name: secrets in staged changes
+      run: mise exec -- gitleaks git --pre-commit --staged --no-banner --redact .
+    - name: boundaries
+      glob: "**/{package,turbo}.json"
+      run: pnpm boundaries
+    - name: typecheck, lint and file roles
+      run: pnpm exec turbo run typecheck lint lint:structure
+
+pre-push:
+  jobs:
+    - name: typecheck, lint, file roles and build
+      run: pnpm exec turbo run typecheck lint lint:structure build

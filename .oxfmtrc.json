@@ -1,0 +1,10 @@
+{
+  "printWidth": 120,
+  "ignorePatterns": [
+    "pnpm-lock.yaml",
+    "patches/**",
+    "tools/rules/fixtures/**",
+    "tools/rules/src/oxlint/anti-slop/**",
+    "tools/rules/tests/oxlint/anti-slop/**"
+  ]
+}

@@ -1,0 +1,786 @@
+diff --git a/dist/bin.js b/dist/bin.js
+index 4ca55e55e947004926a48147c3cd10a372722b47..0a781e5493e359014cd9a684734ee89edd6b4179 100755
+--- a/dist/bin.js
++++ b/dist/bin.js
+@@ -11,6 +11,7 @@ var RunConfig = Schema.Struct({
+   root: Schema.String,
+   tsconfig: Schema.String,
+   include: Schema.Array(Schema.String),
++  explicitIncludes: Schema.optional(Schema.Boolean),
+   exclude: Schema.Array(Schema.String),
+   functionFilter: Schema.Array(Schema.String),
+   inDiff: Schema.optional(Schema.String),
+@@ -43,7 +44,10 @@ var ProgramLoadError = class extends Schema2.TaggedError()("ProgramLoadError", {
+   diagnostics: Schema2.Array(Schema2.String)
+ }) {
+ };
+-var formatTestCommand = (command) => command[1]?.endsWith("/launch.mjs") ? `vitest ${command.slice(2).filter((arg) => arg === "--reporter=default" || !arg.startsWith("--reporter=")).join(" ")} (via ${command.join(" ")})` : command.join(" ");
++var formatTestCommand = (command) => {
++  const launcher = command.findIndex((arg) => !arg.startsWith("-") && /[\\/]mutant-vitest-[^\\/]+[\\/]launch\.mjs$/.test(arg));
++  return launcher > 0 ? `vitest ${command.slice(launcher + 1).filter((arg) => arg === "--reporter=default" || !arg.startsWith("--reporter=")).join(" ")} (via ${command.join(" ")})` : command.join(" ");
++};
+ var BaselineFailed = class extends Schema2.TaggedError()("BaselineFailed", {
+   exitCode: Schema2.Int,
+   command: Schema2.Array(Schema2.String),
+@@ -273,6 +277,7 @@ import * as Schema4 from "effect/Schema";
+ 
+ // packages/engine/src/Generate.ts
+ import { createHash } from "node:crypto";
++import ts from "typescript";
+ function* generateFunction(fn11) {
+   const issue = fn11.generationIssue?.();
+   if (issue) return issue;
+@@ -359,7 +364,12 @@ function makeMutant(fn11, genre, text, synthetic, description) {
+   const prefix = fn11.sourcePrefix ?? "";
+   const insertion = fn11.importInsertionOffset ?? 0;
+   const replacement = additions.length && fn11.sourcePrefix !== void 0 ? { startOffset: 0, endOffset: fn11.endOffset, text: prefix.slice(0, insertion) + (insertion ? "\n" : "") + additions.map((item) => item.statement).join("\n") + "\n" + prefix.slice(insertion) + text } : { startOffset: fn11.startOffset, endOffset: fn11.endOffset, text };
+-  const id = createHash("sha256").update(JSON.stringify([fn11.identityFile ?? fn11.file, fn11.name, fn11.identityOrdinal ?? 0, fn11.logicalSpan, genre, text, additions.map((item) => item.statement)])).digest("hex").slice(0, 24);
++  const runtime = ts.transpileModule(`${additions.map((item) => item.statement).join("\n")}
++async function* mutation() { ${text} }`, {
++    fileName: fn11.file,
++    compilerOptions: { target: ts.ScriptTarget.ESNext, module: ts.ModuleKind.ESNext, jsx: ts.JsxEmit.Preserve, removeComments: true, verbatimModuleSyntax: true }
++  }).outputText;
++  const id = createHash("sha256").update(JSON.stringify([fn11.identityFile ?? fn11.file, fn11.name, fn11.identityOrdinal ?? 0, fn11.logicalSpan, genre, runtime])).digest("hex").slice(0, 24);
+   return {
+     id,
+     file: fn11.file,
+@@ -376,9 +386,9 @@ function makeMutant(fn11, genre, text, synthetic, description) {
+ 
+ // packages/engine/src/TypeScriptOracle.ts
+ import { dirname, resolve, relative, matchesGlob } from "node:path";
+-import ts from "typescript";
++import ts2 from "typescript";
+ var diagnosticsText = (items) => items.map((d) => {
+-  const message = ts.flattenDiagnosticMessageText(d.messageText, "\n");
++  const message = ts2.flattenDiagnosticMessageText(d.messageText, "\n");
+   if (!d.file || d.start === void 0) return `TS${d.code}: ${message}`;
+   const position = d.file.getLineAndCharacterOfPosition(d.start);
+   return `${d.file.fileName}:${position.line + 1}:${position.character + 1} TS${d.code}: ${message}`;
+@@ -391,22 +401,22 @@ var ProgramSession = class {
+   configPath;
+   constructor(configPath) {
+     this.configPath = configPath;
+-    const config = ts.readConfigFile(configPath, ts.sys.readFile);
++    const config = ts2.readConfigFile(configPath, ts2.sys.readFile);
+     if (config.error) throw new ProgramLoadError({ tsconfig: configPath, diagnostics: diagnosticsText([config.error]) });
+-    const parsed = ts.parseJsonConfigFileContent(config.config, ts.sys, resolve(configPath, ".."));
++    const parsed = ts2.parseJsonConfigFileContent(config.config, ts2.sys, resolve(configPath, ".."));
+     if (parsed.errors.length) throw new ProgramLoadError({ tsconfig: configPath, diagnostics: diagnosticsText(parsed.errors) });
+-    this.host = ts.createCompilerHost(parsed.options, true);
++    this.host = ts2.createCompilerHost(parsed.options, true);
+     const read = this.host.getSourceFile;
+     this.host.getSourceFile = (file, languageVersion, onError, shouldCreateNewSourceFile) => {
+       const absolute = resolve(file);
+-      if (this.overlay?.file === absolute) return ts.createSourceFile(file, this.overlay.text, languageVersion, true);
++      if (this.overlay?.file === absolute) return ts2.createSourceFile(file, this.overlay.text, languageVersion, true);
+       const cached = this.originals.get(absolute);
+       if (cached) return cached;
+       const source = read(file, languageVersion, onError, shouldCreateNewSourceFile);
+       if (source) this.originals.set(absolute, source);
+       return source;
+     };
+-    this.program = ts.createProgram(parsed.fileNames, parsed.options, this.host);
++    this.program = ts2.createProgram(parsed.fileNames, parsed.options, this.host);
+     const errors = [...this.program.getOptionsDiagnostics(), ...this.program.getSyntacticDiagnostics()];
+     if (errors.length) throw new ProgramLoadError({ tsconfig: configPath, diagnostics: diagnosticsText(errors) });
+   }
+@@ -425,7 +435,7 @@ var ProgramSession = class {
+     });
+     this.overlay = { file, text: source.text.slice(0, startOffset) + text + source.text.slice(endOffset) };
+     try {
+-      const mutated = ts.createProgram({ rootNames: this.program.getRootFileNames(), options: this.program.getCompilerOptions(), host: this.host, oldProgram: this.program });
++      const mutated = ts2.createProgram({ rootNames: this.program.getRootFileNames(), options: this.program.getCompilerOptions(), host: this.host, oldProgram: this.program });
+       const changed = mutated.getSourceFile(file);
+       if (!changed) throw new Error(`Mutated source not found: ${file}`);
+       const issue = typedCallIssue(changed, mutated.getTypeChecker(), true);
+@@ -458,9 +468,11 @@ function makeTypeScriptOracle() {
+         const file = resolve(source.fileName);
+         const local = relative(config.root, file).replaceAll("\\", "/");
+         const project = relative(dirname(configPath), file).replaceAll("\\", "/");
+-        if (source.isDeclarationFile || local.startsWith("../") || /(?:^|\/)(?:node_modules|__tests__|__mocks__|tests?)\//.test(project) || /\.(?:test|spec)\.[cm]?[jt]sx?$/.test(local)) continue;
+-        for (const glob of config.include) if (matchesGlob(local, glob)) matched.add(glob);
+-        if (config.include.length && !config.include.some((glob) => matchesGlob(local, glob))) continue;
++        if (source.isDeclarationFile || local.startsWith("../") || /(?:^|\/)node_modules\//.test(project) || /\.(?:test|spec)\.[cm]?[jt]sx?$/.test(local)) continue;
++        const includedBy = config.include.filter((glob) => matchesGlob(local, glob));
++        if (/(?:^|\/)(?:__tests__|__mocks__|tests?)\//.test(project) && (config.explicitIncludes === false || includedBy.length === 0)) continue;
++        for (const glob of includedBy) matched.add(glob);
++        if (config.include.length && includedBy.length === 0) continue;
+         if (config.exclude.some((glob) => matchesGlob(local, glob))) continue;
+         owners.set(file, session);
+         const api = imports(source);
+@@ -468,7 +480,7 @@ function makeTypeScriptOracle() {
+         const visit = (node) => {
+           try {
+             if (isFunction(node) && node.body && !mutable(node, checker)) {
+-              if (!ts.findAncestor(node.parent, (parent) => excluded.has(parent))) notMutated.push({ file, functionName: `${functionName(node, checker)}.<callback>`, span: nodeSpan(node), reason: "callback position (not mutated yet)" });
++              if (!ts2.findAncestor(node.parent, (parent) => excluded.has(parent))) notMutated.push({ file, functionName: `${functionName(node, checker)}.<callback>`, span: nodeSpan(node), reason: "callback position (not mutated yet)" });
+             }
+             if (isFunction(node) && node.body && mutable(node, checker)) {
+               const name = functionName(node, checker);
+@@ -482,16 +494,16 @@ function makeTypeScriptOracle() {
+                 if (signature) {
+                   const wrapped = wrappedEffect(node, checker);
+                   const type = wrapped ?? checker.getReturnTypeOfSignature(signature);
+-                  const generator = wrapped && ts.isFunctionExpression(node) ? node : generatorBody(node, checker);
++                  const generator = wrapped && ts2.isFunctionExpression(node) ? node : generatorBody(node, checker);
+                   const body = generator?.body ?? node.body;
+                   const start = body.getStart(source);
+                   const end = body.getEnd();
+                   const a = source.getLineAndCharacterOfPosition(start);
+                   const b = source.getLineAndCharacterOfPosition(end);
+-                  const beforePipeables = wrapped && ts.isFunctionExpression(node) ? generatorContract(node, checker) : void 0;
++                  const beforePipeables = wrapped && ts2.isFunctionExpression(node) ? generatorContract(node, checker) : void 0;
+                   const shape = beforePipeables?.shape ?? shapeOf(type, checker, node, body);
+                   const originals = equivalentSuccessValues(body, api);
+-                  if (!beforePipeables && type.flags & ts.TypeFlags.TypeParameter && !("values" in shape && shape.values.length) || (beforePipeables ? !nameableContract(beforePipeables, checker, node) : hasUnnameableType(type, checker, node))) {
++                  if (!beforePipeables && type.flags & ts2.TypeFlags.TypeParameter && !("values" in shape && shape.values.length) || (beforePipeables ? !nameableContract(beforePipeables, checker, node) : hasUnnameableType(type, checker, node))) {
+                     notMutated.push({ file, functionName: name, span: nodeSpan(node), reason: "generic: naked or context-only type-parameter return" });
+                   } else found.push({
+                     file,
+@@ -514,7 +526,7 @@ function makeTypeScriptOracle() {
+                     importInsertionOffset: importInsertionOffset(source),
+                     extraImports: mutationImports(source),
+                     literal: literalOfBody(body, checker),
+-                    block: ts.isBlock(body),
++                    block: ts2.isBlock(body),
+                     generator: generator !== void 0,
+                     shape,
+                     api
+@@ -522,7 +534,7 @@ function makeTypeScriptOracle() {
+                 } else notMutated.push({ file, functionName: name, span: nodeSpan(node), reason: "missing callable signature" });
+               }
+             }
+-            if ((ts.isVariableDeclaration(node) || ts.isPropertyDeclaration(node) || ts.isPropertyAssignment(node)) && node.initializer) {
++            if ((ts2.isVariableDeclaration(node) || ts2.isPropertyDeclaration(node) || ts2.isPropertyAssignment(node)) && node.initializer) {
+               const type = checker.getTypeAtLocation(node.initializer);
+               if (family(type, checker)?.kind === "Layer") {
+                 const name = valuePath(node);
+@@ -563,7 +575,7 @@ function makeTypeScriptOracle() {
+               }
+             }
+           } catch (error3) {
+-            const target = isFunction(node) ? node.body : ts.isVariableDeclaration(node) || ts.isPropertyDeclaration(node) || ts.isPropertyAssignment(node) ? node.initializer : void 0;
++            const target = isFunction(node) ? node.body : ts2.isVariableDeclaration(node) || ts2.isPropertyDeclaration(node) || ts2.isPropertyAssignment(node) ? node.initializer : void 0;
+             if (target) notMutated.push({
+               file,
+               functionName: valuePath(node),
+@@ -571,7 +583,7 @@ function makeTypeScriptOracle() {
+               reason: `analysis failed: ${error3 instanceof Error ? error3.message : String(error3)}`
+             });
+           }
+-          ts.forEachChild(node, visit);
++          ts2.forEachChild(node, visit);
+         };
+         const found = [];
+         visit(source);
+@@ -601,14 +613,14 @@ function typedCallIssue(body, checker, includeNested = false) {
+   let issue;
+   const visit = (node) => {
+     if (isFunction(node) && !includeNested) return;
+-    if (ts.isCallExpression(node) && node.typeArguments?.length) {
++    if (ts2.isCallExpression(node) && node.typeArguments?.length) {
+       const signature = checker.getResolvedSignature(node);
+-      if (!signature || !signature.declaration && checker.getTypeAtLocation(node.expression).flags & ts.TypeFlags.Any) {
++      if (!signature || !signature.declaration && checker.getTypeAtLocation(node.expression).flags & ts2.TypeFlags.Any) {
+         issue = `analysis failed: compiler supplied no declaration for typed call ${node.expression.getText()}; check its import or receiver type`;
+         return;
+       }
+     }
+-    ts.forEachChild(node, visit);
++    ts2.forEachChild(node, visit);
+   };
+   visit(body);
+   return issue;
+@@ -620,7 +632,7 @@ function nodeSpan(node) {
+   return { start: { line: a.line + 1, column: a.character + 1 }, end: { line: b.line + 1, column: b.character + 1 } };
+ }
+ function isFunction(node) {
+-  return ts.isFunctionDeclaration(node) || ts.isArrowFunction(node) || ts.isFunctionExpression(node) || ts.isMethodDeclaration(node);
++  return ts2.isFunctionDeclaration(node) || ts2.isArrowFunction(node) || ts2.isFunctionExpression(node) || ts2.isMethodDeclaration(node);
+ }
+ function functionValue(node, checker) {
+   const wrapper = wrappedEffect(node, checker);
+@@ -628,22 +640,22 @@ function functionValue(node, checker) {
+ }
+ function returnedBy(node, checker) {
+   let value = functionValue(node, checker);
+-  while (ts.isParenthesizedExpression(value.parent)) value = value.parent;
++  while (ts2.isParenthesizedExpression(value.parent)) value = value.parent;
+   const parent = value.parent;
+-  if (ts.isArrowFunction(parent) && parent.body === value) return parent;
+-  if (ts.isReturnStatement(parent) && parent.expression === value && ts.isBlock(parent.parent) && isFunction(parent.parent.parent)) return parent.parent.parent;
++  if (ts2.isArrowFunction(parent) && parent.body === value) return parent;
++  if (ts2.isReturnStatement(parent) && parent.expression === value && ts2.isBlock(parent.parent) && isFunction(parent.parent.parent)) return parent.parent.parent;
+   return void 0;
+ }
+ function mutable(node, checker) {
+-  if (ts.isMethodDeclaration(node) || ts.isFunctionDeclaration(node)) return true;
++  if (ts2.isMethodDeclaration(node) || ts2.isFunctionDeclaration(node)) return true;
+   let current = wrappedEffect(node, checker) ? node.parent : node;
+-  while (ts.isParenthesizedExpression(current.parent)) current = current.parent;
+-  return returnedBy(node, checker) !== void 0 || (ts.isVariableDeclaration(current.parent) || ts.isPropertyAssignment(current.parent) || ts.isPropertyDeclaration(current.parent)) && current.parent.initializer === current;
++  while (ts2.isParenthesizedExpression(current.parent)) current = current.parent;
++  return returnedBy(node, checker) !== void 0 || (ts2.isVariableDeclaration(current.parent) || ts2.isPropertyAssignment(current.parent) || ts2.isPropertyDeclaration(current.parent)) && current.parent.initializer === current;
+ }
+ function layerBody(boundary, checker) {
+   let enclosing = boundary.parent;
+-  while (!ts.isSourceFile(enclosing) && !isFunction(enclosing)) {
+-    if (ts.isCallExpression(enclosing) && family(checker.getTypeAtLocation(enclosing), checker)?.kind === "Layer") return true;
++  while (!ts2.isSourceFile(enclosing) && !isFunction(enclosing)) {
++    if (ts2.isCallExpression(enclosing) && family(checker.getTypeAtLocation(enclosing), checker)?.kind === "Layer") return true;
+     enclosing = enclosing.parent;
+   }
+   return false;
+@@ -655,29 +667,29 @@ function returnsLayer(node, checker) {
+   return (type.isUnion() ? type.types : [type]).every((member) => family(member, checker)?.kind === "Layer");
+ }
+ function serviceProperty(node, boundary, checker) {
+-  if (!(ts.isPropertyAssignment(node) || ts.isShorthandPropertyAssignment(node)) || !ts.isObjectLiteralExpression(node.parent)) return false;
++  if (!(ts2.isPropertyAssignment(node) || ts2.isShorthandPropertyAssignment(node)) || !ts2.isObjectLiteralExpression(node.parent)) return false;
+   const object = node.parent;
+   const call = object.parent;
+-  return ts.isCallExpression(call) && call.arguments[0] === object && ts.isPropertyAccessExpression(call.expression) && call.expression.name.text === "of" && ts.isReturnStatement(call.parent) && call.parent.parent === boundary.body && layerBody(boundary, checker);
++  return ts2.isCallExpression(call) && call.arguments[0] === object && ts2.isPropertyAccessExpression(call.expression) && call.expression.name.text === "of" && ts2.isReturnStatement(call.parent) && call.parent.parent === boundary.body && layerBody(boundary, checker);
+ }
+ function serviceMethod(node, boundary, checker) {
+   if (!layerBody(boundary, checker) || !boundary.body) return false;
+-  const declaration = ts.findAncestor(node, ts.isVariableDeclaration);
++  const declaration = ts2.findAncestor(node, ts2.isVariableDeclaration);
+   let returned = false;
+   const visit = (child) => {
+     if (isFunction(child)) return;
+-    if (ts.isReturnStatement(child) && child.expression && ts.isCallExpression(child.expression)) {
++    if (ts2.isReturnStatement(child) && child.expression && ts2.isCallExpression(child.expression)) {
+       const call = child.expression;
+       const object = call.arguments[0];
+-      if (ts.isPropertyAccessExpression(call.expression) && call.expression.name.text === "of" && object && ts.isObjectLiteralExpression(object)) {
++      if (ts2.isPropertyAccessExpression(call.expression) && call.expression.name.text === "of" && object && ts2.isObjectLiteralExpression(object)) {
+         returned ||= object.properties.some((prop) => {
+-          if (ts.isPropertyAssignment(prop) && (prop.initializer === functionValue(node, checker) || declaration && ts.isIdentifier(prop.initializer) && checker.getSymbolAtLocation(prop.initializer)?.valueDeclaration === declaration)) return true;
+-          if (ts.isShorthandPropertyAssignment(prop)) return checker.getShorthandAssignmentValueSymbol(prop)?.valueDeclaration === declaration;
++          if (ts2.isPropertyAssignment(prop) && (prop.initializer === functionValue(node, checker) || declaration && ts2.isIdentifier(prop.initializer) && checker.getSymbolAtLocation(prop.initializer)?.valueDeclaration === declaration)) return true;
++          if (ts2.isShorthandPropertyAssignment(prop)) return checker.getShorthandAssignmentValueSymbol(prop)?.valueDeclaration === declaration;
+           return false;
+         });
+       }
+     }
+-    ts.forEachChild(child, visit);
++    ts2.forEachChild(child, visit);
+   };
+   visit(boundary.body);
+   return returned;
+@@ -685,18 +697,18 @@ function serviceMethod(node, boundary, checker) {
+ function exportedBinding(binding, checker) {
+   let declaration = binding;
+   let symbol = binding.name ? checker.getSymbolAtLocation(binding.name) : void 0;
+-  let container = ts.findAncestor(binding, (node) => ts.isSourceFile(node) || ts.isModuleBlock(node));
++  let container = ts2.findAncestor(binding, (node) => ts2.isSourceFile(node) || ts2.isModuleBlock(node));
+   while (container) {
+-    const module = ts.isSourceFile(container) ? checker.getSymbolAtLocation(container) : ts.isModuleBlock(container) && ts.isModuleDeclaration(container.parent) ? checker.getSymbolAtLocation(container.parent.name) : void 0;
++    const module = ts2.isSourceFile(container) ? checker.getSymbolAtLocation(container) : ts2.isModuleBlock(container) && ts2.isModuleDeclaration(container.parent) ? checker.getSymbolAtLocation(container.parent.name) : void 0;
+     if (!module || !checker.getExportsOfModule(module).some((item) => {
+-      const target = item.flags & ts.SymbolFlags.Alias ? checker.getAliasedSymbol(item) : item;
++      const target = item.flags & ts2.SymbolFlags.Alias ? checker.getAliasedSymbol(item) : item;
+       return target === symbol || target.valueDeclaration === declaration;
+     })) return false;
+-    if (ts.isSourceFile(container)) return true;
+-    if (!ts.isModuleBlock(container) || !ts.isModuleDeclaration(container.parent)) return false;
++    if (ts2.isSourceFile(container)) return true;
++    if (!ts2.isModuleBlock(container) || !ts2.isModuleDeclaration(container.parent)) return false;
+     declaration = container.parent;
+     symbol = module;
+-    container = ts.findAncestor(container.parent, (node) => ts.isSourceFile(node) || ts.isModuleBlock(node));
++    container = ts2.findAncestor(container.parent, (node) => ts2.isSourceFile(node) || ts2.isModuleBlock(node));
+   }
+   return false;
+ }
+@@ -707,14 +719,14 @@ function publicOwner(node, checker, seen = /* @__PURE__ */ new Set()) {
+   let binding;
+   let value = isFunction(node) ? node : void 0;
+   let throughService = false;
+-  while (!ts.isSourceFile(current)) {
++  while (!ts2.isSourceFile(current)) {
+     if (current !== node && isFunction(current)) {
+       const method = value ? serviceMethod(value, current, checker) : serviceProperty(node, current, checker);
+       if (!(value && returnedBy(value, checker) === current) && !method && !(throughService && returnsLayer(current, checker))) return false;
+       throughService ||= method;
+       value = current;
+     }
+-    if (ts.isVariableDeclaration(current) || ts.isFunctionDeclaration(current) || ts.isClassDeclaration(current)) binding = current;
++    if (ts2.isVariableDeclaration(current) || ts2.isFunctionDeclaration(current) || ts2.isClassDeclaration(current)) binding = current;
+     current = current.parent;
+   }
+   if (!binding) return false;
+@@ -723,11 +735,11 @@ function publicOwner(node, checker, seen = /* @__PURE__ */ new Set()) {
+   const declaration = binding;
+   const visit = (child) => {
+     if (exposed) return;
+-    const referenced = ts.isShorthandPropertyAssignment(child) ? checker.getShorthandAssignmentValueSymbol(child) : ts.isPropertyAssignment(child) && ts.isIdentifier(child.initializer) ? checker.getSymbolAtLocation(child.initializer) : ts.isExportAssignment(child) && ts.isIdentifier(child.expression) ? checker.getSymbolAtLocation(child.expression) : void 0;
++    const referenced = ts2.isShorthandPropertyAssignment(child) ? checker.getShorthandAssignmentValueSymbol(child) : ts2.isPropertyAssignment(child) && ts2.isIdentifier(child.initializer) ? checker.getSymbolAtLocation(child.initializer) : ts2.isExportAssignment(child) && ts2.isIdentifier(child.expression) ? checker.getSymbolAtLocation(child.expression) : void 0;
+     if (referenced?.valueDeclaration === declaration) {
+-      exposed = ts.isExportAssignment(child) || publicOwner(child, checker, seen);
++      exposed = ts2.isExportAssignment(child) || publicOwner(child, checker, seen);
+     }
+-    ts.forEachChild(child, visit);
++    ts2.forEachChild(child, visit);
+   };
+   visit(current);
+   return exposed;
+@@ -737,8 +749,8 @@ function skipped(node) {
+ }
+ function skippedNode(node) {
+   let current = node;
+-  while (!ts.isSourceFile(current)) {
+-    if (ts.getJSDocTags(current).some((tag) => tag.tagName.text === "mutants-skip")) return true;
++  while (!ts2.isSourceFile(current)) {
++    if (ts2.getJSDocTags(current).some((tag) => tag.tagName.text === "mutants-skip")) return true;
+     current = current.parent;
+   }
+   return false;
+@@ -746,8 +758,8 @@ function skippedNode(node) {
+ function valuePath(node) {
+   const parts = [];
+   let current = node;
+-  while (!ts.isSourceFile(current)) {
+-    if ((ts.isVariableDeclaration(current) || ts.isPropertyAssignment(current) || ts.isPropertyDeclaration(current) || ts.isMethodDeclaration(current) || ts.isFunctionDeclaration(current) || ts.isClassDeclaration(current) || ts.isModuleDeclaration(current)) && current.name) parts.unshift(current.name.getText());
++  while (!ts2.isSourceFile(current)) {
++    if ((ts2.isVariableDeclaration(current) || ts2.isPropertyAssignment(current) || ts2.isPropertyDeclaration(current) || ts2.isMethodDeclaration(current) || ts2.isFunctionDeclaration(current) || ts2.isClassDeclaration(current) || ts2.isModuleDeclaration(current)) && current.name) parts.unshift(current.name.getText());
+     current = current.parent;
+   }
+   return parts.join(".") || "default";
+@@ -762,7 +774,7 @@ function functionName(node, checker) {
+   return path;
+ }
+ function wrappedEffect(node, checker) {
+-  if (!ts.isFunctionExpression(node) || !node.asteriskToken || !ts.isCallExpression(node.parent)) return void 0;
++  if (!ts2.isFunctionExpression(node) || !node.asteriskToken || !ts2.isCallExpression(node.parent)) return void 0;
+   const result5 = checker.getTypeAtLocation(node.parent);
+   if (family(result5, checker)?.kind === "Effect") return result5;
+   const signature = result5.getCallSignatures()[0];
+@@ -775,11 +787,11 @@ function nameableContract(contract, checker, node) {
+ }
+ function hasUnnameableType(type, checker, location) {
+   if (isFunction(location) && location.type && !location.asteriskToken) return false;
+-  const printed = ts.createSourceFile("contract.ts", `type Contract = ${returnTypeText(type, checker, location)};`, ts.ScriptTarget.Latest, true);
++  const printed = ts2.createSourceFile("contract.ts", `type Contract = ${returnTypeText(type, checker, location)};`, ts2.ScriptTarget.Latest, true);
+   let missing = false;
+   const visit = (node) => {
+-    if (ts.isTypeReferenceNode(node) && ts.isIdentifier(node.typeName) && !checker.resolveName(node.typeName.text, location, ts.SymbolFlags.Type, false)) missing = true;
+-    ts.forEachChild(node, visit);
++    if (ts2.isTypeReferenceNode(node) && ts2.isIdentifier(node.typeName) && !checker.resolveName(node.typeName.text, location, ts2.SymbolFlags.Type, false)) missing = true;
++    ts2.forEachChild(node, visit);
+   };
+   visit(printed);
+   return missing;
+@@ -804,19 +816,19 @@ function generatorContract(node, checker) {
+   };
+ }
+ function literalOfBody(body, checker) {
+-  const first = ts.isBlock(body) && body.statements.length === 1 ? body.statements[0] : void 0;
+-  const expression = ts.isBlock(body) ? first && ts.isReturnStatement(first) ? first.expression : void 0 : body;
++  const first = ts2.isBlock(body) && body.statements.length === 1 ? body.statements[0] : void 0;
++  const expression = ts2.isBlock(body) ? first && ts2.isReturnStatement(first) ? first.expression : void 0 : body;
+   if (!expression) return void 0;
+   const type = checker.getTypeAtLocation(expression);
+-  return type.isStringLiteral() ? JSON.stringify(type.value) : type.isNumberLiteral() ? String(type.value) : type.flags & ts.TypeFlags.BooleanLiteral ? checker.typeToString(type) : void 0;
++  return type.isStringLiteral() ? JSON.stringify(type.value) : type.isNumberLiteral() ? String(type.value) : type.flags & ts2.TypeFlags.BooleanLiteral ? checker.typeToString(type) : void 0;
+ }
+ function generatorBody(node, checker) {
+   if (!node.body) return void 0;
+-  const expression = ts.isBlock(node.body) ? node.body.statements.length === 1 && ts.isReturnStatement(node.body.statements[0]) ? node.body.statements[0].expression : void 0 : node.body;
++  const expression = ts2.isBlock(node.body) ? node.body.statements.length === 1 && ts2.isReturnStatement(node.body.statements[0]) ? node.body.statements[0].expression : void 0 : node.body;
+   const signature = checker.getSignatureFromDeclaration(node);
+   if (!signature || family(checker.getReturnTypeOfSignature(signature), checker)?.kind !== "Effect") return void 0;
+-  if (expression && ts.isCallExpression(expression)) {
+-    return expression.arguments.find((arg) => ts.isFunctionExpression(arg) && arg.asteriskToken !== void 0);
++  if (expression && ts2.isCallExpression(expression)) {
++    return expression.arguments.find((arg) => ts2.isFunctionExpression(arg) && arg.asteriskToken !== void 0);
+   }
+   return void 0;
+ }
+@@ -824,15 +836,15 @@ function imports(source) {
+   const namespaces = /* @__PURE__ */ new Map();
+   const named = /* @__PURE__ */ new Map();
+   for (const statement of source.statements) {
+-    if (!ts.isImportDeclaration(statement) || !ts.isStringLiteral(statement.moduleSpecifier) || statement.importClause?.isTypeOnly) continue;
++    if (!ts2.isImportDeclaration(statement) || !ts2.isStringLiteral(statement.moduleSpecifier) || statement.importClause?.isTypeOnly) continue;
+     const path = statement.moduleSpecifier.text;
+     const bindings = statement.importClause?.namedBindings;
+     if (!bindings) continue;
+-    if (ts.isNamespaceImport(bindings)) {
++    if (ts2.isNamespaceImport(bindings)) {
+       if (path.startsWith("effect/")) namespaces.set(path.slice(7), bindings.name.text);
+       if (path === "effect") for (const module of ["Effect", "Option", "Stream", "Layer"]) namespaces.set(module, `${bindings.name.text}.${module}`);
+     }
+-    if (ts.isNamedImports(bindings)) for (const binding of bindings.elements) {
++    if (ts2.isNamedImports(bindings)) for (const binding of bindings.elements) {
+       if (binding.isTypeOnly) continue;
+       const imported = (binding.propertyName ?? binding.name).text;
+       if (path === "effect") namespaces.set(imported, binding.name.text);
+@@ -847,7 +859,7 @@ function imports(source) {
+ function importInsertionOffset(source) {
+   let offset = source.text.startsWith("#!") ? source.text.indexOf("\n") + 1 || source.text.length : 0;
+   for (const statement of source.statements) {
+-    if (!ts.isExpressionStatement(statement) || !ts.isStringLiteral(statement.expression)) break;
++    if (!ts2.isExpressionStatement(statement) || !ts2.isStringLiteral(statement.expression)) break;
+     offset = statement.getEnd();
+   }
+   return offset;
+@@ -868,7 +880,7 @@ function family(type, checker) {
+   const name = symbol?.getName();
+   const fromEffect = symbol?.declarations?.some((d) => /(?:^|\/)effect\/(?:.*\/)?(?:Effect|Option|Stream|Layer)\.(?:d\.)?ts$/.test(d.getSourceFile().fileName));
+   if (fromEffect && (name === "Effect" || name === "Option" || name === "Stream" || name === "Layer")) {
+-    const args = type.aliasTypeArguments ?? (type.flags & ts.TypeFlags.Object && type.objectFlags & ts.ObjectFlags.Reference ? checker.getTypeArguments(type) : []);
++    const args = type.aliasTypeArguments ?? (type.flags & ts2.TypeFlags.Object && type.objectFlags & ts2.ObjectFlags.Reference ? checker.getTypeArguments(type) : []);
+     return { kind: name, args };
+   }
+   const direct = type.getSymbol();
+@@ -889,7 +901,7 @@ function family(type, checker) {
+       return { kind: "Option", args: checker.getTypeArguments(first) };
+     }
+   }
+-  if (type.flags & ts.TypeFlags.Object && type.objectFlags & (ts.ObjectFlags.Class | ts.ObjectFlags.Interface)) {
++  if (type.flags & ts2.TypeFlags.Object && type.objectFlags & (ts2.ObjectFlags.Class | ts2.ObjectFlags.Interface)) {
+     for (const base of checker.getBaseTypes(type) ?? []) {
+       const detected = family(base, checker);
+       if (detected) return detected;
+@@ -922,14 +934,14 @@ function shapeOf(type, checker, node, body) {
+     const errors = e ? taggedValues(e, checker, node) : [];
+     return { kind: detected.kind, values: values2, errors, omittedValues: bounded2.omitted, synthesisIssues: bounded2.issues, enumerateRecoveries: a !== void 0 && smallFinite(a) };
+   }
+-  if (type.flags & ts.TypeFlags.Void) return { kind: "Void", values: [] };
++  if (type.flags & ts2.TypeFlags.Void) return { kind: "Void", values: [] };
+   const members = type.isUnion() ? type.types : [type];
+-  const boolean = members.every((t) => (t.flags & (ts.TypeFlags.Boolean | ts.TypeFlags.BooleanLiteral)) !== 0);
++  const boolean = members.every((t) => (t.flags & (ts2.TypeFlags.Boolean | ts2.TypeFlags.BooleanLiteral)) !== 0);
+   const literal = members.every((t) => t.isLiteral());
+   const bounded = boundedValues(type, checker, node);
+   const values = bounded.values;
+   if (isFunction(node)) for (const parameter of node.parameters) {
+-    if (ts.isIdentifier(parameter.name) && checker.isTypeAssignableTo(checker.getTypeAtLocation(parameter), type)) {
++    if (ts2.isIdentifier(parameter.name) && checker.isTypeAssignableTo(checker.getTypeAtLocation(parameter), type)) {
+       values.push({ text: parameter.name.text, synthetic: false });
+     }
+   }
+@@ -953,9 +965,9 @@ function constructError(type, checker, location, tag) {
+   });
+   const symbol = type.getSymbol();
+   if (symbol) {
+-    const visible = checker.getSymbolsInScope(location, ts.SymbolFlags.Value | ts.SymbolFlags.Alias).find((candidate) => {
+-      if (candidate.declarations?.some((declaration) => ts.isImportClause(declaration) && declaration.isTypeOnly || ts.isImportSpecifier(declaration) && (declaration.isTypeOnly || declaration.parent.parent.isTypeOnly))) return false;
+-      const target = candidate.flags & ts.SymbolFlags.Alias ? checker.getAliasedSymbol(candidate) : candidate;
++    const visible = checker.getSymbolsInScope(location, ts2.SymbolFlags.Value | ts2.SymbolFlags.Alias).find((candidate) => {
++      if (candidate.declarations?.some((declaration) => ts2.isImportClause(declaration) && declaration.isTypeOnly || ts2.isImportSpecifier(declaration) && (declaration.isTypeOnly || declaration.parent.parent.isTypeOnly))) return false;
++      const target = candidate.flags & ts2.SymbolFlags.Alias ? checker.getAliasedSymbol(candidate) : candidate;
+       return target === symbol || (symbol.declarations?.some((declaration) => target.declarations?.includes(declaration)) ?? false);
+     });
+     if (visible) {
+@@ -964,7 +976,7 @@ function constructError(type, checker, location, tag) {
+         const arguments_ = [];
+         for (const param of constructor.parameters) {
+           const fields = checker.getTypeOfSymbolAtLocation(param, location);
+-          if (fields.flags & (ts.TypeFlags.Void | ts.TypeFlags.Undefined)) continue;
++          if (fields.flags & (ts2.TypeFlags.Void | ts2.TypeFlags.Undefined)) continue;
+           const issues = /* @__PURE__ */ new Set();
+           const value = valuesOf(fields, checker, location, /* @__PURE__ */ new Set(), 0, issues)[0];
+           if (!value || value.synthetic) {
+@@ -974,13 +986,13 @@ function constructError(type, checker, location, tag) {
+             return synthetic(detail + (issues.size ? ` (${[...issues].join("; ")})` : ""));
+           }
+           const declaration = param.valueDeclaration;
+-          const rest = declaration && ts.isParameter(declaration) && declaration.dotDotDotToken;
++          const rest = declaration && ts2.isParameter(declaration) && declaration.dotDotDotToken;
+           arguments_.push(`${rest ? "..." : ""}${value.text}`);
+         }
+         return { text: `new ${visible.name}(${arguments_.join(", ")})`, synthetic: false };
+       }
+     }
+-    if (symbol.declarations?.some(ts.isClassDeclaration)) {
++    if (symbol.declarations?.some(ts2.isClassDeclaration)) {
+       return synthetic(visible ? "constructor arguments are not synthesizable" : "class is not available as a value; import its constructor");
+     }
+   }
+@@ -991,14 +1003,14 @@ function returnTypeText(type, checker, node) {
+   const print = (t) => {
+     if (t.isUnion()) return t.types.map(print).join(" | ");
+     const symbol = t.getSymbol();
+-    if (symbol && !checker.resolveName(symbol.name, node, ts.SymbolFlags.Type, false)) {
+-      const alias = checker.getSymbolsInScope(node, ts.SymbolFlags.Type | ts.SymbolFlags.Alias).find((candidate) => {
+-        const target = candidate.flags & ts.SymbolFlags.Alias ? checker.getAliasedSymbol(candidate) : candidate;
++    if (symbol && !checker.resolveName(symbol.name, node, ts2.SymbolFlags.Type, false)) {
++      const alias = checker.getSymbolsInScope(node, ts2.SymbolFlags.Type | ts2.SymbolFlags.Alias).find((candidate) => {
++        const target = candidate.flags & ts2.SymbolFlags.Alias ? checker.getAliasedSymbol(candidate) : candidate;
+         return !!target.declarations?.length && checker.getDeclaredTypeOfSymbol(target) === t;
+       });
+       if (alias) return alias.name;
+     }
+-    return checker.typeToString(t, node, ts.TypeFormatFlags.NoTruncation);
++    return checker.typeToString(t, node, ts2.TypeFormatFlags.NoTruncation);
+   };
+   if (type.isUnion()) {
+     const members = type.types.map((member) => family(member, checker));
+@@ -1012,19 +1024,19 @@ function returnTypeText(type, checker, node) {
+   return print(type);
+ }
+ function literalData(node) {
+-  if (ts.isParenthesizedExpression(node) || ts.isAsExpression(node) || ts.isSatisfiesExpression(node)) return literalData(node.expression);
+-  if (ts.isStringLiteral(node) || ts.isNumericLiteral(node)) return [node.kind, node.text];
+-  if (ts.isIdentifier(node) && node.text === "undefined") return ["undefined"];
+-  if (ts.isPrefixUnaryExpression(node)) return [node.operator, literalData(node.operand)];
+-  if (ts.isArrayLiteralExpression(node)) {
++  if (ts2.isParenthesizedExpression(node) || ts2.isAsExpression(node) || ts2.isSatisfiesExpression(node)) return literalData(node.expression);
++  if (ts2.isStringLiteral(node) || ts2.isNumericLiteral(node)) return [node.kind, node.text];
++  if (ts2.isIdentifier(node) && node.text === "undefined") return ["undefined"];
++  if (ts2.isPrefixUnaryExpression(node)) return [node.operator, literalData(node.operand)];
++  if (ts2.isArrayLiteralExpression(node)) {
+     const items = node.elements.map(literalData);
+     return items.every((item) => item !== void 0) ? ["array", items] : void 0;
+   }
+-  if (node.kind === ts.SyntaxKind.TrueKeyword || node.kind === ts.SyntaxKind.FalseKeyword || node.kind === ts.SyntaxKind.NullKeyword) return [node.kind];
+-  if (ts.isObjectLiteralExpression(node)) {
++  if (node.kind === ts2.SyntaxKind.TrueKeyword || node.kind === ts2.SyntaxKind.FalseKeyword || node.kind === ts2.SyntaxKind.NullKeyword) return [node.kind];
++  if (ts2.isObjectLiteralExpression(node)) {
+     const fields = [];
+     for (const field of node.properties) {
+-      if (!ts.isPropertyAssignment(field) || !field.name || ts.isComputedPropertyName(field.name)) return void 0;
++      if (!ts2.isPropertyAssignment(field) || !field.name || ts2.isComputedPropertyName(field.name)) return void 0;
+       const value = literalData(field.initializer);
+       if (value === void 0) return void 0;
+       fields.push([field.name.getText().replace(/^["']|["']$/g, ""), value]);
+@@ -1036,34 +1048,34 @@ function literalData(node) {
+ function equivalentSuccessValues(body, api) {
+   const values = [];
+   const visit = (node) => {
+-    if (ts.isCallExpression(node) && node.expression.getText() === api("Effect", "succeed") && node.arguments[0]) {
++    if (ts2.isCallExpression(node) && node.expression.getText() === api("Effect", "succeed") && node.arguments[0]) {
+       const value = literalData(node.arguments[0]);
+       if (value !== void 0) values.push(JSON.stringify(value));
+     }
+-    ts.forEachChild(node, visit);
++    ts2.forEachChild(node, visit);
+   };
+   visit(body);
+   return values;
+ }
+ function isEquivalentSuccess(text, values) {
+-  const source = ts.createSourceFile("literal.ts", `(${text})`, ts.ScriptTarget.Latest, true);
++  const source = ts2.createSourceFile("literal.ts", `(${text})`, ts2.ScriptTarget.Latest, true);
+   const statement = source.statements[0];
+-  if (!statement || !ts.isExpressionStatement(statement)) return false;
++  if (!statement || !ts2.isExpressionStatement(statement)) return false;
+   const value = literalData(statement.expression);
+   return value !== void 0 && values.includes(JSON.stringify(value));
+ }
+ function synthesisReason(type, checker, node) {
+-  if (type.flags & (ts.TypeFlags.TypeParameter | ts.TypeFlags.IndexedAccess)) return "generic return cannot be synthesized";
++  if (type.flags & (ts2.TypeFlags.TypeParameter | ts2.TypeFlags.IndexedAccess)) return "generic return cannot be synthesized";
+   const valueType = family(type, checker)?.args[0] ?? type;
+-  const field = valueType.getProperties().find((field2) => /^[$\w]+$/.test(field2.name) && !(field2.flags & ts.SymbolFlags.Optional) && !valuesOf(checker.getTypeOfSymbolAtLocation(field2, node), checker, node).length);
++  const field = valueType.getProperties().find((field2) => /^[$\w]+$/.test(field2.name) && !(field2.flags & ts2.SymbolFlags.Optional) && !valuesOf(checker.getTypeOfSymbolAtLocation(field2, node), checker, node).length);
+   const symbol = valueType.aliasSymbol ?? valueType.getSymbol();
+-  const name = symbol && !symbol.name.startsWith("__") ? symbol.name : valueType.isUnion() ? "union" : valueType.flags & ts.TypeFlags.Object || valueType.isIntersection() ? "object" : checker.typeToString(valueType, node);
++  const name = symbol && !symbol.name.startsWith("__") ? symbol.name : valueType.isUnion() ? "union" : valueType.flags & ts2.TypeFlags.Object || valueType.isIntersection() ? "object" : checker.typeToString(valueType, node);
+   return field ? `return not synthesizable (field ${field.name})` : `return not synthesizable (type ${name})`;
+ }
+ function valueKey(text) {
+-  const source = ts.createSourceFile("value.ts", `(${text})`, ts.ScriptTarget.Latest, true);
++  const source = ts2.createSourceFile("value.ts", `(${text})`, ts2.ScriptTarget.Latest, true);
+   const statement = source.statements[0];
+-  const data = statement && ts.isExpressionStatement(statement) ? literalData(statement.expression) : void 0;
++  const data = statement && ts2.isExpressionStatement(statement) ? literalData(statement.expression) : void 0;
+   return data === void 0 ? text : JSON.stringify(data);
+ }
+ function boundedValues(type, checker, node) {
+@@ -1072,12 +1084,12 @@ function boundedValues(type, checker, node) {
+ }
+ function smallFinite(type) {
+   const members = type.isUnion() ? type.types : [type];
+-  return members.length <= 4 && members.every((member) => member.isLiteral() || !!(member.flags & (ts.TypeFlags.Boolean | ts.TypeFlags.BooleanLiteral | ts.TypeFlags.Null | ts.TypeFlags.Undefined | ts.TypeFlags.Void)));
++  return members.length <= 4 && members.every((member) => member.isLiteral() || !!(member.flags & (ts2.TypeFlags.Boolean | ts2.TypeFlags.BooleanLiteral | ts2.TypeFlags.Null | ts2.TypeFlags.Undefined | ts2.TypeFlags.Void)));
+ }
+ function boundCandidates(candidates, types3, node) {
+   const unique = [...new Map(candidates.map((value) => [valueKey(value.text), value])).values()];
+   const members = types3.flatMap((type) => type.isUnion() ? type.types : [type]);
+-  const finite2 = members.length <= 8 && members.every((member) => member.isLiteral() || !!(member.flags & (ts.TypeFlags.Boolean | ts.TypeFlags.BooleanLiteral | ts.TypeFlags.Null | ts.TypeFlags.Undefined)));
++  const finite2 = members.length <= 8 && members.every((member) => member.isLiteral() || !!(member.flags & (ts2.TypeFlags.Boolean | ts2.TypeFlags.BooleanLiteral | ts2.TypeFlags.Null | ts2.TypeFlags.Undefined)));
+   if (finite2 || unique.length <= 6) return { values: unique, omitted: 0 };
+   const absence = unique.find((value) => value.text === "undefined");
+   const defined = unique.filter((value) => value !== absence);
+@@ -1087,22 +1099,22 @@ function boundCandidates(candidates, types3, node) {
+   });
+   const original = returnedDiscriminants(node);
+   const priority = defined.filter((candidate) => {
+-    const source = ts.createSourceFile("value.ts", `(${candidate.text})`, ts.ScriptTarget.Latest, true);
++    const source = ts2.createSourceFile("value.ts", `(${candidate.text})`, ts2.ScriptTarget.Latest, true);
+     const statement = source.statements[0];
+-    return statement && ts.isExpressionStatement(statement) && objectDiscriminants(statement.expression).some((key) => original.has(key));
++    return statement && ts2.isExpressionStatement(statement) && objectDiscriminants(statement.expression).some((key) => original.has(key));
+   });
+   const selected = [.../* @__PURE__ */ new Set([...priority, ...preferred, ...defined])].slice(0, 6);
+   if (absence) selected.push(absence);
+   return { values: selected, omitted: unique.length - selected.length };
+ }
+ function objectDiscriminants(node) {
+-  while (ts.isParenthesizedExpression(node) || ts.isAsExpression(node) || ts.isSatisfiesExpression(node)) node = node.expression;
+-  if (!ts.isObjectLiteralExpression(node)) return [];
++  while (ts2.isParenthesizedExpression(node) || ts2.isAsExpression(node) || ts2.isSatisfiesExpression(node)) node = node.expression;
++  if (!ts2.isObjectLiteralExpression(node)) return [];
+   return node.properties.flatMap((field) => {
+-    if (!ts.isPropertyAssignment(field) || ts.isComputedPropertyName(field.name)) return [];
++    if (!ts2.isPropertyAssignment(field) || ts2.isComputedPropertyName(field.name)) return [];
+     let value = field.initializer;
+-    while (ts.isParenthesizedExpression(value) || ts.isAsExpression(value) || ts.isSatisfiesExpression(value)) value = value.expression;
+-    return ts.isStringLiteral(value) || ts.isNumericLiteral(value) ? [JSON.stringify([field.name.getText().replace(/^["']|["']$/g, ""), value.text])] : [];
++    while (ts2.isParenthesizedExpression(value) || ts2.isAsExpression(value) || ts2.isSatisfiesExpression(value)) value = value.expression;
++    return ts2.isStringLiteral(value) || ts2.isNumericLiteral(value) ? [JSON.stringify([field.name.getText().replace(/^["']|["']$/g, ""), value.text])] : [];
+   });
+ }
+ function returnedDiscriminants(node) {
+@@ -1110,8 +1122,8 @@ function returnedDiscriminants(node) {
+   const result5 = new Set(objectDiscriminants(node.body));
+   const visit = (child) => {
+     if (isFunction(child)) return;
+-    if (ts.isReturnStatement(child) && child.expression) for (const key of objectDiscriminants(child.expression)) result5.add(key);
+-    ts.forEachChild(child, visit);
++    if (ts2.isReturnStatement(child) && child.expression) for (const key of objectDiscriminants(child.expression)) result5.add(key);
++    ts2.forEachChild(child, visit);
+   };
+   visit(node.body);
+   return result5;
+@@ -1126,7 +1138,7 @@ function shapeNotices(shape, type, checker, node) {
+     if (error3.reason !== void 0) notices.push(`cannot construct ${error3.tag}: ${error3.reason}`);
+     if (new TextEncoder().encode(error3.text).byteLength > 2048) notices.push(`cannot construct ${error3.tag}: synthesized value exceeds 2048 bytes`);
+   }
+-  if ("values" in shape && !shape.values.length && !(valueType.flags & ts.TypeFlags.Never) && shape.kind !== "Void") {
++  if ("values" in shape && !shape.values.length && !(valueType.flags & ts2.TypeFlags.Never) && shape.kind !== "Void") {
+     notices.push(synthesisReason(type, checker, node));
+   }
+   return notices;
+@@ -1136,7 +1148,7 @@ function valuesOf(type, checker, location, ancestors = /* @__PURE__ */ new Set()
+     issues.add("synthesis depth limit (4) reached");
+     return [];
+   }
+-  if (ancestors.has(type) || type.flags & ts.TypeFlags.Never) return [];
++  if (ancestors.has(type) || type.flags & ts2.TypeFlags.Never) return [];
+   const values = synthesizeValues(type, checker, location, ancestors, depth, issues);
+   const bounded = values.filter((value) => new TextEncoder().encode(value.text).byteLength <= 2048);
+   if (bounded.length !== values.length) issues.add("synthesized value exceeds 2048 bytes");
+@@ -1158,7 +1170,7 @@ function synthesizeValues(type, checker, location, ancestors, depth, issues) {
+     ];
+   }
+   if (type.isIntersection()) {
+-    const primitive = type.types.find((member) => member.flags & (ts.TypeFlags.String | ts.TypeFlags.Number));
++    const primitive = type.types.find((member) => member.flags & (ts2.TypeFlags.String | ts2.TypeFlags.Number));
+     const brand = type.types.some((member) => member.getProperties().some((prop) => prop.name.includes("Brand")));
+     if (primitive && brand) return descend(primitive).map((v) => ({ ...v, text: `(${v.text} as ${returnTypeText(type, checker, location)})` }));
+   }
+@@ -1168,34 +1180,34 @@ function synthesizeValues(type, checker, location, ancestors, depth, issues) {
+   }
+   if (type.isUnion()) {
+     const members = [...type.types];
+-    if (members.every((member) => member.isLiteral() || !!(member.flags & (ts.TypeFlags.BooleanLiteral | ts.TypeFlags.Null | ts.TypeFlags.Undefined)))) {
++    if (members.every((member) => member.isLiteral() || !!(member.flags & (ts2.TypeFlags.BooleanLiteral | ts2.TypeFlags.Null | ts2.TypeFlags.Undefined)))) {
+       members.sort((a, b) => a.isNumberLiteral() && b.isNumberLiteral() ? a.value - b.value : checker.typeToString(a).localeCompare(checker.typeToString(b), "en"));
+     }
+     return members.flatMap((member) => descend(member));
+   }
+   if (type.isStringLiteral()) return [value(JSON.stringify(type.value))];
+   if (type.isNumberLiteral()) return [value(String(type.value))];
+-  if (type.flags & ts.TypeFlags.BooleanLiteral) return [value(checker.typeToString(type))];
+-  if (type.flags & ts.TypeFlags.Boolean) return [value("true"), value("false")];
+-  if (type.flags & ts.TypeFlags.String) return [value('""'), value('"xyzzy"')];
+-  if (type.flags & ts.TypeFlags.Number) return [value("0"), value("1"), value("-1")];
+-  if (type.flags & ts.TypeFlags.BigInt) return [value("0n"), value("1n")];
+-  if (type.flags & ts.TypeFlags.Null) return [value("null")];
+-  if (type.flags & (ts.TypeFlags.Unknown | ts.TypeFlags.Any)) return [value("undefined")];
+-  if (type.flags & (ts.TypeFlags.Undefined | ts.TypeFlags.Void)) return [value("undefined")];
++  if (type.flags & ts2.TypeFlags.BooleanLiteral) return [value(checker.typeToString(type))];
++  if (type.flags & ts2.TypeFlags.Boolean) return [value("true"), value("false")];
++  if (type.flags & ts2.TypeFlags.String) return [value('""'), value('"xyzzy"')];
++  if (type.flags & ts2.TypeFlags.Number) return [value("0"), value("1"), value("-1")];
++  if (type.flags & ts2.TypeFlags.BigInt) return [value("0n"), value("1n")];
++  if (type.flags & ts2.TypeFlags.Null) return [value("null")];
++  if (type.flags & (ts2.TypeFlags.Unknown | ts2.TypeFlags.Any)) return [value("undefined")];
++  if (type.flags & (ts2.TypeFlags.Undefined | ts2.TypeFlags.Void)) return [value("undefined")];
+   if (checker.isTupleType(type)) {
+     const elements = checker.getTypeArguments(type).map((t) => descend(t)[0]);
+     return elements.every((v) => v !== void 0) ? [value(`[${elements.map((v) => v.text).join(", ")}]`)] : [];
+   }
+   if (checker.isArrayType(type) || checker.isArrayLikeType(type)) {
+-    const element = checker.getIndexTypeOfType(type, ts.IndexKind.Number);
++    const element = checker.getIndexTypeOfType(type, ts2.IndexKind.Number);
+     const elements = element ? descend(element) : [];
+     return [value("[]"), ...elements.map((v) => ({ text: `[${v.text}]`, synthetic: v.synthetic }))];
+   }
+-  if ((type.flags & ts.TypeFlags.Object || type.isIntersection()) && !type.getCallSignatures().length && !type.getConstructSignatures().length) {
++  if ((type.flags & ts2.TypeFlags.Object || type.isIntersection()) && !type.getCallSignatures().length && !type.getConstructSignatures().length) {
+     const fields = [];
+     for (const prop of type.getProperties()) {
+-      if (prop.flags & ts.SymbolFlags.Optional) continue;
++      if (prop.flags & ts2.SymbolFlags.Optional) continue;
+       if (!/^[$\w]+$/.test(prop.name)) return [];
+       const values = descend(checker.getTypeOfSymbolAtLocation(prop, location));
+       if (!values.length) return [];
+@@ -1205,7 +1217,7 @@ function synthesizeValues(type, checker, location, ancestors, depth, issues) {
+       const prop = type.getProperty(field.name);
+       if (!prop) return false;
+       const t = checker.getTypeOfSymbolAtLocation(prop, location);
+-      return (t.isUnion() ? t.types : [t]).every((member) => member.isLiteral() || !!(member.flags & ts.TypeFlags.BooleanLiteral));
++      return (t.isUnion() ? t.types : [t]).every((member) => member.isLiteral() || !!(member.flags & ts2.TypeFlags.BooleanLiteral));
+     });
+     const render = (changed, replacement) => {
+       const parts = [];
+@@ -1911,8 +1923,10 @@ var acquireProcessTree = Effect3.fn("ProcessTree.acquire")(function* (scratch, o
+     liveLedgers.delete(ledger);
+   }))));
+   const existing = process.env.NODE_OPTIONS ?? "";
++  const bun = process.versions.bun !== void 0;
+   return {
+-    env: { ...process.env, MUTANT_CAFE_PROCESS_PHASE: void 0, [tokenKey]: token, [ledgerKey]: ledger, [preloadKey]: url, NODE_OPTIONS: `${existing} --import=${url}`.trim() },
++    env: { ...process.env, MUTANT_CAFE_PROCESS_PHASE: void 0, [tokenKey]: token, [ledgerKey]: ledger, [preloadKey]: url, NODE_OPTIONS: bun ? existing : `${existing} --import=${url}`.trim() },
++    preloadArgs: bun ? ["--preload", script] : [],
+     addRoot: (pid) => {
+       roots.add(pid);
+     },
+@@ -2070,7 +2084,7 @@ var preflight = Effect4.fn("TestRunner.preflight")(function* (root, tsconfig = "
+   const since = options.processesSince ?? (yield* Clock2.currentTimeMillis);
+   const owned = yield* acquireProcessTree(root, options.onBackstop, since);
+   yield* owned.trace("preflight-start", { budgetMs: timeoutMs });
+-  const output = yield* spawner.string(ChildProcess.make(process.execPath, ["--input-type=module", "--eval", probe, tsconfig], { cwd: root, env: owned.env, detached: true, killSignal: "SIGKILL", forceKillAfter: "100 millis", stdin: "ignore" })).pipe(Effect4.onInterrupt(() => owned.cleanup));
++  const output = yield* spawner.string(ChildProcess.make(process.execPath, [...owned.preloadArgs, "--input-type=module", "--eval", probe, tsconfig], { cwd: root, env: owned.env, detached: true, killSignal: "SIGKILL", forceKillAfter: "100 millis", stdin: "ignore" })).pipe(Effect4.onInterrupt(() => owned.cleanup));
+   yield* owned.trace("preflight-done");
+   const encoded = output.split("\n").find((line) => line.startsWith("mutant-cafe-preflight:"))?.slice("mutant-cafe-preflight:".length);
+   const issues = encoded === void 0 ? [{ kind: "warning", reason: "Vitest selection probe returned no evidence" }] : yield* Schema6.decodeEffect(Schema6.fromJsonString(Issues))(encoded);
+@@ -2488,7 +2502,7 @@ var Host = class {
+   constructor(root, script, reporter, tree, scope, selectionOnly = false, decode = decodeWarmMessage) {
+     this.tree = tree;
+     this.scope = scope;
+-    this.child = spawn(process.execPath, [script, reporter, selectionOnly ? "select" : "run"], {
++    this.child = spawn(process.execPath, [...tree.preloadArgs, script, reporter, selectionOnly ? "select" : "run"], {
+       cwd: root,
+       env: tree.env,
+       detached: true,
+@@ -2856,6 +2870,7 @@ var TestRunnerLive = Layer3.effect(TestRunner, Effect6.gen(function* () {
+     yield* fs.writeFileString(reporter, reporterSource(marker, probe2)).pipe(Effect6.mapError((error3) => new TestSpawnError({ command: ["vitest"], message: String(error3) })));
+     const command = [
+       process.execPath,
++      ...process.execArgv,
+       launcher,
+       ...args,
+       "--reporter=default",
+@@ -2871,6 +2886,7 @@ var TestRunnerLive = Layer3.effect(TestRunner, Effect6.gen(function* () {
+       Effect6.provideService(FileSystem7.FileSystem, fs),
+       Effect6.mapError((error3) => new TestSpawnError({ command, message: String(error3) }))
+     );
++    command.splice(1, 0, ...owned.preloadArgs);
+     const chunks = [];
+     let exitCode = 1;
+     const child = Effect6.scoped(Effect6.gen(function* () {
+@@ -3979,6 +3995,7 @@ var makeCommand = (options) => Command.make("mutant-cafe", flags, (input) => Eff
+     tsconfig: input.tsconfig,
+     exportedOnly: input.exportedOnly,
+     include: input.include.length > 0 ? input.include : fileConfig.include ?? ["**/*.{ts,tsx}"],
++    explicitIncludes: input.include.length > 0 || fileConfig.include !== void 0,
+     exclude: input.exclude.length > 0 ? input.exclude : fileConfig.exclude ?? [],
+     functionFilter: fileConfig.functionFilter ?? [],
+     ...inDiff === void 0 ? {} : { inDiff },

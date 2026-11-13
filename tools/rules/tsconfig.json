@@ -1,0 +1,7 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "types": ["node"]
+  },
+  "include": ["src/oxlint/*.ts", "src/oxlint/taste/*.ts", "src/oxlint/structure/*.ts", "src/oxlint/testing/*.ts"]
+}

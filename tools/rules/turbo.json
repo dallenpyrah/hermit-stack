@@ -1,0 +1,19 @@
+{
+  "extends": ["//"],
+  "tags": ["tooling"],
+  "tasks": {
+    "build": {
+      "dependsOn": [],
+      "inputs": ["src/oxlint/**", "tsdown.config.ts", "package.json", "tsconfig.json", "tsconfig.base.json"],
+      "outputs": ["dist/**"]
+    },
+    "typecheck": {
+      "dependsOn": [],
+      "inputs": ["src/**", "tests/**", "package.json", "tsconfig.json", "tsconfig.base.json"]
+    },
+    "lint": {
+      "dependsOn": ["build"],
+      "inputs": ["src/**", "tests/**", "package.json", "tsconfig.json", "tsconfig.base.json", "oxlint.config.ts"]
+    }
+  }
+}

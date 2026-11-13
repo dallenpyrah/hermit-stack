@@ -1,0 +1,30 @@
+{
+  "name": "strata",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "mise exec -- turbo boundaries --filter='!@repo/rules' && mise exec -- turbo run fmt:check typecheck lint lint:structure test build sherif --concurrency=100% --continue=dependencies-successful",
+    "check:affected": "pnpm check --affected",
+    "fmt": "oxfmt",
+    "fmt:check": "oxfmt --check",
+    "boundaries": "turbo boundaries --filter='!@repo/rules'",
+    "lint:structure": "oxlint -c oxlint-structure.config.ts .",
+    "sherif": "sherif"
+  },
+  "devDependencies": {
+    "@effect/tsgo": "catalog:",
+    "@repo/rules": "workspace:*",
+    "@typeonce/oxlint-plugin-effect-machine": "catalog:",
+    "@types/node": "catalog:",
+    "effect": "catalog:",
+    "lefthook": "catalog:",
+    "mutant-cafe": "catalog:",
+    "oxfmt": "catalog:",
+    "oxlint": "catalog:",
+    "oxlint-tsgolint": "catalog:",
+    "sherif": "catalog:",
+    "turbo": "catalog:",
+    "typescript": "catalog:"
+  },
+  "packageManager": "pnpm@12.16.1"
+}

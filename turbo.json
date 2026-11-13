@@ -1,0 +1,110 @@
+{
+  "$schema": "./node_modules/turbo/schema.json",
+  "remoteCache": {
+    "enabled": false
+  },
+  "futureFlags": {
+    "affectedUsingTaskInputs": true
+  },
+  "cacheMaxAge": "14d",
+  "globalPassThroughEnv": ["TMPDIR"],
+  "boundaries": {
+    "tags": {
+      "kernel": {
+        "dependencies": {
+          "deny": ["lib", "context", "adapter", "service", "infra", "app"]
+        }
+      },
+      "lib": {
+        "dependencies": {
+          "deny": ["adapter", "service", "infra", "app"]
+        }
+      },
+      "context": {
+        "dependencies": {
+          "deny": ["adapter", "service", "infra", "app"]
+        }
+      },
+      "adapter": {
+        "dependencies": {
+          "deny": ["service", "infra", "app"]
+        }
+      },
+      "service": {
+        "dependencies": {
+          "deny": ["infra", "app"]
+        }
+      },
+      "app": {
+        "dependents": {
+          "deny": ["kernel", "lib", "context", "adapter", "service", "infra", "app", "tooling"]
+        }
+      }
+    }
+  },
+  "tasks": {
+    "//#fmt:check": {
+      "cache": false
+    },
+    "transit": {
+      "dependsOn": ["^transit"],
+      "inputs": ["src/**", "package.json", "tsconfig.json"]
+    },
+    "typecheck": {
+      "dependsOn": ["transit"],
+      "inputs": [
+        "src/**",
+        "tests/**",
+        "package.json",
+        "tsconfig.json",
+        "$TURBO_ROOT$/tsconfig.base.json",
+        "$TURBO_ROOT$/tools/rules/tsconfig.base.json"
+      ],
+      "outputs": [],
+      "outputLogs": "errors-only"
+    },
+    "lint": {
+      "dependsOn": ["transit", "@repo/rules#build"],
+      "inputs": [
+        "src/**",
+        "tests/**",
+        "package.json",
+        "tsconfig.json",
+        "$TURBO_ROOT$/tsconfig.base.json",
+        "$TURBO_ROOT$/tools/rules/tsconfig.base.json",
+        "$TURBO_ROOT$/oxlint.config.ts"
+      ],
+      "outputs": [],
+      "outputLogs": "errors-only"
+    },
+    "//#lint:structure": {
+      "dependsOn": ["@repo/rules#build"],
+      "inputs": [
+        "**/*.{ts,tsx,mts,cts,js,mjs,cjs}",
+        "**/package.json",
+        "!**/node_modules/**",
+        "!**/dist/**",
+        "oxlint-structure.config.ts"
+      ],
+      "outputs": [],
+      "outputLogs": "errors-only"
+    },
+    "test": {
+      "dependsOn": ["transit"],
+      "inputs": ["src/**", "tests/**", "vitest.config.ts", "package.json"],
+      "outputs": [],
+      "outputLogs": "errors-only"
+    },
+    "build": {
+      "dependsOn": ["^build"],
+      "inputs": ["src/**", "package.json", "tsconfig.json", "$TURBO_ROOT$/tsconfig.base.json"],
+      "outputs": ["dist/**"],
+      "outputLogs": "errors-only"
+    },
+    "//#sherif": {
+      "inputs": ["**/package.json", "!**/node_modules/**", "pnpm-workspace.yaml", "pnpm-lock.yaml"],
+      "outputs": [],
+      "outputLogs": "errors-only"
+    }
+  }
+}

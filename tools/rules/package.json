@@ -1,0 +1,56 @@
+{
+  "name": "@repo/rules",
+  "version": "0.0.0",
+  "private": true,
+  "license": "Apache-2.0",
+  "bin": {
+    "agent-sources": "./src/agent-sources/agent-sources.cli.mjs",
+    "check-scripts": "./src/fence/check-scripts.cli.mjs",
+    "checkout-lock": "./src/fence/checkout-lock.cli.mjs",
+    "doc-paths": "./src/docs/doc-paths.cli.mjs",
+    "file-fence": "./src/fence/file-fence.cli.mjs",
+    "git-fence": "./src/fence/git-fence.cli.mjs",
+    "mutants": "./src/mutants/mutants.cli.mjs",
+    "ratchet": "./src/ratchet/ratchet.cli.mjs",
+    "rules-env": "./src/env/rules-env.cli.mjs",
+    "runtime-pins": "./src/fence/runtime-pins.cli.mjs",
+    "task-inputs": "./src/turbo/task-inputs.cli.mjs"
+  },
+  "type": "module",
+  "imports": {
+    "#oxlint/*": "./src/oxlint/*.ts"
+  },
+  "exports": {
+    "./oxlint": "./dist/oxlint/base.mjs",
+    "./oxlint/domain": "./dist/oxlint/domain.mjs",
+    "./oxlint/next": "./dist/oxlint/next.mjs",
+    "./oxlint/taste": "./dist/oxlint/taste.mjs",
+    "./oxlint/structure": "./dist/oxlint/structure.mjs",
+    "./oxlint/testing": "./dist/oxlint/testing.mjs",
+    "./oxlint/role-imports": "./src/oxlint/role-imports.config.mjs",
+    "./oxlint/anti-slop": "./dist/oxlint/anti-slop/index.mjs",
+    "./oxlint/anti-slop-effect": "./dist/oxlint/anti-slop/effect/index.mjs",
+    "./git-fence": "./src/fence/git-fence.cli.mjs",
+    "./tsconfig.base.json": "./tsconfig.base.json",
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "tsdown",
+    "typecheck": "effect-tsgo tsrs --noEmit -p tsconfig.json",
+    "lint": "effect-tsgo --tsrs-lint oxlint -c oxlint.config.ts --type-aware src"
+  },
+  "dependencies": {
+    "@oxlint/plugins": "catalog:",
+    "yaml": "catalog:"
+  },
+  "devDependencies": {
+    "@effect/tsgo": "catalog:",
+    "@typeonce/oxlint-plugin-effect-machine": "catalog:",
+    "@types/node": "catalog:",
+    "effect": "catalog:",
+    "oxlint": "catalog:",
+    "oxlint-tsgolint": "catalog:",
+    "tsdown": "catalog:",
+    "typescript": "catalog:"
+  }
+}

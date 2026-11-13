@@ -1,0 +1,20 @@
+import { Domain } from "@alchemy.run/domain";
+import { aggregate } from "./dependency.aggregate.ts";
+import { context } from "./dependency.context.ts";
+import { event } from "./dependency.event.ts";
+import { external } from "./dependency.external.ts";
+import { id } from "./dependency.id.ts";
+import { middleware } from "./dependency.middleware.ts";
+import { policy } from "./dependency.policy.ts";
+import { projection } from "./dependency.projection.ts";
+import { query } from "./dependency.query.ts";
+import { rejection } from "./dependency.rejection.ts";
+import { saga } from "./dependency.saga.ts";
+import { stream } from "./dependency.stream.ts";
+import { api } from "./dependency.api.ts";
+import { command } from "./dependency.command.ts";
+import { pure } from "./dependency.pure.ts";
+import { schema } from "./dependency.schema.ts";
+import { view } from "./dependency.view.ts";
+
+export const delivery = [Domain, aggregate, context, event, external, id, middleware, policy, projection, query, rejection, saga, stream, api, command, pure, schema, view];

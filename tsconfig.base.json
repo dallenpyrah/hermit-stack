@@ -1,0 +1,13 @@
+{
+  "extends": "./tools/rules/tsconfig.base.json",
+  "compilerOptions": {
+    "types": ["node"],
+    "plugins": [
+      {
+        "name": "@effect/language-service",
+        // Every package's tests import it and expect from @effect/vitest.
+        "allowedUnstableApis": ["@effect/vitest"]
+      }
+    ]
+  }
+}

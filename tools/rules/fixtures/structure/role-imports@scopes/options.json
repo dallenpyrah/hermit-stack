@@ -1,0 +1,15 @@
+{
+  "definitionServices": [
+    "@akter-cloud/fixture/rooms"
+  ],
+  "exports": {
+    "@akter-cloud/fixture/plan": "./src/plan.schema.ts",
+    "@akter-cloud/fixture/price": "./dist/seat-price.pure.mjs",
+    "@akter-cloud/fixture/rooms": "./src/rooms.service.ts",
+    "@akter-cloud/fixture/wal": "./src/room-wal.adapter.ts",
+    "@akter-cloud/fixture/loose": "./src/loose.ts"
+  },
+  "packages": [
+    "@akter-cloud/"
+  ]
+}

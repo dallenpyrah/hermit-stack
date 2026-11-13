@@ -1,0 +1,116 @@
+packages:
+  - "apps/*"
+  - "contexts/*"
+  - "adapters/*"
+  - "packages/*"
+  - "services/*"
+  - "infra"
+  - "spec"
+  - "tools/*"
+catalogMode: strict
+saveExact: true
+strictPeerDependencies: true
+autoInstallPeers: false
+minimumReleaseAge: 1440
+trustPolicy: no-downgrade
+trustPolicyExclude:
+  # Published from joelhooks/mutant-cafe release.yml at tag v0.1.6 with SLSA provenance; npm records trusted-publisher metadata only on 0.1.1 and 0.1.2.
+  - "mutant-cafe@0.1.6"
+allowBuilds:
+  # cbor-x, through rivetkit, falls back to JavaScript when its optional native extractor isn't built.
+  cbor-extract: false
+  esbuild: true
+  lefthook: true
+  workerd: true
+peerDependencyRules:
+  ignoreMissing:
+    # @effect/platform-node lists redis as an optional peer; nothing here uses its Redis client.
+    - redis
+  allowedVersions:
+    # capnp-es, through @alchemy.run/cloudflare-runtime, declares TypeScript 5.7 or 6.
+    "capnp-es>typescript": "7"
+overrides:
+  unenv: 2.0.0-rc.24
+  # One copy of Effect in the lockfile: mutant-cafe lists its own 4.1.2.
+  "mutant-cafe>effect": 4.1.4
+  "mutant-cafe>@effect/platform-node": 4.1.4
+catalog:
+  # Effect
+  "@effect/platform-browser": "4.1.4"
+  "@effect/platform-node": "4.1.4"
+  "@effect/vitest": "4.1.4"
+  effect: "4.1.4"
+  # Frontend
+  "@foldkit/oxlint-plugin": "0.15.4"
+  "@foldkit/ui": "0.170.0"
+  "@foldkit/vite-plugin": "0.29.0"
+  "@stylexjs/stylex": "0.19.2"
+  "@stylexjs/unplugin": "0.19.2"
+  foldkit: "0.170.0"
+  unplugin: "2.3.11"
+  vite: "8.3.8"
+  # Domain, infrastructure and actors
+  "@alchemy.run/aws": "2.0.0-beta.87"
+  "@alchemy.run/cloudflare": "2.0.0-beta.87"
+  "@alchemy.run/docker": "2.0.0-beta.87"
+  "@alchemy.run/domain": "2.0.0-beta.87"
+  "@alchemy.run/effect-cluster": "2.0.0-beta.87"
+  "@alchemy.run/gcp": "2.0.0-beta.87"
+  "@alchemy.run/rivet": "2.0.0-beta.87"
+  "@rivetkit/effect": "3.1.1"
+  alchemy: "2.0.0-beta.87"
+  rivetkit: "3.1.1"
+  # Checks
+  "@effect/tsgo": "0.68.1"
+  "@oxlint/plugins": "1.93.0"
+  "@typeonce/oxlint-plugin-effect-machine": "0.46.0"
+  "@types/node": "24.19.2"
+  knip: "6.45.1"
+  lefthook: "2.2.1"
+  mutant-cafe: "0.1.6"
+  oxfmt: "0.78.0"
+  oxlint: "1.93.0"
+  oxlint-tsgolint: "7.0.2007"
+  sherif: "1.13.0"
+  tsdown: "0.23.7"
+  turbo: "2.11.11"
+  typescript: "7.0.2"
+  vitest: "5.1.0"
+  yaml: "2.9.1"
+  # apps/docs, the only React and Tailwind in the repo
+  "@tailwindcss/postcss": "4.1.16"
+  "@types/mdx": "2.0.13"
+  "@types/react": "19.2.2"
+  fumadocs-core: "16.19.0"
+  fumadocs-mdx: "15.6.1"
+  fumadocs-openapi: "12.6.2"
+  fumadocs-ui: "16.19.0"
+  next: "16.4.6"
+  react: "19.3.1"
+  react-dom: "19.3.1"
+  tailwindcss: "4.1.16"
+minimumReleaseAgeExclude:
+  - "@alchemy.run/acme@2.0.0-beta.87"
+  - "@alchemy.run/aws@2.0.0-beta.87"
+  - "@alchemy.run/cloudflare-runtime@2.0.0-beta.87"
+  - "@alchemy.run/cloudflare@2.0.0-beta.87"
+  - "@alchemy.run/docker@2.0.0-beta.87"
+  - "@alchemy.run/domain@2.0.0-beta.87"
+  - "@alchemy.run/effect-cluster@2.0.0-beta.87"
+  - "@alchemy.run/gcp@2.0.0-beta.87"
+  - "@alchemy.run/kubernetes@2.0.0-beta.87"
+  - "@alchemy.run/redis@2.0.0-beta.87"
+  - "@alchemy.run/rivet@2.0.0-beta.87"
+  - "@alchemy.run/sql@2.0.0-beta.87"
+  - "@distilled.cloud/acme@1.0.0-rc.20"
+  - "@distilled.cloud/aws4signer@1.0.0-rc.20"
+  - "@distilled.cloud/aws@1.0.0-rc.20"
+  - "@distilled.cloud/cloudflare@1.0.0-rc.20"
+  - "@distilled.cloud/core@1.0.0-rc.20"
+  - "@distilled.cloud/gcp@1.0.0-rc.20"
+  - "@distilled.cloud/iceberg@1.0.0-rc.20"
+  - "@distilled.cloud/rivet@1.0.0-rc.20"
+  - "@distilled.cloud/s3@1.0.0-rc.20"
+  - alchemy@2.0.0-beta.87
+patchedDependencies:
+  mutant-cafe@0.1.6: patches/mutant-cafe@0.1.6.patch
