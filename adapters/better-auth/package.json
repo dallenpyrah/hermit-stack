@@ -1,0 +1,37 @@
+{
+  "name": "@repo/better-auth",
+  "version": "0.0.0",
+  "private": true,
+  "description": "The Session middleware implemented with better-auth, through @alchemy.run/better-auth. The only package that imports better-auth.",
+  "type": "module",
+  "sideEffects": false,
+  "imports": {
+    "#src/*": "./src/*",
+    "#tests/*": "./tests/*.ts"
+  },
+  "exports": {
+    "./auth": "./src/auth.adapter.ts",
+    "./auth-layer": "./src/auth.layer.ts",
+    "./local": "./src/local.layer.ts",
+    "./schema": "./src/schema.layer.ts",
+    "./session-layer": "./src/session.layer.ts",
+    "./sqlite": "./src/sqlite.layer.ts"
+  },
+  "scripts": {
+    "typecheck": "effect-tsgo tsrs --noEmit -p tsconfig.json",
+    "lint": "effect-tsgo --tsrs-lint oxlint -c ../../oxlint.config.ts --type-aware --tsconfig tsconfig.json src tests",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@alchemy.run/better-auth": "catalog:",
+    "@repo/identity": "workspace:*",
+    "alchemy": "catalog:",
+    "better-auth": "catalog:",
+    "effect": "catalog:"
+  },
+  "devDependencies": {
+    "@effect/vitest": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
+  }
+}

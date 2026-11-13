@@ -16,6 +16,8 @@ const domainEdges: Readonly<Partial<Record<Role, readonly Role[]>>> = {
   api: ["command", "context", "middleware", "model", "query", "stream", "view"],
   command: ["context", "event", "id", "middleware", "pure", "rejection", "schema"],
   model: [...domainRoles, "api", "command", "pure", "schema", "view"],
+  // An aggregate's state sits in a .schema file so its commands can read it, and that state names ids.
+  schema: ["api", "contract", "errors", "id", "schema"],
   view: ["aggregate", "command", "context", "event", "id", "middleware", "pure", "rejection", "schema", "service"],
 };
 

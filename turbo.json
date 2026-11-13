@@ -162,6 +162,10 @@
     "//#runtime-pins": {
       "cache": false,
       "outputLogs": "errors-only"
+    },
+    "flags:check": {
+      "cache": false,
+      "outputLogs": "errors-only"
     }
   }
 }

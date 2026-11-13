@@ -1,125 +1,31 @@
 import { Aggregate } from "@alchemy.run/domain";
-import { Array as Arr, Match, Option, Schema } from "effect";
+import { Array as Arr, Option } from "effect";
 
-import { Channel } from "#src/notification/channel.schema.js";
-import {
-  DeviceRegistered,
-  DeviceRemoved,
-  EmailSet,
-  MarkRead,
-  NotificationFailed,
-  NotificationQueued,
-  NotificationRead,
-  NotificationSent,
-  Notify,
-  PreferenceSet,
-  RecordDelivery,
-  RegisterDevice,
-  RemoveDevice,
-  SetEmail,
-  SetPreference,
-} from "#src/notification/recipient.command.js";
+import { decideMarkRead, MarkRead } from "#src/notification/mark-read/mark-read.command.js";
+import { mutes } from "#src/notification/muted.pure.js";
+import { decideNotify, Notify } from "#src/notification/notify/notify.command.js";
+import { Muted, RecipientState } from "#src/notification/recipient-state.schema.js";
+import { decideRecordDelivery, RecordDelivery } from "#src/notification/record-delivery/record-delivery.command.js";
+import { decideRegisterDevice, RegisterDevice } from "#src/notification/register-device/register-device.command.js";
+import { decideRemoveDevice, RemoveDevice } from "#src/notification/remove-device/remove-device.command.js";
+import { decideSetEmail, SetEmail } from "#src/notification/set-email/set-email.command.js";
+import { decideSetPreference, SetPreference } from "#src/notification/set-preference/set-preference.command.js";
 import { UserId } from "#src/notification/user.id.js";
 
-const Address = Schema.Struct({ channel: Channel, to: Schema.String });
-
-type Address = typeof Address.Type;
-
-const Muted = Schema.Struct({ channel: Channel, kind: Schema.String });
-
-type Muted = typeof Muted.Type;
-
-const RecipientState = Schema.Struct({
-  devices: Schema.Array(Schema.String),
-  email: Schema.Option(Schema.String),
-  muted: Schema.Array(Muted),
-});
-
-type RecipientState = typeof RecipientState.Type;
-
-const mutes = (muted: Muted, kind: string, channel: Channel): boolean =>
-  muted.kind === kind && muted.channel === channel;
-
-const isMuted = (state: RecipientState, kind: string, channel: Channel): boolean =>
-  Arr.some(state.muted, (muted) => mutes(muted, kind, channel));
-
-const addresses = (state: RecipientState, userId: UserId): readonly Address[] => [
-  Address.make({ channel: "inbox", to: userId }),
-  ...Arr.map(Option.toArray(state.email), (to) => Address.make({ channel: "email", to })),
-  ...Arr.map(state.devices, (to) => Address.make({ channel: "push", to })),
-];
-
-const notify = (state: RecipientState, command: Notify, userId: UserId): readonly NotificationQueued[] =>
-  Arr.map(
-    Arr.filter(addresses(state, userId), (address) => !isMuted(state, command.kind, address.channel)),
-    (address) =>
-      NotificationQueued.make({
-        channel: address.channel,
-        kind: command.kind,
-        notificationId: command.notificationId,
-        payload: command.payload,
-        to: address.to,
-      }),
-  );
-
-const recordDelivery = (command: RecordDelivery): readonly (NotificationFailed | NotificationSent)[] => {
-  const sent = { channel: command.channel, notificationId: command.notificationId, to: command.to };
-
-  return Match.valueTags(command.result, {
-    Accepted: (accepted) => [NotificationSent.make({ ...sent, messageId: accepted.messageId })],
-    Refused: (refused) => [NotificationFailed.make({ ...sent, reason: refused.reason })],
-  });
-};
-
-// Records only a change: turning on what is on, or off what is off, is accepted and records nothing.
-const setPreference = (state: RecipientState, command: SetPreference): readonly PreferenceSet[] => {
-  if (isMuted(state, command.kind, command.channel) !== command.enabled) {
-    return [];
-  }
-
-  return [PreferenceSet.make({ channel: command.channel, enabled: command.enabled, kind: command.kind })];
-};
-
-const setEmail = (state: RecipientState, command: SetEmail): readonly EmailSet[] => {
-  if (Option.contains(state.email, command.address)) {
-    return [];
-  }
-
-  return [EmailSet.make({ address: command.address })];
-};
-
-const applyPreference = (state: RecipientState, event: PreferenceSet): RecipientState => {
-  const others = Arr.filter(state.muted, (muted) => !mutes(muted, event.kind, event.channel));
-
-  if (event.enabled) {
-    return { ...state, muted: others };
-  }
-
-  return { ...state, muted: [...others, Muted.make({ channel: event.channel, kind: event.kind })] };
-};
-
-// One user as someone to notify: where they can be reached and what they turned off. Quiet hours and digests are not
-// Modelled yet.
+// One user as someone to notify. Each command's rule lives in its own file beside its events; this file holds the
+// State and how events change it.
 class Recipient extends Aggregate(
   "Recipient",
   {
     commands: [SetEmail, RegisterDevice, RemoveDevice, SetPreference, Notify, RecordDelivery, MarkRead],
     decide: {
-      MarkRead: (_state, command) => [NotificationRead.make({ notificationId: command.notificationId })],
-      Notify: (state, command, { id }) => notify(state, command, id),
-      RecordDelivery: (_state, command) => recordDelivery(command),
-      RegisterDevice: (state, command) =>
-        Arr.map(
-          Arr.filter([command.token], (token) => !Arr.contains(state.devices, token)),
-          (token) => DeviceRegistered.make({ token }),
-        ),
-      RemoveDevice: (state, command) =>
-        Arr.map(
-          Arr.filter([command.token], (token) => Arr.contains(state.devices, token)),
-          (token) => DeviceRemoved.make({ token }),
-        ),
-      SetEmail: (state, command) => setEmail(state, command),
-      SetPreference: (state, command) => setPreference(state, command),
+      MarkRead: (_state, command) => decideMarkRead(command),
+      Notify: (state, command, { id }) => decideNotify(state, command, id),
+      RecordDelivery: (_state, command) => decideRecordDelivery(command),
+      RegisterDevice: decideRegisterDevice,
+      RemoveDevice: decideRemoveDevice,
+      SetEmail: decideSetEmail,
+      SetPreference: decideSetPreference,
     },
     evolve: {
       DeviceRegistered: (state, event) => ({ ...state, devices: [...state.devices, event.token] }),
@@ -132,7 +38,15 @@ class Recipient extends Aggregate(
       NotificationQueued: (state) => state,
       NotificationRead: (state) => state,
       NotificationSent: (state) => state,
-      PreferenceSet: applyPreference,
+      PreferenceSet: (state, event) => {
+        const others = Arr.filter(state.muted, (muted) => !mutes(muted, event));
+
+        if (event.enabled) {
+          return { ...state, muted: others };
+        }
+
+        return { ...state, muted: [...others, Muted.make({ channel: event.channel, kind: event.kind })] };
+      },
     },
     id: UserId,
     initial: { devices: [], email: Option.none(), muted: [] },
