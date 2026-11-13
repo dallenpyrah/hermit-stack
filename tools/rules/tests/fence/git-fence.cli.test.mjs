@@ -7,6 +7,8 @@ import { promisify } from "node:util";
 import { commandVerdict, fileVerdict, messageOf } from "../../src/fence/git-fence.pure.mjs";
 
 const root = path.resolve(import.meta.dirname, "../..");
+// The agent hooks are configured once for the whole monorepo, at its root.
+const workspaceRoot = path.resolve(root, "../..");
 const cli = path.join(root, "src", "fence", "git-fence.cli.mjs");
 const run = promisify(execFile);
 const failures = [];
@@ -204,9 +206,9 @@ await run("git", ["config", "alias.quick", "commit -n"], { cwd });
 const aliased = await hook("cursor", { command: "git quick -m x", cwd });
 expect(JSON.parse(aliased.stdout || "{}").permission === "deny", "the CLI does not expand the repo's git aliases");
 
-const settings = JSON.parse(readFileSync(path.join(root, ".claude", "settings.json"), "utf8"));
+const settings = JSON.parse(readFileSync(path.join(workspaceRoot, ".claude", "settings.json"), "utf8"));
 const claudeCommands = settings.hooks.PreToolUse.map((entry) => [entry.matcher, entry.hooks[0].command]);
-const viaShell = (command, input, env, cwd = root) =>
+const viaShell = (command, input, env, cwd = workspaceRoot) =>
   new Promise((resolve) => {
     const child = execFile(
       "sh",
@@ -223,13 +225,13 @@ for (const [matcher, command] of claudeCommands) {
     matcher === "Bash"
       ? { tool_input: { command: "git commit -n -m x" } }
       : { tool_input: { file_path: ".git/config" } };
-  const answer = await viaShell(command, input, { CLAUDE_PROJECT_DIR: root });
+  const answer = await viaShell(command, input, { CLAUDE_PROJECT_DIR: workspaceRoot });
   expect(
     JSON.parse(answer.stdout || "{}").hookSpecificOutput?.permissionDecision === "deny",
     `.claude/settings.json ${matcher} hook does not deny`,
   );
 }
-const cursorConfig = JSON.parse(readFileSync(path.join(root, ".cursor", "hooks.json"), "utf8"));
+const cursorConfig = JSON.parse(readFileSync(path.join(workspaceRoot, ".cursor", "hooks.json"), "utf8"));
 const cursorWired = await viaShell(
   cursorConfig.hooks.beforeShellExecution[0].command,
   { command: "git commit --no-verify" },
@@ -240,7 +242,7 @@ expect(
   ".cursor/hooks.json beforeShellExecution hook does not deny",
 );
 const handlers = [];
-const { default: piExtension } = await import(path.join(root, ".pi", "extensions", "git-fence.adapter.js"));
+const { default: piExtension } = await import(path.join(workspaceRoot, ".pi", "extensions", "git-fence.adapter.js"));
 piExtension({ on: (event, handler) => handlers.push([event, handler]) });
 const piHandler = handlers.find(([event]) => event === "tool_call")?.[1];
 expect(
@@ -254,37 +256,6 @@ expect(
 expect(
   piHandler?.({ input: { command: "git status" }, toolName: "bash" }) === undefined,
   ".pi extension blocks git status",
-);
-
-const ampOf = async (pluginRoot) => {
-  const ampHandlers = [];
-  const { default: ampPlugin } = await import(path.join(pluginRoot, ".amp", "plugins", "git-fence.adapter.js"));
-  ampPlugin({
-    helpers: {
-      filePathFromURI: (uri) => String(uri),
-      filesModifiedByToolCall: (event) => (event.tool === "edit_file" ? [event.input.path] : null),
-      shellCommandFromToolCall: (event) => (event.tool === "shell_command" ? { command: event.input.command } : null),
-    },
-    on: (event, handler) => ampHandlers.push([event, handler]),
-    system: { workspaceRoot: null },
-  });
-  return ampHandlers.find(([event]) => event === "tool.call")?.[1];
-};
-const ampShell = (command) => ({ input: { command }, tool: "shell_command" });
-const ampHandler = await ampOf(root);
-const ampBlocked = ampHandler?.(ampShell("git -c core.hooksPath=/dev/null rebase --continue"));
-expect(
-  ampBlocked?.action === "reject-and-continue" && form.test(ampBlocked.message),
-  `.amp plugin does not refuse git -c core.hooksPath=/dev/null rebase --continue: ${JSON.stringify(ampBlocked)}`,
-);
-expect(
-  ampHandler?.({ input: { path: ".git/config" }, tool: "edit_file" })?.action === "reject-and-continue",
-  ".amp plugin does not refuse an edit of .git/config",
-);
-expect(ampHandler?.(ampShell("git status"))?.action === "allow", ".amp plugin refuses git status");
-expect(
-  ampHandler?.({ input: { path: "src/room.actor.ts" }, tool: "edit_file" })?.action === "allow",
-  ".amp plugin refuses an ordinary edit",
 );
 
 const stranded = mkdtempSync(path.join(tmpdir(), "git-fence-missing-"));
@@ -310,7 +281,7 @@ expect(
 );
 mkdirSync(path.join(stranded, ".pi", "extensions"), { recursive: true });
 copyFileSync(
-  path.join(root, ".pi", "extensions", "git-fence.adapter.js"),
+  path.join(workspaceRoot, ".pi", "extensions", "git-fence.adapter.js"),
   path.join(stranded, ".pi", "extensions", "git-fence.adapter.js"),
 );
 const strandedHandlers = [];
@@ -325,79 +296,10 @@ expect(
   `.pi extension lets a call through when git-fence is missing: ${JSON.stringify(strandedAnswer)}`,
 );
 
-mkdirSync(path.join(stranded, ".amp", "plugins"), { recursive: true });
-copyFileSync(
-  path.join(root, ".amp", "plugins", "git-fence.adapter.js"),
-  path.join(stranded, ".amp", "plugins", "git-fence.adapter.js"),
-);
-const strandedAmpHandler = await ampOf(stranded);
-const strandedAmp = strandedAmpHandler?.(ampShell("git status"));
-expect(
-  strandedAmp?.action === "reject-and-continue" &&
-    strandedAmp.message.includes("so this call is refused") &&
-    strandedAmp.message.includes("Fix: git -C ../rules fetch origin && git -C ../rules merge --ff-only origin/main"),
-  `.amp plugin lets a call through, or names no recovery, when git-fence is missing: ${JSON.stringify(strandedAmp)}`,
-);
-// A rules checkout too old to have git-fence must still be updated, installed and rebuilt from the thread.
-for (const command of [
-  "git -C ../rules fetch origin",
-  "git -C ../rules merge --ff-only origin/main",
-  "cd ../rules && pnpm install && pnpm build",
-  "pnpm -C ../rules install --frozen-lockfile",
-  "pnpm --dir ../rules run build",
-  "pnpm install --force",
-  "git fetch -q origin && git merge --ff-only origin/main",
-]) {
-  expect(
-    strandedAmpHandler?.(ampShell(command))?.action === "allow",
-    `.amp plugin refuses the recovery step \`${command}\` when git-fence is missing`,
-  );
-}
-for (const command of [
-  "git -C ../rules fetch origin && git commit -n -m x",
-  "pnpm install; rm -rf .git/hooks",
-  "git -c core.hooksPath=/dev/null fetch origin",
-  "git -C ../rules merge origin/main",
-  "pnpm install && pnpm check",
-  "git fetch --upload-pack=/tmp/x origin",
-  "echo $(git commit -n) && pnpm install",
-]) {
-  expect(
-    strandedAmpHandler?.(ampShell(command))?.action === "reject-and-continue",
-    `.amp plugin lets \`${command}\` through as a recovery step when git-fence is missing`,
-  );
-}
-
-// A stale rules checkout whose git-fence crashes on load gets the same recovery path.
-const broken = mkdtempSync(path.join(tmpdir(), "git-fence-broken-"));
-const brokenRules = path.join(broken, "node_modules", "@rikalabs", "rules");
-mkdirSync(path.join(brokenRules, "src"), { recursive: true });
-writeFileSync(path.join(broken, "package.json"), JSON.stringify({ name: "app", type: "module" }));
-writeFileSync(
-  path.join(brokenRules, "package.json"),
-  JSON.stringify({ exports: { "./git-fence": "./src/git-fence.cli.mjs" }, name: "@repo/rules", type: "module" }),
-);
-writeFileSync(path.join(brokenRules, "src", "git-fence.cli.mjs"), 'import "./file-fence.pure.mjs";\n');
-mkdirSync(path.join(broken, ".amp", "plugins"), { recursive: true });
-copyFileSync(
-  path.join(root, ".amp", "plugins", "git-fence.adapter.js"),
-  path.join(broken, ".amp", "plugins", "git-fence.adapter.js"),
-);
-const brokenHandler = await ampOf(broken);
-const brokenAnswer = brokenHandler?.(ampShell("git status"));
-expect(
-  brokenAnswer?.action === "reject-and-continue" && brokenAnswer.message.includes(`git -C ${brokenRules} fetch origin`),
-  `.amp plugin lets a call through, or names no recovery, when git-fence crashes: ${JSON.stringify(brokenAnswer)}`,
-);
-expect(
-  brokenHandler?.(ampShell(`git -C ${brokenRules} fetch origin`))?.action === "allow",
-  ".amp plugin refuses fetching the rules checkout when git-fence crashes",
-);
-
 if (failures.length > 0) {
   console.error(failures.join("\n"));
   process.exit(1);
 }
 console.log(
-  `git fence: ${cases.blocked.length} blocked and ${cases.allowed.length} allowed commands, the Claude Code, Cursor, Pi and Amp answers, and this repo's four hook configs, which refuse when git-fence is missing`,
+  `git fence: ${cases.blocked.length} blocked and ${cases.allowed.length} allowed commands, the Claude Code, Cursor and Pi answers, and this repo's three hook configs, which refuse when git-fence is missing`,
 );

@@ -33,9 +33,9 @@ Some counts come from a measurement rather than from the repo's files, such as t
 - A count below its baseline also fails, until `ratchets.json` is lowered in the same commit. Otherwise the room left over lets the next exception in without anyone seeing it.
 - A count with no baseline, or a baseline entry with nothing left to count, fails too.
 
-`node src/ratchet/ratchet.cli.mjs --print` (in a consumer, `pnpm exec ratchet --print`) prints the current counts in the shape of `ratchets.json`.
+`pnpm exec ratchet --print`, from the repo root, prints the current counts in the shape of `ratchets.json`.
 
 ## Not counted yet
 
-- Worker startup bytes for the shard Durable Object. akter-cloud measures the gateway Worker's bundle through `--counts`; the shard object gets its count under DAL-52.
+- Measured sizes, such as a Worker bundle's bytes. No package writes a `--counts` file yet.
 - Knip findings. `pnpm knip` already fails on any finding, so the number is held at zero. The ratchet counts the exceptions that hide findings instead.

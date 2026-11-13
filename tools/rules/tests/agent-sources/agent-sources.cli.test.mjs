@@ -7,6 +7,8 @@ import { promisify } from "node:util";
 import { catalogOf, pinOf, repositoryUrlOf, tagCandidates } from "../../src/agent-sources/agent-sources.pure.mjs";
 
 const root = path.resolve(import.meta.dirname, "../..");
+// The repo's own wiring lives at the monorepo root, two folders up from this package.
+const workspaceRoot = path.resolve(root, "../..");
 const cli = path.join(root, "src", "agent-sources", "agent-sources.cli.mjs");
 const run = promisify(execFile);
 const failures = [];
@@ -103,17 +105,17 @@ expect(
   `a pin with no tag passes: ${missing.output}`,
 );
 
-const agents = readFileSync(path.join(root, "AGENTS.md"), "utf8");
+const agents = readFileSync(path.join(workspaceRoot, "AGENTS.md"), "utf8");
 expect(
   agents.includes(".agent_sources/") && agents.includes("node_modules/effect/AGENTS.md"),
   "AGENTS.md does not point at .agent_sources/ and node_modules/effect/AGENTS.md",
 );
 expect(
-  readFileSync(path.join(root, ".gitignore"), "utf8").split("\n").includes(".agent_sources/"),
+  readFileSync(path.join(workspaceRoot, ".gitignore"), "utf8").split("\n").includes(".agent_sources/"),
   ".gitignore does not ignore .agent_sources/",
 );
 expect(
-  Object.keys(JSON.parse(readFileSync(path.join(root, "agent-sources.json"), "utf8"))).length > 0,
+  Object.keys(JSON.parse(readFileSync(path.join(workspaceRoot, "agent-sources.json"), "utf8"))).length > 0,
   "agent-sources.json lists nothing",
 );
 

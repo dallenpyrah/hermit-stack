@@ -7,6 +7,8 @@ import { promisify } from "node:util";
 import { verdictsOf } from "../../src/fence/check-scripts.pure.mjs";
 
 const root = path.resolve(import.meta.dirname, "../..");
+// The repo's own wiring lives at the monorepo root, two folders up from this package.
+const workspaceRoot = path.resolve(root, "../..");
 const cli = path.join(root, "src", "fence", "check-scripts.cli.mjs");
 const run = promisify(execFile);
 const failures = [];
@@ -90,7 +92,7 @@ expect(
   `the CLI passes a drifted check:affected: ${drifted.stderr}`,
 );
 
-const { scripts } = JSON.parse(readFileSync(path.join(root, "package.json"), "utf8"));
+const { scripts } = JSON.parse(readFileSync(path.join(workspaceRoot, "package.json"), "utf8"));
 expect(
   verdictsOf(scripts).length === 0,
   `this repo's check:affected differs from check: ${verdictsOf(scripts).join(" ")}`,

@@ -204,14 +204,21 @@ expect(
   `a name.* glob through a symlinked sibling, which turbo matches to nothing, passes:\n${starThroughLink.output}`,
 );
 
+// Turbo 2.11.11 hashes no file through a symlinked sibling, ** globs included; 2.11.10 still matched them.
 siblingThroughLink("src/**");
 const globstarThroughLink = await outcome(run("node", [cli], { cwd: repo, env }));
-expect(globstarThroughLink.code === 0, `a ** glob through a symlinked sibling fails:\n${globstarThroughLink.output}`);
+expect(
+  globstarThroughLink.code === 1 &&
+    globstarThroughLink.output.includes(
+      `tooling#sibling-inputs lists ../../../${path.basename(linked)}/src/** outside the repo`,
+    ),
+  `a ** glob through a symlinked sibling, which turbo 2.11.11 matches to nothing, passes:\n${globstarThroughLink.output}`,
+);
 
 if (failures.length > 0) {
   console.error(failures.join("\n\n"));
   process.exit(1);
 }
 console.log(
-  'task-inputs: "*.ts", src/** without tests/**, an unhashed outside link, an outside input on a task with a script or in a package build writes into, an outside glob that hashes nothing and a name.* glob through a symlinked sibling fail, $TURBO_DEFAULT$, a link hashed by a tooling task, a root task depending on sibling-inputs and a ** glob through a symlink pass, and build is not checked',
+  'task-inputs: "*.ts", src/** without tests/**, an unhashed outside link, an outside input on a task with a script or in a package build writes into, an outside glob that hashes nothing and any glob through a symlinked sibling fail, $TURBO_DEFAULT$, a link hashed by a tooling task and a root task depending on sibling-inputs pass, and build is not checked',
 );

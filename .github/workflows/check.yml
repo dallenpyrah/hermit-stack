@@ -1,0 +1,48 @@
+# Runs hermitstack's gate, `pnpm check`, on every pull request, and every night with the Turbo cache off,
+# so a pass replayed from the cache can't hide a check that now fails.
+name: hermitstack check
+
+on:
+  pull_request:
+  schedule:
+    # 09:00 UTC, early morning in America/Boise.
+    - cron: "0 9 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: check-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      TURBO_TELEMETRY_DISABLED: "1"
+      # The nightly run reads nothing from the cache, so every task runs.
+      TURBO_FORCE: ${{ github.event_name == 'schedule' && 'true' || 'false' }}
+    steps:
+      # gitleaks scans the whole history, so the checkout needs all of it.
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      # Installs the Node, pnpm, Bun and gitleaks that mise.toml pins.
+      - uses: jdx/mise-action@v2
+
+      - name: Restore the Turbo cache
+        if: github.event_name != 'schedule'
+        uses: actions/cache@v4
+        with:
+          path: .turbo/cache
+          key: turbo-${{ runner.os }}-${{ github.sha }}
+          restore-keys: turbo-${{ runner.os }}-
+
+      - name: Install the locked dependencies
+        run: mise exec -- pnpm install --frozen-lockfile
+
+      - name: Check
+        run: mise exec -- pnpm check

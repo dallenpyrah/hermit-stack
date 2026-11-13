@@ -8,14 +8,14 @@ Effect, FoldKit, Alchemy, Oxlint and StyleX always stay. Every vendor, host and 
 
 - `node_modules/effect/AGENTS.md`: the Effect v4 idioms the lint rules encode.
 - `tools/rules/docs/adr/`: why the rules are shaped the way they are.
-- Read a dependency's source in `node_modules` before using its API. Effect v4, Alchemy 2 beta and FoldKit all changed recently, so do not write their APIs from memory.
+- Read a dependency's source in `node_modules` before using its API. `pnpm agent-sources` also clones the source of each package in `agent-sources.json`, at its pinned version, into `.agent_sources/`. Effect v4, Alchemy 2 beta and FoldKit all changed recently, so do not write their APIs from memory.
 
 ## Commands
 
 Run everything through mise so the pinned Node and pnpm are used.
 
 - `mise exec -- pnpm install`
-- `mise exec -- pnpm check`: boundaries, format check, typecheck, lint, file roles, tests, build and sherif, in one Turbo run. Done means this exits 0.
+- `mise exec -- pnpm check`: boundaries, then format check, typecheck, lint, file roles, tests, build, knip, the ratchet, task inputs, doc paths, sherif, gitleaks, env reads and the check scripts, in one Turbo run. Done means this exits 0. `tools/rules/AGENTS.md` describes each check.
 - `mise exec -- pnpm check:affected`: the same tasks, limited to what changed on this branch.
 - `mise exec -- pnpm fmt`: format with oxfmt.
 - `mise exec -- pnpm exec turbo run test --filter=@repo/kernel`: one package's tests.
@@ -54,7 +54,7 @@ kernel    ──▶ effect only
 Files:
 
 - Name every file `<kebab-name>.<role>.ts`, such as `span-name.pure.ts`. The role list is in `tools/rules/src/oxlint/structure/roles.pure.ts`.
-- Alchemy Domain roles (`aggregate`, `command`, `event`, `projection`, `policy`, `saga` and the rest) are enabled under `contexts/` and `packages/schedule/`. FoldKit roles (`model`, `message`, `update`, `subscription`, `command`) are enabled under `apps/web/`, `apps/panels/`, `packages/ui/` and `packages/client-data/`. `oxlint-structure.config.ts` lists both.
+- Alchemy Domain roles (`aggregate`, `command`, `event`, `projection`, `policy`, `saga` and the rest) are enabled under `contexts/**` and `packages/schedule/**`. FoldKit roles (`model`, `message`, `update`, `subscription`, `command`) are enabled under `apps/web/**`, `apps/panels/**`, `packages/ui/**` and `packages/client-data/**`. `oxlint-structure.config.ts` lists both.
 - Tests live in `tests/`, mirroring `src/`: `src/telemetry/span-name.pure.ts` is tested by `tests/telemetry/span-name.pure.test.ts`.
 - At most 10 code files directly in one folder, and at most 500 lines in a file.
 

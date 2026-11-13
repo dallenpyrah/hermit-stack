@@ -9,11 +9,10 @@
 | Claude Code | `.claude/settings.json`               | `PreToolUse` on `Bash` and on `Edit`, `Write`, `MultiEdit`, `NotebookEdit` | `permissionDecision: "deny"` with the message                     |
 | Cursor      | `.cursor/hooks.json`                  | `beforeShellExecution`                                                     | `permission: "deny"`, with the message for the agent and the user |
 | Pi          | `.pi/extensions/git-fence.adapter.js` | `tool_call` on `bash`, `edit` and `write`                                  | `{ block: true, reason }`                                         |
-| Amp         | `.amp/plugins/git-fence.adapter.js`   | `tool.call` on shell commands and on every tool that edits files           | `{ action: "reject-and-continue", message }`                      |
 
-Claude Code, Pi and Amp load the script through the `@rikalabs/rules/git-fence` export, here and in akter and akter-cloud, so it still runs after rules moves the file, with no reinstall. Cursor runs the `git-fence` bin in akter and akter-cloud.
+Each config sits at the repo root. Claude Code and Pi load the script through the `@repo/rules/git-fence` export, which the root `package.json` links, and Cursor runs `tools/rules/src/fence/git-fence.cli.mjs` by path. Upstream also wires an Amp plugin (`git-fence.adapter.js` in its Amp plugins folder); hermitstack does not have one yet.
 
-Each hook fails closed. When the script can't be found or exits with an unexpected code, the Claude Code command exits 2, the Cursor hook sets `failClosed: true`, the Pi extension returns `{ block: true }`, and the Amp plugin rejects the call. Each one refuses the call with `git-fence could not run, so this call is refused. Fix: run pnpm install --force …`. An agent never runs the call unchecked. While the fence can't run, the Amp plugin still lets the recovery through, so a thread on a stale or missing rules checkout can repair it: `git fetch`, `git merge --ff-only`, `pnpm install` and `pnpm build`, optionally with `-C <dir>` or after `cd <dir>`, joined by `&&` only. Its refusal names the exact commands for the linked rules checkout.
+Each hook fails closed. When the script can't be found or exits with an unexpected code, the Claude Code command exits 2, the Cursor hook sets `failClosed: true`, and the Pi extension returns `{ block: true }`. Each one refuses the call with `git-fence could not run, so this call is refused. Fix: run pnpm install --force …`. An agent never runs the call unchecked.
 
 ## What it refuses
 
@@ -28,6 +27,6 @@ It reads through `&&`, `||`, `;`, pipes, `sh -c` and the other shells, `eval`, `
 ## What it cannot close
 
 - Git run from a script file, a variable (`$CMD`), a decoded string or another language (`node -e`, `python -c`): the hook sees the outer command only.
-- An agent with no hook support, and people. Capy threads follow `CREW.md`, which forbids `--no-verify`, instead.
+- An agent with no hook support, Amp included until it has a plugin here, and people. `AGENTS.md` forbids `--no-verify` for them instead.
 - Cursor file edits: Cursor's file hooks observe edits after the fact and cannot refuse them, so a Cursor agent can still write `.git/config`.
-- Hooks a person turns off in their agent's settings, and an Amp plugin they disable.
+- Hooks a person turns off in their agent's settings.

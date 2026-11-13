@@ -1,15 +1,24 @@
 {
-  "name": "strata",
+  "name": "hermitstack",
   "private": true,
   "type": "module",
   "scripts": {
-    "check": "mise exec -- turbo boundaries --filter='!@repo/rules' && mise exec -- turbo run fmt:check typecheck lint lint:structure test build sherif --concurrency=100% --continue=dependencies-successful",
+    "check": "mise exec -- turbo boundaries && mise exec -- turbo run fmt:check typecheck lint lint:structure test build knip ratchet lint:inputs lint:paths sherif gitleaks lint:env lint:scripts --concurrency=100% --continue=dependencies-successful",
     "check:affected": "pnpm check --affected",
     "fmt": "oxfmt",
     "fmt:check": "oxfmt --check",
-    "boundaries": "turbo boundaries --filter='!@repo/rules'",
+    "boundaries": "turbo boundaries",
     "lint:structure": "oxlint -c oxlint-structure.config.ts .",
-    "sherif": "sherif"
+    "lint:env": "rules-env",
+    "lint:inputs": "task-inputs",
+    "lint:paths": "doc-paths --ignore tools/rules/src/oxlint/anti-slop/ --ignore tools/rules/tests/oxlint/anti-slop/",
+    "lint:scripts": "check-scripts",
+    "knip": "knip --no-progress",
+    "ratchet": "ratchet",
+    "sherif": "sherif",
+    "gitleaks": "mise exec -- gitleaks git --no-banner --redact .",
+    "runtime-pins": "runtime-pins",
+    "agent-sources": "agent-sources"
   },
   "devDependencies": {
     "@effect/tsgo": "catalog:",
@@ -17,6 +26,7 @@
     "@typeonce/oxlint-plugin-effect-machine": "catalog:",
     "@types/node": "catalog:",
     "effect": "catalog:",
+    "knip": "catalog:",
     "lefthook": "catalog:",
     "mutant-cafe": "catalog:",
     "oxfmt": "catalog:",

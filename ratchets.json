@@ -1,0 +1,14 @@
+{
+  "knip.config.ts exceptions": 10,
+  "oxlint.config.ts rules off": 20,
+  "oxlint.config.ts override rules per glob": 1,
+  "oxlint.config.ts ignore patterns": 4,
+  "oxlint-structure.config.ts rules off": 0,
+  "oxlint-structure.config.ts override rules per glob": 12,
+  "oxlint-structure.config.ts ignore patterns": 5,
+  "tsconfig.base.json allowed unstable APIs": 1,
+  "inline suppressions": 0,
+  "patched dependencies": 1,
+  "trust policy exceptions": 1,
+  "files over 500 lines": 0
+}

@@ -1,6 +1,6 @@
 # Mutants
 
-`mutant-cafe` (pinned in akter's and akter-cloud's catalogs) breaks one function at a time in ways that still type-check, runs the tests that import it, and records each mutant's outcome in `mutants.out/outcomes.json`. `src/mutants/mutants.cli.mjs` (`mutants`) turns that report into a pass or a fail.
+`mutant-cafe` (pinned in the root catalog) breaks one function at a time in ways that still type-check, runs the tests that import it, and records each mutant's outcome in `mutants.out/outcomes.json`. `src/mutants/mutants.cli.mjs` (`mutants`) turns that report into a pass or a fail.
 
 ## What fails
 
@@ -30,14 +30,14 @@ Each failure prints the entry for its mutant with an empty reason. Prefer a test
 
 ## Survivor baseline
 
-`mutants.baseline.json` holds the survivors a package had when the check arrived and has not killed yet, with no reason, so a new survivor fails at once while the old ones are worked off. `node node_modules/@rikalabs/rules/src/mutants/mutants.cli.mjs --write-baseline` writes it from the last run, leaving out equivalent mutants. `ratchet` counts its entries as `baseline surviving mutants`, and the stale-entry rule makes the file shrink as tests kill them. Delete it when it is empty.
+`mutants.baseline.json` holds the survivors a package had when the check arrived and has not killed yet, with no reason, so a new survivor fails at once while the old ones are worked off. `pnpm exec mutants --write-baseline` writes it from the last run, leaving out equivalent mutants. `ratchet` counts its entries as `baseline surviving mutants`, and the stale-entry rule makes the file shrink as tests kill them. Delete it when it is empty.
 
 The writer refuses every report failure without changing an existing baseline or creating a new one. A non-empty run with no non-equivalent survivors also refuses unless `--allow-empty-baseline` is explicitly passed with `--write-baseline`; that flag never overrides a failed run. Successful writes flush a new file in a unique sibling directory and rename it over the baseline, so interruption before publication leaves the old baseline intact. Ordinary write or rename failures clean up the staging directory; a killed process can leave that directory for removal, but never publishes its partial file.
 
-## In a consumer
+## In hermitstack
 
-The freshness check uses the consumer's pinned `mutant-cafe@0.1.6` peer binary on `PATH`. Packages without a survivor baseline skip enumeration.
+The freshness check uses the root's pinned `mutant-cafe@0.1.6` peer binary on `PATH`. Packages without a survivor baseline skip enumeration.
 
-Rules permits exactly `mutant-cafe@0.1.6` under pnpm's `trustPolicyExclude`, matching the SDK's existing exception; `trustPolicy` stays `no-downgrade`. The SDK records its release-workflow/SLSA rationale because npm's trusted-publisher metadata stops at 0.1.2. The exception is counted in `ratchets.json`; upgrade and remove it when a release restores provenance.
+The root `pnpm-workspace.yaml` permits exactly `mutant-cafe@0.1.6` under pnpm's `trustPolicyExclude`, with its release-workflow/SLSA rationale, because npm's trusted-publisher metadata stops at 0.1.2; `trustPolicy` stays `no-downgrade`. The exception is counted in `ratchets.json`; upgrade and remove it when a release restores provenance.
 
-`pnpm mutants` runs every mutant in the package's `mutants.config.json` scope and then `mutants --all`. `pnpm mutants:diff` runs only the mutants on lines changed since `main` (`--in-diff-range main...HEAD`) and then `mutants`. A baseline id outside the selected diff stays valid only when complete enumeration still generates it; an absent id fails in either mode.
+A package that adopts mutation testing adds `mutants` and `mutants:diff` scripts: `pnpm mutants` runs every mutant in the package's `mutants.config.json` scope and then `mutants --all`. `pnpm mutants:diff` runs only the mutants on lines changed since `main` (`--in-diff-range main...HEAD`) and then `mutants`. A baseline id outside the selected diff stays valid only when complete enumeration still generates it; an absent id fails in either mode.
