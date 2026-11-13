@@ -1,0 +1,46 @@
+{
+  "name": "@repo/billing",
+  "version": "0.0.0",
+  "private": true,
+  "description": "The billing bounded context: a Subscription aggregate that holds what a customer may use, its entitlement view, and the Payments port to whichever processor takes the money.",
+  "type": "module",
+  "sideEffects": false,
+  "imports": {
+    "#src/*": "./src/*",
+    "#tests/*": "./tests/*.ts"
+  },
+  "exports": {
+    "./api": "./src/billing.api.ts",
+    "./customer-id": "./src/subscription/customer.id.ts",
+    "./entitlement": "./src/subscription/entitlement.view.ts",
+    "./handlers": "./src/billing.layer.ts",
+    "./model": "./src/billing.model.ts",
+    "./payer-not-found": "./src/payments/payer-not-found.rejection.ts",
+    "./payments": "./src/payments/payments.external.ts",
+    "./payments-fake": "./tests/payments/payments.fake.ts",
+    "./payments-suite": "./tests/payments/payments.suite.ts",
+    "./plan": "./src/subscription/plan.schema.ts",
+    "./record-payment-failed": "./src/subscription/payment-failure/record-payment-failed.command.ts",
+    "./record-subscription-cancelled": "./src/subscription/cancellation/record-subscription-cancelled.command.ts",
+    "./record-subscription-renewed": "./src/subscription/renew/record-subscription-renewed.command.ts",
+    "./record-subscription-started": "./src/subscription/start/record-subscription-started.command.ts",
+    "./subscription": "./src/subscription/subscription.aggregate.ts",
+    "./subscription-not-found": "./src/payments/subscription-not-found.rejection.ts",
+    "./unknown-plan": "./src/payments/unknown-plan.rejection.ts"
+  },
+  "scripts": {
+    "typecheck": "effect-tsgo tsrs --noEmit -p tsconfig.json",
+    "lint": "effect-tsgo --tsrs-lint oxlint -c ../../oxlint.config.ts --type-aware --tsconfig tsconfig.json src tests",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@alchemy.run/domain": "catalog:",
+    "alchemy": "catalog:",
+    "effect": "catalog:"
+  },
+  "devDependencies": {
+    "@effect/vitest": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
+  }
+}

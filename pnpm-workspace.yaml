@@ -57,6 +57,7 @@ catalog:
   "@alchemy.run/effect-cluster": "2.0.0-beta.87"
   "@alchemy.run/gcp": "2.0.0-beta.87"
   "@alchemy.run/rivet": "2.0.0-beta.87"
+  "@distilled.cloud/stripe": "1.0.0-rc.20"
   "@rivetkit/effect": "3.1.1"
   alchemy: "2.0.0-beta.87"
   rivetkit: "3.1.1"
