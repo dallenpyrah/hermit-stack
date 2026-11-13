@@ -1,0 +1,40 @@
+{
+  "name": "@repo/mcp-app",
+  "version": "0.0.0",
+  "private": true,
+  "description": "MCP Apps for an Api: the server half declares a panel's ui:// resource and links it to a derived tool; the panel half is the typed client a panel runs inside the host's iframe.",
+  "type": "module",
+  "sideEffects": false,
+  "imports": {
+    "#src/*": "./src/*",
+    "#tests/*": "./tests/*.ts"
+  },
+  "exports": {
+    "./browser": "./src/panel/host-channel.layer.ts",
+    "./errors/host-handshake": "./src/panel/host-handshake.errors.ts",
+    "./errors/tool-call": "./src/panel/tool-call.errors.ts",
+    "./ledger": "./src/ledger/account-panel.layer.ts",
+    "./panel-host": "./src/panel/panel-host.service.ts",
+    "./panel-host/layer": "./src/panel/panel-host.layer.ts",
+    "./host-channel": "./src/panel/host-channel.service.ts",
+    "./protocol": "./src/protocol/message.schema.ts",
+    "./server": "./src/server/panel.layer.ts"
+  },
+  "scripts": {
+    "typecheck": "effect-tsgo tsrs --noEmit -p tsconfig.json",
+    "lint": "effect-tsgo --tsrs-lint oxlint -c ../../oxlint.config.ts --type-aware --tsconfig tsconfig.json src tests",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@alchemy.run/domain": "catalog:",
+    "@repo/ledger": "workspace:*",
+    "alchemy": "catalog:",
+    "effect": "catalog:"
+  },
+  "devDependencies": {
+    "@effect/platform-node": "catalog:",
+    "@effect/vitest": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
+  }
+}

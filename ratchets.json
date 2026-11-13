@@ -12,6 +12,8 @@
   "contexts/outbound/tsconfig.json allowed unstable APIs": 1,
   "packages/conformance/tsconfig.json diagnostics off": 1,
   "packages/conformance/tsconfig.json allowed unstable APIs": 6,
+  "packages/mcp-app/tsconfig.json diagnostics off": 1,
+  "packages/mcp-app/tsconfig.json allowed unstable APIs": 7,
   "packages/schedule/tsconfig.json override diagnostics per glob": 4,
   "packages/schedule/tsconfig.json allowed unstable APIs": 1,
   "services/api/tsconfig.json diagnostics off": 1,
