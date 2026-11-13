@@ -32,8 +32,14 @@ const entryPoints = {
   rules: { "vitest/require-hook": "off" },
 } as const;
 
+// A rollout bucket is a 32-bit hash, FNV-1a with MurmurHash3's finaliser, and those are written in XOR and shifts.
+const flagBucketHash = {
+  files: ["packages/flags/src/evaluate/bucket.pure.ts"],
+  rules: { "eslint/no-bitwise": "off" },
+} as const;
+
 export default defineConfig({
   ...base,
   ignorePatterns: [...(base.ignorePatterns ?? []), "tools/rules/**"],
-  overrides: [...(base.overrides ?? []), ...(docs.overrides ?? []), specThroughApiOnly, entryPoints],
+  overrides: [...(base.overrides ?? []), ...(docs.overrides ?? []), specThroughApiOnly, entryPoints, flagBucketHash],
 });
