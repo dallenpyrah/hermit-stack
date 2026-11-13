@@ -8,6 +8,8 @@
   "oxlint-structure.config.ts ignore patterns": 5,
   "adapters/axiom/tsconfig.json allowed unstable APIs": 4,
   "adapters/otlp/tsconfig.json allowed unstable APIs": 4,
+  "apps/cli/tsconfig.json diagnostics off": 1,
+  "apps/cli/tsconfig.json allowed unstable APIs": 6,
   "contexts/ledger/tsconfig.json diagnostics off": 2,
   "contexts/ledger/tsconfig.json allowed unstable APIs": 2,
   "contexts/outbound/tsconfig.json override diagnostics per glob": 4,
