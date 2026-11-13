@@ -10,10 +10,12 @@
     "#tests/*": "./tests/*.ts"
   },
   "exports": {
-    "./rearm": "./src/recurring/rearm.policy.ts",
+    "./arm": "./src/recurring/arm/arm.command.ts",
+    "./pause": "./src/recurring/pause/pause.command.ts",
+    "./rearm": "./src/recurring/tick/rearm.policy.ts",
     "./recurring": "./src/recurring/recurring.aggregate.ts",
-    "./recurring-commands": "./src/recurring/recurring.command.ts",
-    "./recurring-name": "./src/recurring/recurring.id.ts"
+    "./recurring-name": "./src/recurring/recurring.id.ts",
+    "./ticked": "./src/recurring/tick/ticked.event.ts"
   },
   "scripts": {
     "typecheck": "effect-tsgo tsrs --noEmit -p tsconfig.json",

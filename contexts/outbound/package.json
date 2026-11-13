@@ -12,10 +12,10 @@
   "exports": {
     "./email": "./src/notification/email.external.ts",
     "./email-fake": "./tests/notification/email.fake.ts",
-    "./feed-commands": "./src/feed/feed.command.ts",
     "./handlers": "./src/outbound.layer.ts",
     "./model": "./src/outbound.model.ts",
     "./public-event": "./src/feed/public-event.schema.ts",
+    "./publish": "./src/feed/publish/publish.command.ts",
     "./push": "./src/notification/push.external.ts",
     "./webhook-transport": "./src/webhook/webhook-transport.external.ts"
   },

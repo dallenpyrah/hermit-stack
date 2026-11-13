@@ -1,40 +1,14 @@
 import { Aggregate } from "@alchemy.run/domain";
-import { Array as Arr, Match, Number as Num, Option, Schema } from "effect";
+import { Array as Arr } from "effect";
 
 import { TenantId } from "#src/feed/tenant.id.js";
-import { EndpointId } from "#src/webhook/endpoint.id.js";
+import type { EndpointId } from "#src/webhook/endpoint.id.js";
+import { Endpoint, EndpointsState, noFailures } from "#src/webhook/endpoints-state.schema.js";
 import {
-  EndpointDisabled,
-  EndpointRegistered,
-  FailureCounted,
-  FailuresCleared,
+  decideRecordDeliveryOutcome,
   RecordDeliveryOutcome,
-  RegisterEndpoint,
-} from "#src/webhook/endpoints.command.js";
-
-// An endpoint whose deliveries are exhausted this many times in a row stops receiving deliveries.
-const disableAfterFailures = 5;
-
-const noFailures = 0;
-
-const Endpoint = Schema.Struct({
-  active: Schema.Boolean,
-  endpointId: EndpointId,
-  eventTypes: Schema.Array(Schema.String),
-  failuresInRow: Schema.Int,
-  url: Schema.String,
-});
-
-type Endpoint = typeof Endpoint.Type;
-
-const EndpointsState = Schema.Struct({ endpoints: Schema.Array(Endpoint) });
-
-type EndpointsState = typeof EndpointsState.Type;
-
-type OutcomeEvent = EndpointDisabled | FailureCounted | FailuresCleared;
-
-const findEndpoint = (state: EndpointsState, endpointId: EndpointId): Option.Option<Endpoint> =>
-  Arr.findFirst(state.endpoints, (endpoint) => endpoint.endpointId === endpointId);
+} from "#src/webhook/record-outcome/record-delivery-outcome.command.js";
+import { decideRegisterEndpoint, RegisterEndpoint } from "#src/webhook/register-endpoint/register-endpoint.command.js";
 
 const updateEndpoint = (
   state: EndpointsState,
@@ -50,72 +24,33 @@ const updateEndpoint = (
   }),
 });
 
-const countFailure = (endpoint: Endpoint): readonly OutcomeEvent[] => {
-  const failuresInRow = Num.increment(endpoint.failuresInRow);
-  const counted = FailureCounted.make({ endpointId: endpoint.endpointId, failuresInRow });
-
-  if (failuresInRow >= disableAfterFailures) {
-    return [counted, EndpointDisabled.make({ endpointId: endpoint.endpointId, reason: "failing" })];
-  }
-
-  return [counted];
-};
-
-const clearFailures = (endpoint: Endpoint): readonly OutcomeEvent[] => {
-  if (endpoint.failuresInRow === noFailures) {
-    return [];
-  }
-
-  return [FailuresCleared.make({ endpointId: endpoint.endpointId })];
-};
-
-// A disabled or unknown endpoint ignores late outcomes, so a delivery still in flight when it was disabled changes
-// Nothing.
-const recordOutcome = (state: EndpointsState, command: RecordDeliveryOutcome): readonly OutcomeEvent[] =>
-  Option.match(
-    Option.filter(findEndpoint(state, command.endpointId), (endpoint) => endpoint.active),
-    {
-      onNone: () => [],
-      onSome: (endpoint) =>
-        Match.value(command.outcome).pipe(
-          Match.when("delivered", () => clearFailures(endpoint)),
-          Match.when("exhausted", () => countFailure(endpoint)),
-          Match.when("gone", () => [EndpointDisabled.make({ endpointId: endpoint.endpointId, reason: "gone" })]),
-          Match.exhaustive,
-        ),
-    },
-  );
-
-const register = (state: EndpointsState, event: EndpointRegistered): EndpointsState => {
-  const endpoint = Endpoint.make({
-    active: true,
-    endpointId: event.endpointId,
-    eventTypes: event.eventTypes,
-    failuresInRow: noFailures,
-    url: event.url,
-  });
-
-  const others = Arr.filter(state.endpoints, (registered) => registered.endpointId !== event.endpointId);
-
-  return { endpoints: [...others, endpoint] };
-};
-
 // A tenant's webhook endpoints in one instance, so finding who receives a public event is one read of decided state
-// And not a query across instances.
+// And not a query across instances. Each command's rule lives in its own file beside its events; this file holds the
+// State and how events change it.
 class Endpoints extends Aggregate(
   "Endpoints",
   {
     commands: [RegisterEndpoint, RecordDeliveryOutcome],
     decide: {
-      RecordDeliveryOutcome: (state, command) => recordOutcome(state, command),
-      RegisterEndpoint: (_state, command) => [
-        EndpointRegistered.make({ endpointId: command.endpointId, eventTypes: command.eventTypes, url: command.url }),
-      ],
+      RecordDeliveryOutcome: decideRecordDeliveryOutcome,
+      RegisterEndpoint: (_state, command) => decideRegisterEndpoint(command),
     },
     evolve: {
       EndpointDisabled: (state, event) =>
         updateEndpoint(state, event.endpointId, (endpoint) => ({ ...endpoint, active: false })),
-      EndpointRegistered: register,
+      // A registration replaces the endpoint with that id and starts it afresh: active, with no failures.
+      EndpointRegistered: (state, event) => ({
+        endpoints: [
+          ...Arr.filter(state.endpoints, (registered) => registered.endpointId !== event.endpointId),
+          Endpoint.make({
+            active: true,
+            endpointId: event.endpointId,
+            eventTypes: event.eventTypes,
+            failuresInRow: noFailures,
+            url: event.url,
+          }),
+        ],
+      }),
       FailureCounted: (state, event) =>
         updateEndpoint(state, event.endpointId, (endpoint) => ({ ...endpoint, failuresInRow: event.failuresInRow })),
       FailuresCleared: (state, event) =>
