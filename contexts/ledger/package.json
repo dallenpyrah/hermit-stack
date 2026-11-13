@@ -1,0 +1,32 @@
+{
+  "name": "@repo/ledger",
+  "version": "0.0.0",
+  "private": true,
+  "description": "The ledger bounded context: one Account aggregate, its commands, events and rejections, a balance view, and the Api derived from the model.",
+  "type": "module",
+  "sideEffects": false,
+  "imports": {
+    "#src/*": "./src/*",
+    "#tests/*": "./tests/*.ts"
+  },
+  "exports": {
+    "./account-id": "./src/account/account.id.ts",
+    "./api": "./src/ledger.api.ts",
+    "./model": "./src/ledger.model.ts"
+  },
+  "scripts": {
+    "typecheck": "effect-tsgo tsrs --noEmit -p tsconfig.json",
+    "lint": "effect-tsgo --tsrs-lint oxlint -c ../../oxlint.config.ts --type-aware --tsconfig tsconfig.json src tests",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@alchemy.run/domain": "catalog:",
+    "alchemy": "catalog:",
+    "effect": "catalog:"
+  },
+  "devDependencies": {
+    "@effect/vitest": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
+  }
+}

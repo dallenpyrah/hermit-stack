@@ -1,0 +1,24 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "plugins": [
+      {
+        "name": "@effect/language-service",
+        "allowedExperimentalApis": ["effect/ai/McpClient"],
+        "allowedUnstableApis": [
+          "@effect/platform-node",
+          "@effect/vitest",
+          "effect/ai",
+          "effect/http",
+          "effect/http-api",
+          "effect/rpc"
+        ],
+        "diagnosticSeverity": {
+          // The surfaces Domain derives (Effect RPC, HttpApi, MCP) are unstable Effect modules, so exporting them exposes those types by design.
+          "apiStabilityLeak": "off"
+        }
+      }
+    ]
+  },
+  "include": ["tests/**/*.ts"]
+}

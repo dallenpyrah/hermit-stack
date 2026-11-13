@@ -1,0 +1,29 @@
+{
+  "name": "@repo/conformance",
+  "version": "0.0.0",
+  "private": true,
+  "description": "The ledger's guarantees as one suite that takes the Layer providing the Api client, so the same cases run against every target.",
+  "type": "module",
+  "sideEffects": false,
+  "imports": {
+    "#src/*": "./src/*",
+    "#tests/*": "./tests/*.ts"
+  },
+  "exports": {
+    "./ledger": "./src/ledger-conformance.suite.ts"
+  },
+  "scripts": {
+    "typecheck": "effect-tsgo tsrs --noEmit -p tsconfig.json",
+    "lint": "effect-tsgo --tsrs-lint oxlint -c ../../oxlint.config.ts --type-aware --tsconfig tsconfig.json src tests",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@effect/vitest": "catalog:",
+    "@repo/ledger": "workspace:*",
+    "effect": "catalog:"
+  },
+  "devDependencies": {
+    "vite": "catalog:",
+    "vitest": "catalog:"
+  }
+}
