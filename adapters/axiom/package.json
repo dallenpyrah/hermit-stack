@@ -1,0 +1,29 @@
+{
+  "name": "@repo/axiom",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Telemetry for Axiom: Effect's OTLP exporters pointed at an Axiom edge deployment, with its token and datasets from Config.",
+  "type": "module",
+  "sideEffects": false,
+  "imports": {
+    "#src/*": "./src/*",
+    "#tests/*": "./tests/*.ts"
+  },
+  "exports": {
+    ".": "./src/axiom.layer.ts"
+  },
+  "scripts": {
+    "typecheck": "effect-tsgo tsrs --noEmit -p tsconfig.json",
+    "lint": "effect-tsgo --tsrs-lint oxlint -c ../../oxlint.config.ts --type-aware --tsconfig tsconfig.json src tests",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@repo/telemetry": "workspace:*",
+    "effect": "catalog:"
+  },
+  "devDependencies": {
+    "@effect/vitest": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
+  }
+}

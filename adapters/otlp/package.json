@@ -1,0 +1,30 @@
+{
+  "name": "@repo/otlp",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Telemetry for any OTLP/HTTP backend: Effect's OTLP exporters, configured from the standard OTEL_* variables.",
+  "type": "module",
+  "sideEffects": false,
+  "imports": {
+    "#src/*": "./src/*",
+    "#tests/*": "./tests/*.ts"
+  },
+  "exports": {
+    ".": "./src/otlp.layer.ts"
+  },
+  "scripts": {
+    "typecheck": "effect-tsgo tsrs --noEmit -p tsconfig.json",
+    "lint": "effect-tsgo --tsrs-lint oxlint -c ../../oxlint.config.ts --type-aware --tsconfig tsconfig.json src tests",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@repo/telemetry": "workspace:*",
+    "effect": "catalog:"
+  },
+  "devDependencies": {
+    "@effect/vitest": "catalog:",
+    "@repo/kernel": "workspace:*",
+    "vite": "catalog:",
+    "vitest": "catalog:"
+  }
+}
