@@ -1,0 +1,38 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "plugins": [
+      {
+        "name": "@effect/language-service",
+        // Archil's SDK runs on effect/http's HttpClient. The tests' stand-in for Archil serves effect/http and
+        // Effect/socket on @effect/platform-node, keeps its disks in folders through effect/FileSystem and effect/Path,
+        // And spawns its shell through effect/process. All of them are marked unstable.
+        "allowedUnstableApis": [
+          "@effect/platform-node",
+          "@effect/vitest",
+          "effect/FileSystem",
+          "effect/Path",
+          "effect/PlatformError",
+          "effect/http",
+          "effect/process",
+          "effect/socket"
+        ],
+        "overrides": [
+          {
+            // Alchemy's Archil providers Layer needs a file system, a child process spawner, an HTTP client and secure
+            // Random numbers, which effect marks unstable, so the resource file that hands it to infra exposes them.
+            "include": ["src/**/*.resource.ts"],
+            "options": { "diagnosticSeverity": { "apiStabilityLeak": "off" } }
+          },
+          {
+            // The stand-in for Archil is an HTTP router on the file system and a process spawner, so its halves hand
+            // Each other layers whose types name those unstable services.
+            "include": ["tests/**/*.fake.ts"],
+            "options": { "diagnosticSeverity": { "apiStabilityLeak": "off" } }
+          }
+        ]
+      }
+    ]
+  },
+  "include": ["src/**/*.ts", "tests/**/*.ts"]
+}

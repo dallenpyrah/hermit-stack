@@ -1,0 +1,32 @@
+{
+  "name": "@repo/storage",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Disks and sandboxes as two ports in the application's words, with in-memory fakes and the contract suites every adapter must pass.",
+  "type": "module",
+  "sideEffects": false,
+  "imports": {
+    "#src/*": "./src/*",
+    "#tests/*": "./tests/*.ts"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./disks-fake": "./tests/disk/disks.fake.ts",
+    "./disks-suite": "./tests/disk/disks.suite.ts",
+    "./sandboxes-fake": "./tests/sandbox/sandboxes.fake.ts",
+    "./sandboxes-suite": "./tests/sandbox/sandboxes.suite.ts"
+  },
+  "scripts": {
+    "typecheck": "effect-tsgo tsrs --noEmit -p tsconfig.json",
+    "lint": "effect-tsgo --tsrs-lint oxlint -c ../../oxlint.config.ts --type-aware --tsconfig tsconfig.json src tests",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "effect": "catalog:"
+  },
+  "devDependencies": {
+    "@effect/vitest": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
+  }
+}
