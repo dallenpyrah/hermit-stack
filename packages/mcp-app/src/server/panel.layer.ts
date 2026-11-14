@@ -31,9 +31,9 @@ interface PanelOptions<Api extends Toolable, Failure, Services> {
   readonly uri: `ui://${string}`;
 }
 
-// What the specification puts in a panel resource's _meta: its content policy and its border preference.
-// A key left undefined is dropped when the result is written as JSON.
-type PanelMeta = Readonly<{ ui: Readonly<{ csp: PanelCsp | undefined; prefersBorder: boolean | undefined }> }>;
+// What the specification puts in a panel resource's _meta: its content policy and its border preference, each only
+// When the panel sets it, since MCP's schema refuses an undefined value.
+type PanelMeta = Readonly<{ ui: Readonly<Partial<Record<"csp" | "prefersBorder", PanelCsp | boolean>>> }>;
 
 // A panel ready to serve: its resource, its _meta, and the names of the tools it renders.
 interface Panel<Failure, Services> {
@@ -73,7 +73,10 @@ const cspOf = (csp: PanelCsp): Option.Option<PanelCsp> =>
   );
 
 const metaOf = (csp: PanelCsp, prefersBorder: boolean | undefined): PanelMeta => ({
-  ui: { csp: Option.getOrUndefined(cspOf(csp)), prefersBorder },
+  ui: Rec.getSomes<"csp" | "prefersBorder", PanelCsp | boolean>({
+    csp: cspOf(csp),
+    prefersBorder: Option.fromNullishOr(prefersBorder),
+  }),
 });
 
 // The tool names come from Domain's own naming, so a panel links the exact tool toMcp registers for each call.

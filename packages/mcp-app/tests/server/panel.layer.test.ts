@@ -4,8 +4,9 @@ import { McpClient } from "effect/ai";
 
 import { LedgerApi } from "@repo/ledger/api";
 
+import { accountPanel } from "#src/ledger/account-panel.layer.js";
 import { panel, panels } from "#src/server/panel.layer.js";
-import { ledgerAgent } from "#tests/ledger/account-panel.fake";
+import { accountDocument, ledgerAgent } from "#tests/ledger/account-panel.fake";
 
 const document = "<!doctype html><html><body><p>A test panel</p></body></html>";
 
@@ -72,10 +73,29 @@ const linksOnlyTheRenderedTools = Effect.fn("linksOnlyTheRenderedTools")(functio
   ]);
 });
 
+// The account panel sets no content policy, so its _meta must leave the key out rather than send it undefined.
+const readsTheAccountPanel = Effect.fn("readsTheAccountPanel")(function* readsTheAccountPanelCase() {
+  const client = yield* McpClient.McpClient;
+  const read = yield* client.readResource({ uri: "ui://hermit-stack/ledger/account" });
+
+  expect(read.contents).toStrictEqual([
+    {
+      _meta: { ui: { prefersBorder: true } },
+      mimeType: "text/html;profile=mcp-app",
+      text: accountDocument,
+      uri: "ui://hermit-stack/ledger/account",
+    },
+  ]);
+});
+
 describe("a panel added to the ledger's MCP server", () => {
   it.layer(ledgerAgent(testPanel))("served over HTTP to an MCP client", (connected) => {
     connected.effect("lists the panel as an MCP Apps resource", listsThePanel);
     connected.effect("reads the panel's document with its content policy", readsTheDocument);
     connected.effect("points each tool it renders at the panel and leaves the others alone", linksOnlyTheRenderedTools);
+  });
+
+  it.layer(ledgerAgent(accountPanel))("the ledger's account panel, read from the built app", (connected) => {
+    connected.effect("serves the built document with only the _meta keys it sets", readsTheAccountPanel);
   });
 });

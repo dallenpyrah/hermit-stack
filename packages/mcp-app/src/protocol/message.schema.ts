@@ -58,7 +58,7 @@ const ContainerDimensions = Schema.Struct({
 
 type ContainerDimensions = typeof ContainerDimensions.Type;
 
-// The host's style variables and fonts are left out on purpose: a hermitstack panel paints with its own design tokens
+// The host's style variables and fonts are left out on purpose: a hermit-stack panel paints with its own design tokens
 // And follows only the host's light or dark choice.
 const HostContext = Schema.Struct({
   containerDimensions: Schema.optionalKey(ContainerDimensions),

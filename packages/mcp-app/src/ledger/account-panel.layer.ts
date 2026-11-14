@@ -26,7 +26,7 @@ const accountPanel = panels([
     name: "Ledger account",
     prefersBorder: true,
     renders: ["Balance.get"],
-    uri: "ui://hermitstack/ledger/account",
+    uri: "ui://hermit-stack/ledger/account",
   }),
 ]);
 

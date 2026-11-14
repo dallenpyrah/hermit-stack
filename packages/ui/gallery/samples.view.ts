@@ -2,6 +2,7 @@ import { create } from "@stylexjs/stylex";
 import { Array as Arr } from "effect";
 import type { Html, HtmlBuilder } from "foldkit/html";
 
+import { alert } from "#src/alert/alert.view.js";
 import { badge, BadgeVariant } from "#src/badge/badge.view.js";
 import { button, ButtonSize, ButtonVariant } from "#src/button/button.view.js";
 import { card } from "#src/card/card.view.js";
@@ -97,4 +98,18 @@ const cards = (html: HtmlBuilder<Message>): Content => {
   return [html.div(styleAttributes(styles.stack), [full, plain])];
 };
 
-export { badges, buttons, cards };
+const alerts = (html: HtmlBuilder<Message>): Content => [
+  html.div(styleAttributes(styles.stack), [
+    alert({ description: ["Your balance is now $7.50."], title: ["Deposited $2.50"] }, html),
+    alert(
+      {
+        description: ["The balance is $7.50, so $9.00 cannot be withdrawn."],
+        title: ["Withdrawal refused"],
+        variant: "destructive",
+      },
+      html,
+    ),
+  ]),
+];
+
+export { alerts, badges, buttons, cards };

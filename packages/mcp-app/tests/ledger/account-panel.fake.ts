@@ -43,7 +43,7 @@ const ledgerAgent = (
     Layer.provide(panels),
     Layer.provide(
       McpServer.layerHttp({
-        name: "hermitstack-ledger",
+        name: "hermit-stack-ledger",
         path: "/mcp",
         protocols: [McpProtocol.v2025_11_25],
         version: "0.0.0",
@@ -58,7 +58,7 @@ const ledgerAgent = (
   );
 
   return McpClient.layerHttp({
-    name: "hermitstack-test-host",
+    name: "hermit-stack-test-host",
     protocol: McpProtocol.v2025_11_25,
     url: "/mcp",
     version: "0.0.0",

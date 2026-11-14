@@ -1,0 +1,8 @@
+{
+  "extends": ["//"],
+  "tags": ["app"],
+  "tasks": {
+    "test": { "inputs": ["$TURBO_EXTENDS$", "vite.config.ts"] },
+    "build": { "inputs": ["$TURBO_EXTENDS$", "account.css", "account.html", "vite.config.ts"], "outputs": ["dist/**"] }
+  }
+}
