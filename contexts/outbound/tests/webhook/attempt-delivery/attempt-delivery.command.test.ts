@@ -16,7 +16,6 @@ const { call, clock, fail, succeed, then } = Story;
 
 const posted = call(WebhookTransport.post, attempt);
 
-// When each retry is due: 5 seconds, 5 minutes, 30 minutes, 2 hours, 5 hours, 10 hours and 10 hours after the last.
 const retries = [
   { attempt: 1, retryAt: "2026-01-01T00:00:05Z" },
   { attempt: 2, retryAt: "2026-01-01T00:05:05Z" },

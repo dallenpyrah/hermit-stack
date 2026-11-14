@@ -30,7 +30,6 @@ const closeEmpty = (open: OpenState): Closing => {
   return [AccountClosed.make({})];
 };
 
-// Closing takes no input, so the state alone decides it.
 const decideCloseAccount = (state: AccountState): Closing =>
   Match.valueTags(state, { Closed: notOpen, Open: closeEmpty, Unopened: notOpen });
 

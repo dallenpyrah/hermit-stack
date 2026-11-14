@@ -69,7 +69,6 @@ const Nav = (props: { readonly sidebar: SidebarModel; readonly route: string }):
   </nav>
 );
 
-// One product has one section, so the header names it instead of offering a switch.
 const SectionHeader = (): ReactElement => (
   <div className="hs-section-select">
     <div className="hs-section-trigger" data-static="">

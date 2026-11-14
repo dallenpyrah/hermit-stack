@@ -10,7 +10,6 @@ import { EndpointDisabled } from "#src/webhook/record-outcome/endpoint-disabled.
 import { FailureCounted } from "#src/webhook/record-outcome/failure-counted.event.js";
 import { FailuresCleared } from "#src/webhook/record-outcome/failures-cleared.event.js";
 
-// Reports how a delivery ended, so it never rejects.
 class RecordDeliveryOutcome extends Command(
   "RecordDeliveryOutcome",
   {
@@ -23,7 +22,6 @@ class RecordDeliveryOutcome extends Command(
 
 type OutcomeEvent = EndpointDisabled | FailureCounted | FailuresCleared;
 
-// An endpoint whose deliveries are exhausted this many times in a row stops receiving deliveries.
 const disableAfterFailures = 5;
 
 const countFailure = (endpoint: Endpoint): readonly OutcomeEvent[] => {
@@ -47,8 +45,6 @@ const clearFailures = (endpoint: Endpoint): readonly OutcomeEvent[] => {
 
 const decideArity = 2;
 
-// A disabled or unknown endpoint ignores late outcomes, so a delivery still in flight when it was disabled changes
-// Nothing.
 const decideRecordDeliveryOutcome: {
   (command: RecordDeliveryOutcome): (state: EndpointsState) => readonly OutcomeEvent[];
   (state: EndpointsState, command: RecordDeliveryOutcome): readonly OutcomeEvent[];

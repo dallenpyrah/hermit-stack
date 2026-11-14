@@ -36,13 +36,12 @@ import { Layer } from "effect";
 import { LedgerApi } from "@repo/ledger/api";
 import { Ledger } from "@repo/ledger/model";
 
-// The model has no policies or projections yet, so its Layer needs no handlers.
 const hosted = Layer.provide(Ledger.layer(Layer.empty), InMemory);
 
 const localLedger = LedgerApi.layerClientInProcess.pipe(Layer.provide(hosted));
 ```
 
-Replace `InMemory` with another platform Layer and `localLedger` is the same client on another host. That is the claim the [conformance suite](/guides/testing#conformance-suites) exists to test.
+The model has no policies or projections yet, so its Layer takes `Layer.empty` where their handlers would go. Replace `InMemory` with another platform Layer and `localLedger` is the same client on another host. That is the claim the [conformance suite](/guides/testing#conformance-suites) exists to test.
 
 ## A port in a context
 
@@ -76,7 +75,6 @@ const welcome = Effect.gen(function* welcome() {
   });
 });
 
-// A test provides the fake once, at its entry point. It honours idempotency keys as a real vendor should.
 it.layer(EmailFake)("the email fake", (it) => {
   it.effect("answers a repeated key with the first message id and sends nothing", () =>
     Effect.gen(function* repeatedKey() {
@@ -89,7 +87,7 @@ it.layer(EmailFake)("the email fake", (it) => {
 });
 ```
 
-A real vendor (Resend is the planned first one) will be an adapter package that provides the same `Email` service. [Swap an adapter](/guides/swap-an-adapter) covers the steps.
+The test provides the fake once, at its entry point, and the fake honours idempotency keys as a real vendor should. A real vendor (Resend is the planned first one) will be an adapter package that provides the same `Email` service. [Swap an adapter](/guides/swap-an-adapter) covers the steps.
 
 ## Fakes and in-memory Layers are different things
 

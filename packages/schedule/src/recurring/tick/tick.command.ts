@@ -6,7 +6,6 @@ import { RecurringName } from "#src/recurring/recurring.id.js";
 import type { RecurringState } from "#src/recurring/recurring-state.schema.js";
 import { Ticked } from "#src/recurring/tick/ticked.event.js";
 
-// Scheduled, so it never rejects: a tick that is not the one the schedule waits for records nothing.
 class Tick extends Command(
   "Tick",
   { events: [Ticked], input: { scheduledFor: Schema.DateTimeUtc }, target: RecurringName },
@@ -15,8 +14,6 @@ class Tick extends Command(
 
 const decideArity = 3;
 
-// Only the tick the schedule waits for runs: a repeat, a stale arming or a tick after Pause records nothing. A late
-// Tick runs once and the next one is due after now, so missed occurrences are not replayed.
 const decideTick: {
   (command: Tick, now: DateTime.Utc): (state: RecurringState) => readonly Ticked[];
   (state: RecurringState, command: Tick, now: DateTime.Utc): readonly Ticked[];

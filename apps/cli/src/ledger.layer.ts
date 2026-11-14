@@ -26,12 +26,8 @@ type LedgerCall = Exposable<typeof LedgerApi>;
 
 const version = "0.0.0";
 
-// A call reaches the command line only when it is listed here, as with the HTTP and MCP surfaces, so a command the Api
-// Gains later stays off the command line until it is added on purpose.
 const exposed: readonly LedgerCall[] = ["OpenAccount", "DepositMoney", "WithdrawMoney", "CloseAccount", "Balance.get"];
 
-// Scripts branch on these, so each kind of failure keeps its own code: the ledger refused, the input was wrong, or no
-// Server answered. The rejected code is toCli's own.
 const exitCode = { rejected: 1, succeeded: 0, unreachable: 3, usage: 2 } as const;
 
 const serverFromEnvironment = Config.String("LEDGER_URL");
@@ -52,7 +48,6 @@ const Output = GlobalFlag.Setting("output")({
   ),
 });
 
-// The server mounts the typed client's RPC endpoint at /rpc, beside its JSON routes.
 const rpcUrl = (server: string): string => `${Str.replace(/\/+$/u, "")(server)}/rpc`;
 
 const protocol = Layer.unwrap(Effect.map(Effect.service(Server), (server) => protocolHttp(rpcUrl(server)))).pipe(
@@ -61,8 +56,6 @@ const protocol = Layer.unwrap(Effect.map(Effect.service(Server), (server) => pro
 
 const decodeJson = Schema.decodeUnknownOption(Schema.fromJsonString(Schema.Json));
 
-// ToCli writes every answer as one JSON string: the receipt to stdout and a rejection to stderr. Text output renders that
-// Same JSON for a person, so nothing about the ledger is written here and a new command reads well without code.
 const rendered = (heading: string, args: readonly unknown[]): readonly unknown[] => {
   const [only, ...rest] = args;
 
@@ -112,14 +105,11 @@ class CommandFailedError extends Schema.TaggedError<CommandFailedError, { readon
 ) {
   public override readonly [Runtime.errorExitCode] = this.exitCode;
 
-  // The CLI has already told the person what went wrong, so runMain prints nothing more.
   public override readonly [Runtime.errorReported] = false;
 }
 
 type Failure = CallRejected | CliError.CliError;
 
-// ToCli turns a failure that is not one of the call's typed errors into a UserError caused by what the client failed
-// With. An RpcClientError there means the request never got an answer from the Api.
 const reachedNoServer = (failure: Failure): boolean =>
   Predicate.isTagged(failure, "UserError") && Schema.is(RpcClientError.RpcClientError)(failure.cause);
 
@@ -146,7 +136,6 @@ const hintFor = (failure: Failure): Effect.Effect<void> => {
   return Effect.void;
 };
 
-// The program the ledger binary runs: the arguments come from Stdio, and each failure carries its exit code for runMain.
 const ledger = (
   expose: readonly LedgerCall[] = exposed,
 ): Effect.Effect<void, CallRejected | CommandFailedError, Command.Environment> => {

@@ -52,12 +52,13 @@ const balanceAfterDeposit = Effect.gen(function* balanceAfterDeposit() {
 
   const receipt = yield* ledger.DepositMoney(account, { amount: 250 });
 
-  // A view catches up after the commit, so a read that must see a write waits for that write's receipt.
   return yield* ledger.Balance.get(account, {
     atLeast: { stream: receipt.stream, version: receipt.version },
   });
 });
 ```
+
+A view catches up after the commit, so a read that must see a write passes that write's receipt as `atLeast` and waits for it.
 
 Who provides the client decides how it travels:
 

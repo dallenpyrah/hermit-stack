@@ -16,7 +16,7 @@ Every rule is an error. There are no warnings.
 | Oxlint base        | Correctness, imports, Promises, Vitest and the rest, with type-aware rules                                                                                                                                      | `tools/rules/src/oxlint/base.config.ts`                               |
 | Taste plugin       | Effect style: named `Effect.fn`s whose name matches the binding, no `pipe` on an `Effect.fn`, no type predicates, no unbounded concurrency, no vague names, `Error`-suffixed tagged errors, no grab-bag modules | `tools/rules/src/oxlint/taste/`                                       |
 | Testing plugin     | `no-fixed-port`: a test may not bind a fixed port                                                                                                                                                               | `tools/rules/src/oxlint/testing/`                                     |
-| Structure plugin   | `file-role`, `role-imports`, `role-exports`, `vendor-imports` and `barrel-imports`                                                                                                                              | `tools/rules/src/oxlint/structure/`                                   |
+| Structure plugin   | `file-role`, `role-imports`, `role-exports`, `vendor-imports`, `barrel-imports` and `no-comments`                                                                                                               | `tools/rules/src/oxlint/structure/`                                   |
 | Anti-slop          | Vendored rules against common generated-code patterns, kept byte for byte                                                                                                                                       | `tools/rules/src/oxlint/anti-slop/`                                   |
 | Next.js            | The `next` and `nextStructure` configs for these docs: React rules, client and build file globs                                                                                                                 | `tools/rules/src/oxlint/next.config.ts`                               |
 
@@ -24,8 +24,14 @@ Every rule is an error. There are no warnings.
 
 ## How the repo wires them
 
-- `oxlint.config.ts` at the root extends the base config and adds overrides: the docs app's `next()` config, `specThroughApiOnly` for the spec, `entryPoints` for `*.main.ts` files, and `domainLists`, which lets an aggregate or model file import 20 modules.
-- `oxlint-structure.config.ts` runs the structure rules over every file and switches the Domain and FoldKit roles on per folder.
+- `oxlint.config.ts` at the root extends the base config and adds one override per named constant:
+  - `docs`: the `next()` config. The docs app is the one Next.js app, so its build files read the file system and its views run in the browser.
+  - `specThroughApiOnly`: the spec may not import a context's `src` or model. It reaches a context only through its Api, so it keeps passing when the implementation is rewritten.
+  - `entryPoints`: turns `vitest/require-hook` off for `*.main.ts` files. An entry point starts its program at the top level by design, and that rule is written for test files.
+  - `domainLists`: lets an `.aggregate.ts` or `.model.ts` file import 20 modules. An aggregate names each of its commands and a model names each aggregate, policy and view, and each of those classes has its own file.
+  - `flagBucketHash`: allows bitwise operators in `packages/flags/src/evaluate/bucket.pure.ts`. A rollout bucket is a 32-bit hash, FNV-1a with MurmurHash3's finaliser, and those are written in XOR and shifts.
+  - `localAuthDatabase`: lets `adapters/better-auth/src/sqlite.layer.ts` import `node:sqlite`, so better-auth runs in a local test with no native build.
+- `oxlint-structure.config.ts` runs the structure rules over every file and switches roles on per folder: Alchemy Domain's roles for `contexts/**`, `packages/schedule/**` and `packages/identity/**` (the identity port is written in Domain's terms and holds the sample model its Session contract drives), FoldKit's roles for the FoldKit packages, and Next's file names and the `.build` role for `apps/docs/**`.
 - Each package's `lint` script runs `effect-tsgo --tsrs-lint oxlint --type-aware` on its `src` and `tests`.
 
 ## Reading a finding
@@ -34,7 +40,7 @@ A finding names the rule, the file and the line, and its message follows one gra
 
 ## Turning a rule off
 
-A rule is turned off in one place only, the off table in `tools/rules/src/oxlint/base.config.ts`, with a reason beside it. An override scope in `oxlint.config.ts` is the other way to narrow a rule, and each one carries a comment saying why. The ratchet counts both, so turning a rule off fails `pnpm check` until `ratchets.json` is raised in the same commit, with the reason.
+A rule is turned off in one place only, the off table in `tools/rules/src/oxlint/base.config.ts`, with a reason beside it. An override scope in `oxlint.config.ts` is the other way to narrow a rule. Each one is a named constant, and its reason is in the list above, because code holds no comments. The ratchet counts both, so turning a rule off fails `pnpm check` until `ratchets.json` is raised in the same commit, with the reason.
 
 Inline suppressions (`oxlint-disable`, `@ts-ignore`, `@ts-expect-error`) are refused by the pre-commit hook and counted by the ratchet; the count on `main` is zero.
 

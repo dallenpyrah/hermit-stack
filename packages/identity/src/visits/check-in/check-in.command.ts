@@ -9,7 +9,6 @@ import { CheckedIn } from "#src/visits/check-in/checked-in.event.js";
 import { NotYouError } from "#src/visits/check-in/not-you.rejection.js";
 import type { VisitsState } from "#src/visits/visits-state.schema.js";
 
-// The sample command the Session contract drives: it lists the middleware, so it runs only for a signed-in user.
 class CheckIn extends Command(
   "CheckIn",
   {
@@ -22,7 +21,6 @@ class CheckIn extends Command(
   { description: "Record a visit by the signed-in user, who must be the user the command names." },
 ) {}
 
-// Decide reads the user the middleware provided, so a command reaching another user's visits is refused here.
 const decideCheckIn = Effect.fn("decideCheckIn")(function* decideCheckIn(
   _state: VisitsState,
   _command: CheckIn,

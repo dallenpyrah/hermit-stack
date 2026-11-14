@@ -8,7 +8,6 @@ import { PostDeliveryLive } from "#src/webhook/record-attempt/post-delivery.poli
 import { TrackEndpointHealthLive } from "#src/webhook/record-outcome/track-endpoint-health.policy.js";
 import { StartDeliveriesLive } from "#src/webhook/start-delivery/start-deliveries.policy.js";
 
-// The Outbound model's policies and projection. A host provides the Email, Push and WebhookTransport adapters.
 const OutboundHandlers = Layer.mergeAll(
   WritePublicEventsLive,
   NotifyAudienceLive,

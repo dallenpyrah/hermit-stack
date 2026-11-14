@@ -6,27 +6,22 @@ import { defineConfig } from "oxlint";
 
 const imports = roleImports(import.meta.dirname, ["@repo/"]);
 
-// Alchemy Domain's roles (aggregate, command, event, projection and the rest) apply where a Domain model lives.
 const domain = domainStructure({
   exports: imports.exports,
   files: ["contexts/**", "packages/schedule/**"],
   packages: imports.packages,
 });
 
-// The identity port is written in Domain's terms (a request context, a middleware, an id) and holds the sample model its
-// Session contract drives, so it takes Domain's roles too.
 const identity = domainStructure({
   exports: imports.exports,
   files: ["packages/identity/**"],
   packages: imports.packages,
 });
 
-// FoldKit's roles (command, message, model, subscription, update) apply where a FoldKit app or component lives.
 const foldkitFiles = ["apps/web/**", "apps/panels/**", "packages/ui/**", "packages/client-data/**"];
 const foldkitRoles = ["command", "message", "model", "subscription", "update"];
 const foldkitPackages = ["foldkit", "@foldkit/ui", "@stylexjs/stylex"];
 
-// The docs app is Next.js: its framework files keep Next's names, and its build-time helpers take the .build role.
 const docs = nextStructure({ appFiles: ["apps/docs/**"] });
 
 export default defineConfig({

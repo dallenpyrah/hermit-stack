@@ -18,7 +18,6 @@ const environment = (env: Record<string, string>): Layer.Layer<never> =>
 const axiomWith = (env: Record<string, string>): Layer.Layer<Telemetry, ConfigError> =>
   layerAxiom.pipe(Layer.provide(environment(env)));
 
-// Closing the scope flushes the exporters, so the collector holds every export once this returns.
 const runWith = (env: Record<string, string>): Effect.Effect<void, ConfigError> =>
   Effect.scoped(
     Effect.gen(function* buildAndRun() {

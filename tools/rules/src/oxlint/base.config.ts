@@ -146,6 +146,7 @@ const structure = defineConfig({
   rules: {
     "structure/barrel-imports": "error",
     "structure/file-role": "error",
+    "structure/no-comments": "error",
     "structure/role-exports": "error",
     "structure/role-imports": "error",
     "structure/vendor-imports": "error",

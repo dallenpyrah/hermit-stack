@@ -1,7 +1,6 @@
 import { Model as DialogModel } from "@foldkit/ui/dialog";
 import { Schema } from "effect";
 
-// The gallery shows every component twice, once in each theme, so each side has its own dialog.
 const Side = Schema.Literals(["light", "dark"]);
 
 type Side = typeof Side.Type;

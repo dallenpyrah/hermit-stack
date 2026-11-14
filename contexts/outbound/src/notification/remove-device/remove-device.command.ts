@@ -5,7 +5,6 @@ import type { RecipientState } from "#src/notification/recipient-state.schema.js
 import { DeviceRemoved } from "#src/notification/remove-device/device-removed.event.js";
 import { UserId } from "#src/notification/user.id.js";
 
-// Also what a push vendor's invalid-token callback turns into, so a dead device stops receiving.
 class RemoveDevice extends Command(
   "RemoveDevice",
   { events: [DeviceRemoved], input: { token: Schema.String }, target: UserId },
@@ -14,7 +13,6 @@ class RemoveDevice extends Command(
 
 const decideArity = 2;
 
-// Removing a device the recipient does not have records nothing.
 const decideRemoveDevice: {
   (command: RemoveDevice): (state: RecipientState) => readonly DeviceRemoved[];
   (state: RecipientState, command: RemoveDevice): readonly DeviceRemoved[];

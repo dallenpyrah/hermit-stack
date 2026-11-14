@@ -13,14 +13,12 @@ const story = Story.make(VisitsModel);
 
 type Case = () => ReturnType<typeof story>;
 
-// Story.then is renamed because a lint rule reads any .then( call as a Promise chain.
 const { then: recorded } = Story;
 
 const sam = UserId.make("u-sam");
 
 const samsVisits = Visits.ref(sam);
 
-// A story stands in for the Session middleware with the user it would provide, so no auth adapter runs.
 const signedInAsSam = Story.provide(CurrentUser, { name: "Sam", userId: sam });
 
 const countsAVisit: Case = () =>

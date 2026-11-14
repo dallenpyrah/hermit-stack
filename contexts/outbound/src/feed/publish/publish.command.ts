@@ -6,7 +6,6 @@ import { PublicEvent } from "#src/feed/public-event.schema.js";
 import { Published } from "#src/feed/publish/published.event.js";
 import { TenantId } from "#src/feed/tenant.id.js";
 
-// Send it with the public event's id as the command id, so a publisher that runs twice publishes once.
 class Publish extends Command(
   "Publish",
   { events: [Published], input: { event: PublicEvent }, target: TenantId },

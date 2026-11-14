@@ -10,8 +10,6 @@ import { Delivered } from "#src/webhook/record-attempt/delivered.event.js";
 import { Exhausted } from "#src/webhook/record-attempt/exhausted.event.js";
 import { retryDelay } from "#src/webhook/retry-delay.pure.js";
 
-// Reports what the transport saw, so it never rejects: an answer for an attempt that is no longer in flight records
-// Nothing.
 class RecordAttempt extends Command(
   "RecordAttempt",
   {
@@ -47,7 +45,6 @@ const fail = (failure: Failure, now: DateTime.Utc): readonly Settlement[] =>
 
 const isSuccess = (status: number): boolean => status >= successStatuses.minimum && status <= successStatuses.maximum;
 
-// A 2xx delivers, a 410 abandons, and anything else, no answer included, is retried until the schedule runs out.
 const settle = (command: RecordAttempt, now: DateTime.Utc): readonly Settlement[] =>
   Match.valueTags(command.outcome, {
     Responded: (response) => {

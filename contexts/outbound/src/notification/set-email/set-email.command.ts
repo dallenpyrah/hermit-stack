@@ -13,7 +13,6 @@ class SetEmail extends Command(
 
 const decideArity = 2;
 
-// Records only a change: setting the address a recipient already has is accepted and records nothing.
 const decideSetEmail: {
   (command: SetEmail): (state: RecipientState) => readonly EmailSet[];
   (state: RecipientState, command: SetEmail): readonly EmailSet[];

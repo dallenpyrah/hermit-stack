@@ -20,7 +20,6 @@ const targetOf = (posting: DeliveryTarget): DeliveryTarget =>
     url: posting.url,
   });
 
-// Every settling event moves a Posting delivery on and leaves any other state as it is.
 const fromPosting =
   (next: (posting: PostingState) => DeliveryState) =>
   (state: DeliveryState): DeliveryState =>
@@ -34,8 +33,6 @@ const fromPosting =
 const settled = (outcome: DeliveryOutcome, attempts: number): ((state: DeliveryState) => DeliveryState) =>
   fromPosting((posting) => Settled.make({ ...targetOf(posting), attempts, outcome }));
 
-// One public event on its way to one endpoint, with its retries as state. Each command's rule lives in its own file
-// Beside its events; this file holds the state and how events change it.
 class Delivery extends Aggregate(
   "Delivery",
   {

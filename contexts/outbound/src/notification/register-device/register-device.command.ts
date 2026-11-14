@@ -13,7 +13,6 @@ class RegisterDevice extends Command(
 
 const decideArity = 2;
 
-// Registering a device the recipient already has records nothing.
 const decideRegisterDevice: {
   (command: RegisterDevice): (state: RecipientState) => readonly DeviceRegistered[];
   (state: RecipientState, command: RegisterDevice): readonly DeviceRegistered[];

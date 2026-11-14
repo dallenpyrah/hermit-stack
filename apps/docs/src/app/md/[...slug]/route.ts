@@ -13,7 +13,6 @@ export const dynamic = "force-static";
 
 export const dynamicParams = false;
 
-// The export writes each twin to out/md/<slug>; finish-export.cli.ts moves it to out/<slug>.md.
 export const generateStaticParams = (): { slug: string[] }[] =>
   [welcomeSlug, ...publishedSlugs].map((slug) => ({ slug: slug.split("/") }));
 

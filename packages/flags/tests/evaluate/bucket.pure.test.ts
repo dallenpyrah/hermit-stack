@@ -3,10 +3,6 @@ import { Effect, pipe } from "effect";
 
 import { bucket } from "#src/evaluate/bucket.pure.js";
 
-// Expected buckets computed outside this code, by a short Python FNV-1a and fmix32 over the code points of
-// "<flag>\0<subject>". Pinning them is what keeps a subject's answer the same on every host and after every refactor.
-// The fox is outside the Basic Multilingual Plane, so hashing UTF-16 code units instead of code points gives another
-// Bucket.
 const pinned = [
   { expected: 50.542037515, flagName: "ledger.instant-withdrawals", subject: "user-1" },
   { expected: 68.97034843, flagName: "ledger.instant-withdrawals", subject: "user-2" },
