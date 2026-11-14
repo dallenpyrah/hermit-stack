@@ -10,6 +10,7 @@
     "#tests/*": "./tests/*.ts"
   },
   "exports": {
+    "./alert": "./src/alert/alert.view.ts",
     "./badge": "./src/badge/badge.view.ts",
     "./button": "./src/button/button.view.ts",
     "./card": "./src/card/card.view.ts",

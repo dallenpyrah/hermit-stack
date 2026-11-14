@@ -43,6 +43,15 @@ export default defineConfig({
         "structure/role-imports": ["error", { ...imports, packages: [...imports.packages, ...foldkitPackages] }],
       },
     },
+    {
+      files: ["apps/web/**"],
+      rules: {
+        "structure/role-imports": [
+          "error",
+          { ...imports, packages: [...imports.packages, ...foldkitPackages, "@alchemy.run/domain/Foldkit"] },
+        ],
+      },
+    },
   ],
   rules: {
     ...structure.rules,
