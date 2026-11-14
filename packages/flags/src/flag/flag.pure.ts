@@ -1,6 +1,5 @@
 import type { Schema } from "effect";
 
-// The key is a string, not a symbol, so flags:check recognises a flag that Vite loaded from its own copy of this module.
 const FlagTypeId = "~@repo/flags/Flag";
 
 type FlagName = `${string}.${string}`;
@@ -42,7 +41,6 @@ interface OpsOptions<Value> extends FlagOptions<Value> {
   readonly reviewBy: IsoDate;
 }
 
-// A release flag guards code on its way in, so it carries the date by which the flag and its losing path are deleted.
 const release = <Value>(
   name: FlagName,
   schema: Schema.Codec<Value, unknown>,
@@ -55,7 +53,6 @@ const release = <Value>(
   schema,
 });
 
-// An ops flag is a kill switch that stays, so instead of a removal date it carries the date someone next confirms it is still wanted.
 const ops = <Value>(
   name: FlagName,
   schema: Schema.Codec<Value, unknown>,

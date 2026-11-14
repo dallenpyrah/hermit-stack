@@ -7,7 +7,6 @@ import { NotificationQueued } from "#src/notification/notify/notification-queued
 import type { RecipientState } from "#src/notification/recipient-state.schema.js";
 import { UserId } from "#src/notification/user.id.js";
 
-// Sent by a policy with the command id <eventId>:<userId>, so a public event notifies each user once.
 class Notify extends Command(
   "Notify",
   {
@@ -22,7 +21,6 @@ const Address = Schema.Struct({ channel: Channel, to: Schema.String });
 
 type Address = typeof Address.Type;
 
-// The inbox is always there; email and push only once the recipient gave an address or a device.
 const addresses = (state: RecipientState, userId: UserId): readonly Address[] => [
   Address.make({ channel: "inbox", to: userId }),
   ...Arr.map(Option.toArray(state.email), (to) => Address.make({ channel: "email", to })),

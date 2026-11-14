@@ -13,14 +13,12 @@ import { DeliveryStarted } from "#src/webhook/start-delivery/delivery-started.ev
 
 const { given, then, when } = Story;
 
-// The tenant every story publishes for, and the one webhook endpoint it registers.
 const feed = Feed.ref("tenant-1");
 const endpointId = EndpointId.make("endpoint-1");
 const endpoints = Endpoints.ref("tenant-1");
 const delivery = Delivery.ref("endpoint-1:event-1");
 const url = "https://receiver.example.com/hooks";
 
-// An example of what another context would publish, with nobody to notify, so only the webhook path runs.
 const invoicePaid = {
   audience: [],
   id: "event-1",
@@ -29,13 +27,10 @@ const invoicePaid = {
   type: "invoice.paid",
 };
 
-// What every attempt sends to the transport. A story follows the steps below with this call, then answers it.
 const attempt = { endpointId, event: invoicePaid, position: 1, url };
 
-// The endpoint as history: active, with no failures counted.
 const registered = given(endpoints, EndpointRegistered.make({ endpointId, eventTypes: ["invoice.paid"], url }));
 
-// Registers the endpoint, publishes the event and starts the delivery.
 const published = [
   registered,
   when(feed, Publish.make({ event: invoicePaid }), { commandId: invoicePaid.id }),
@@ -43,10 +38,8 @@ const published = [
   then(delivery, DeliveryStarted.make({ endpointId, event: invoicePaid, position: 1, tenant: feed.id, url })),
 ] as const satisfies readonly Step[];
 
-// A second event of the same type, for a story that has disabled the endpoint.
 const invoicePaidAgain = { ...invoicePaid, id: "event-2" };
 
-// Publishes the second event and checks that no delivery starts for it.
 const publishedAgain = [
   when(feed, Publish.make({ event: invoicePaidAgain }), { commandId: invoicePaidAgain.id }),
   then(feed, Published.make({ event: invoicePaidAgain, position: 2, tenant: feed.id })),

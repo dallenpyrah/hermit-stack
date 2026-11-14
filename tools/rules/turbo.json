@@ -25,10 +25,7 @@
         "$TURBO_ROOT$/ratchets.json",
         "$TURBO_ROOT$/AGENTS.md",
         "$TURBO_ROOT$/.gitignore",
-        "$TURBO_ROOT$/agent-sources.json",
-        "$TURBO_ROOT$/.claude/settings.json",
-        "$TURBO_ROOT$/.cursor/hooks.json",
-        "$TURBO_ROOT$/.pi/**"
+        "$TURBO_ROOT$/agent-sources.json"
       ]
     }
   },

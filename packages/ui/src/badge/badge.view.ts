@@ -8,7 +8,6 @@ import { styleAttributes } from "#src/style/style.view.js";
 import type { Content } from "#src/style/style.view.js";
 import { colors, font, fontSize, fontWeight, lineHeight, radius, space } from "#src/tokens/tokens.stylex.js";
 
-// Named, like Button's, for the color token each paints with; outline paints only a border.
 const BadgeVariant = Schema.Literals(["primary", "secondary", "destructive", "outline"]);
 
 type BadgeVariant = typeof BadgeVariant.Type;
@@ -58,7 +57,6 @@ const render = <Message>(config: BadgeOptions, html: HtmlBuilder<Message>): Html
 
 const badgeArity = 2;
 
-// A short status or count. It is text only, so it takes no handlers; wrap it in a Button or link to make it act.
 const badge: {
   <Message>(html: HtmlBuilder<Message>): (config: BadgeOptions) => Html;
   <Message>(config: BadgeOptions, html: HtmlBuilder<Message>): Html;

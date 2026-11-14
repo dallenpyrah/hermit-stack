@@ -20,9 +20,6 @@ import type { ViteDevServer } from "vite";
 import { flagProblems } from "#src/check/flag-check.pure.ts";
 import type { Declared } from "#src/check/flag-check.pure.ts";
 
-// Finds every *.flag.ts under the folder given as the first argument, or the working directory, loads it, and exits non-zero naming each flag past its removeBy or
-// ReviewBy date. Fixtures are skipped so a test can keep a flag dated in the past.
-
 class FlagCheckError extends Schema.TaggedError<FlagCheckError, { readonly brand: unique symbol }>()("FlagCheckError", {
   message: Schema.String,
 }) {}
@@ -64,7 +61,6 @@ const findFlagFiles = (
     return Arr.flatten(found);
   });
 
-// A flag file imports TypeScript with .js specifiers and workspace packages by their source, which only Vite resolves.
 const startVite = (root: string): Effect.Effect<ViteDevServer, FlagCheckError> =>
   Effect.tryPromise({
     catch: (cause) => FlagCheckError.make({ message: `Vite could not start: ${String(cause)}` }),

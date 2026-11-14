@@ -6,7 +6,6 @@ import { codeThemes } from "#src/content/markdown/code-themes.config.ts";
 import { remarkAdmonitionTags, remarkDocsLinks } from "#src/content/markdown/remark-docs.build.ts";
 import { publishedSlugs } from "#src/content/navigation/navigation.pure.ts";
 
-// Only the pages the sidebar lists are built, so a page cannot be published without a place in the navigation.
 const docs = defineDocs({
   dir: "./content",
   docs: {

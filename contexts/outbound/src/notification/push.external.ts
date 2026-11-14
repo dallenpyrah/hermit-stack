@@ -1,7 +1,6 @@
 import { ExternalSystem, Rejection } from "@alchemy.run/domain";
 import { Schema } from "effect";
 
-// The vendor no longer knows this device token, so sending to it again is pointless.
 const DeviceGone = Rejection("DeviceGone", { reason: Schema.String });
 
 class Push extends ExternalSystem(

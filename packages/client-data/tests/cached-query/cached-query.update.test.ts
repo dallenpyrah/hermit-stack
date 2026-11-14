@@ -7,7 +7,6 @@ import type { StoryStep } from "foldkit/story";
 
 import { define } from "#src/cached-query/cached-query.update.js";
 
-// A story never runs a Command: it answers each one, so the clock and the network are whatever the story says they are.
 const balances = define({
   args: { accountId: Schema.String },
   data: Schema.Finite,
@@ -60,7 +59,6 @@ const loaded = (answer: Reply): StoryStep<Model, BalanceMessage, undefined> =>
 const balanceOf = (current: Model, accountId: string): AsyncData.AsyncData<number, string> =>
   balances.read(current, { accountId });
 
-// The stale time is 30 seconds and the first reply arrives at 1000 ms, so 30 999 ms is the last fresh moment.
 const firstReply = { accountId: "a", balance: 40, fetchedAt: 1000, generation: 1 };
 
 const refreshReply = { accountId: "a", balance: 65, fetchedAt: 31_050, generation: 2 };
@@ -104,9 +102,6 @@ const capDropsLeastRecentlyUsed = (): void => {
   );
 };
 
-// A screen that requests every balance it shows when it opens, and revalidates them when the page regains focus. A
-// Story sends one Message at a time, so reads that overlap are reads made in one update, as when two parts of one screen
-// Show the same account.
 const Screen = defineMessageUnion({
   GotBalancesMessage: { message: balances.Message },
   Opened: {},
@@ -164,8 +159,6 @@ const concurrentReadsShareOneRequest = (): void => {
   );
 };
 
-// With a cap of two, reading a, b, c and a again drops a and then b, so the second read of a is a newer request for a
-// While the first is still in flight.
 const olderReply = { accountId: "a", balance: 40, fetchedAt: 1000, generation: 1 };
 
 const newerReply = { accountId: "a", balance: 65, fetchedAt: 1200, generation: 4 };
@@ -198,7 +191,6 @@ const lateReplyIsDropped = (): void => {
   );
 };
 
-// At 31 000 ms, a (replied at 0) is 31 seconds old and b (replied at 20 000) is 11 seconds old.
 const focusRevalidatesOnlyStale = (): void => {
   const staleReply = { accountId: "a", balance: 41, fetchedAt: 31_100, generation: 3 };
 

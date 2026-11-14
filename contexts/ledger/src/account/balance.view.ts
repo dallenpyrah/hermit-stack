@@ -17,7 +17,6 @@ const afterMovement = (state: BalanceState, event: { readonly balanceAfter: numb
   balance: event.balanceAfter,
 });
 
-// The read side of an account: what a client may see, kept apart from the aggregate's state so either can change alone.
 class Balance extends View(
   "Balance",
   {

@@ -5,7 +5,6 @@ import { UserId } from "#src/user.id.js";
 import { CheckIn, decideCheckIn } from "#src/visits/check-in/check-in.command.js";
 import { VisitsState } from "#src/visits/visits-state.schema.js";
 
-// Each user's visits, keyed by their id, so decide can tell the signed-in user from the one a command names.
 class Visits extends Aggregate(
   "Visits",
   {

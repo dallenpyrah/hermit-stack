@@ -5,9 +5,6 @@ import { TenantId } from "#src/feed/tenant.id.js";
 import { EndpointId } from "#src/webhook/endpoint.id.js";
 import { EndpointRegistered } from "#src/webhook/register-endpoint/endpoint-registered.event.js";
 
-// Registering an endpoint id again replaces its URL and event types and starts it afresh, which is also how a disabled
-// Endpoint comes back. The signing secret is not an argument: events are kept for good, so the transport reads it
-// Through its own port.
 class RegisterEndpoint extends Command(
   "RegisterEndpoint",
   {

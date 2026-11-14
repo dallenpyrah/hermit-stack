@@ -26,7 +26,6 @@ const receive = (inbox: InboxState, event: NotificationQueued): InboxState => {
   return { items: [...inbox.items, item], unread: Num.increment(inbox.unread) };
 };
 
-// Reading twice, or reading a notification that is not here, leaves the unread count as it is.
 const markRead = (inbox: InboxState, event: NotificationRead): InboxState => {
   const unread = Arr.some(inbox.items, (item) => item.notificationId === event.notificationId && !item.read);
 
@@ -46,7 +45,6 @@ const markRead = (inbox: InboxState, event: NotificationRead): InboxState => {
   };
 };
 
-// Every open screen watches it, so the unread count changes everywhere with no push vendor involved.
 class Inbox extends View(
   "Inbox",
   {

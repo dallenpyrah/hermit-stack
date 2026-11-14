@@ -5,8 +5,6 @@ interface RenderedNotification {
   readonly title: string;
 }
 
-// The catalogue a fork fills in with one renderer per public event type; until then a kind such as invoice.paid
-// Renders as "Invoice paid", so every kind can be sent.
 const renderNotification = (kind: string): RenderedNotification => {
   const title = pipe(kind, Str.replaceAll(/[._-]+/gu, " "), Str.trim, Str.capitalize);
 

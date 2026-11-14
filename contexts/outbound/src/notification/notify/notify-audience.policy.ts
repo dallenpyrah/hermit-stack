@@ -7,7 +7,6 @@ import { Notify } from "#src/notification/notify/notify.command.js";
 import { Recipient } from "#src/notification/recipient.aggregate.js";
 import { UserId } from "#src/notification/user.id.js";
 
-// Bounds how many recipients one public event notifies at once.
 const notifyConcurrency = 8;
 
 class NotifyAudience extends Policy(

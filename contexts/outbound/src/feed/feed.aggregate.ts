@@ -4,7 +4,6 @@ import { FeedState } from "#src/feed/feed-state.schema.js";
 import { decidePublish, Publish } from "#src/feed/publish/publish.command.js";
 import { TenantId } from "#src/feed/tenant.id.js";
 
-// A tenant's public events in the order they were published. Everything outbound sends starts from a Published.
 class Feed extends Aggregate(
   "Feed",
   {

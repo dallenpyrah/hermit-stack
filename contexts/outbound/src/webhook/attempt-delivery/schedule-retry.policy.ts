@@ -16,7 +16,6 @@ const ScheduleRetryLive = ScheduleRetry.toLayer(
     const deliveries = yield* Delivery;
 
     return Effect.fn("ScheduleRetry.handle")(function* handle({ event, source }) {
-      // One name per delivery, so a delivery never has two retries waiting.
       yield* deliveries.schedule(source, AttemptDelivery.make({ attempt: Num.increment(event.attempt) }), {
         at: event.retryAt,
         commandId: `retry:${source.id}`,

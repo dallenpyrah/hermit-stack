@@ -19,7 +19,6 @@ const publishedIndex = ({ page }: PublishedPage): AdvancedIndex => ({
   url: page.url,
 });
 
-// The site is a static export, so the build writes the whole index to /search.json and the browser searches it.
 export const { staticGET: GET } = createSearchAPI("advanced", {
   indexes: [
     {

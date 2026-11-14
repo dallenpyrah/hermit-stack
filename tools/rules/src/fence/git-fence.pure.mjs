@@ -33,7 +33,6 @@ const hookVariables = {
   LEFTHOOK_CONFIG: () => true,
   LEFTHOOK_EXCLUDE: () => true,
 };
-/** core.hooksPath itself, or an include, which reads another config file that can set it. */
 const configRedirect = /core\.hookspath|include(?:if\.[^=']*)?\.path/iu;
 const variableVerdict = (name, value) => {
   if (Object.hasOwn(hookVariables, name) && hookVariables[name](value)) {
@@ -42,7 +41,6 @@ const variableVerdict = (name, value) => {
   if (name.startsWith("GIT_CONFIG_") && configRedirect.test(value)) {
     return reasons.variable(name);
   }
-  // A global or system config file of the agent's choosing can set core.hooksPath; /dev/null only isolates git.
   if ((name === "GIT_CONFIG_GLOBAL" || name === "GIT_CONFIG_SYSTEM") && value !== "/dev/null") {
     return reasons.variable(`${name}=${value}`);
   }

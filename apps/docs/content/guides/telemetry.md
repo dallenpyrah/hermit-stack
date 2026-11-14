@@ -13,12 +13,12 @@ One piece: the span naming rule. `spanName` in `packages/kernel/src/telemetry/sp
 ```ts
 import { spanName } from "@repo/kernel/span-name";
 
-// "ledger.open-account", whatever case the code names the operation in.
 const opening = spanName("ledger", "OpenAccount");
 
-// The pipeable form fixes the operation first.
 const closing = spanName("CloseAccount")("ledger");
 ```
+
+`opening` is `ledger.open-account`, whatever case the code names the operation in. The pipeable form takes the operation first.
 
 ## The design
 

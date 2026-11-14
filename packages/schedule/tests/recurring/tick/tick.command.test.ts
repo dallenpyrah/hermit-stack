@@ -15,7 +15,6 @@ const { clock, then, when } = Story;
 
 const nightly = Recurring.ref("nightly-report");
 
-// Nine in the morning in New York is 14:00 UTC in January, so a schedule read in UTC would be due five hours early.
 const cron = "0 9 * * *";
 const timeZone = "America/New_York";
 const arm = Arm.make({ cron, timeZone });
@@ -66,7 +65,6 @@ const lateTickRunsOnce = (): Effect.Effect<void, StoryFailure> =>
     clock(firstDue),
     then(nightly, firstTick),
     then(report, compiledFirst),
-    // The host was down through the second occurrence and the third: the pending tick runs once when it is back.
     clock(backLate),
     then(nightly, lateTick),
     then(report, compiledSecond),

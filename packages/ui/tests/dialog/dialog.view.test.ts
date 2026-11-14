@@ -69,7 +69,6 @@ const view = (model: Model, html: HtmlBuilder<Message>): Html => {
 
 const closed = (hasCloseButton: boolean): Model => ({ dialog: init({ id: "delete-project" }), hasCloseButton });
 
-// Scene steps keep state once run, so each scene gets fresh ones.
 const open = (): readonly SceneStep<Model, Message, undefined>[] => [
   click(role("button", { name: "Delete project" })),
   Command.resolve(ShowDialog, DialogMessage.SucceededShowDialog()),

@@ -27,7 +27,6 @@ const subjectCount = 1000;
 const fewest = 170;
 const most = 230;
 
-// The bucket of user-1 for this flag is 50.54, so the rollout reaches it at 51% and not at 50%.
 const belowUserOne = 50;
 const aboveUserOne = 51;
 

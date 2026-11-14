@@ -6,8 +6,6 @@ import { FlagStore } from "#src/store/flag-store.service.js";
 
 type Fallback = "invalid-value" | "store-failed";
 
-// A read records its fallback on the caller's span and in the log, then answers with the declared default, so a broken
-// Store degrades a request instead of failing it.
 const fallBack = <Value>(flag: Flag<Value>, reason: Fallback, cause: unknown): Effect.Effect<Value> =>
   Effect.logWarning(`Flag ${flag.name} fell back to its default`, cause).pipe(
     Effect.annotateLogs({ "feature_flag.fallback": reason, "feature_flag.key": flag.name }),
@@ -27,7 +25,6 @@ class Flags extends Context.Service<
       const store = yield* FlagStore;
 
       return Flags.of({
-        // Untraced on purpose: the flag and its value belong on the caller's span, not on a span of their own.
         get: Effect.fnUntraced(function* get<Value>(flag: Flag<Value>, subject?: string) {
           const decode = Schema.decodeUnknownEffect(Schema.toType(flag.schema));
 
@@ -53,7 +50,6 @@ class Flags extends Context.Service<
 
   public static readonly layerConfig: Layer.Layer<Flags> = Layer.provide(Flags.layer, FlagStore.layerConfig);
 
-  // Reads a flag through the Flags in context: yield* Flags.get(InstantWithdrawals), or with a subject for a rollout.
   public static readonly get = <Value>(flag: Flag<Value>, subject?: string): Effect.Effect<Value, never, Flags> =>
     Flags.use((flags) => flags.get(flag, subject));
 }

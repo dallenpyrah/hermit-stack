@@ -1,11 +1,7 @@
 import type { ReactElement } from "react";
 
-// One application chip in the middle, wired to four targets. The chip never changes; the lit bus shows which target
-// It runs on today, and swapping targets moves the light, not the chip.
-
 interface Socket {
   readonly label: string;
-  // Where the socket sits in the drawing's 784 by 400 grid.
   readonly origin: string;
   readonly active: boolean;
 }
@@ -54,7 +50,6 @@ const activeTrace = "M462 170H480.5Q490.5 170 497.5 163L564.5 96Q571.5 89 581.5 
 const pins =
   "M332 118V130M332 270V282M344 118V130M344 270V282M356 118V130M356 270V282M368 118V130M368 270V282M380 118V130M380 270V282M392 118V130M392 270V282M404 118V130M404 270V282M416 118V130M416 270V282M428 118V130M428 270V282M440 118V130M440 270V282M452 118V130M452 270V282M310 140H322M462 140H474M310 152H322M462 152H474M310 164H322M462 164H474M310 176H322M462 176H474M310 188H322M462 188H474M310 200H322M462 200H474M310 212H322M462 212H474M310 224H322M462 224H474M310 236H322M462 236H474M310 248H322M462 248H474M310 260H322M462 260H474";
 
-// The same spiral as the logo mark, drawn on a 32 unit grid and scaled into the chip.
 const spiral = "M18.5 14.75a2.5 2.5 0 0 1-5 0a5 5 0 0 1 10 0a7.5 7.5 0 0 1-15 0";
 
 const TargetSocket = (props: { readonly socket: Socket }): ReactElement => (
