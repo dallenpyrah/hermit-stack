@@ -36,7 +36,6 @@ interface Standing {
 
 type SubscriptionClient = Context.Service.Identifier<typeof Subscription>;
 
-// A command the webhook sent to billing.
 interface Sent {
   readonly _tag: string;
 }
@@ -46,7 +45,6 @@ interface Signing {
   readonly secret: string;
 }
 
-// The endpoint secret the tests sign with. It is not a Stripe secret.
 const secret = "stand-in-signing-secret";
 
 const millisPerSecond = 1000;
@@ -59,7 +57,6 @@ const noCommits = 0;
 
 const oneCommit = 1;
 
-// Stripe refuses a delivery older than five minutes, so ten minutes is well outside the window.
 const tenMinutes = 600;
 
 const rightNow: Signing = { secondsAgo: 0, secret };
@@ -73,8 +70,6 @@ const encodeJson = Schema.encodeEffect(Schema.fromJsonString(Schema.Unknown));
 const bytesOf = (text: string): Effect.Effect<Uint8Array, Schema.SchemaError> =>
   Schema.decodeEffect(Schema.Uint8ArrayFromHex)(Hex.encode(text));
 
-// Signs a delivery the way Stripe does: v1 is the HMAC-SHA256 of "<timestamp>.<body>" under the endpoint's secret. The
-// Timestamp is the wall clock's, because the SDK checks it against the wall clock, not the test clock.
 const sign = Effect.fn("sign")(function* sign(event: EventFixture, signer: Signing) {
   const mac = yield* Mac.Mac;
   const secretBytes = yield* bytesOf(signer.secret);
@@ -87,7 +82,6 @@ const sign = Effect.fn("sign")(function* sign(event: EventFixture, signer: Signi
   return { body, signature: `t=${timestamp},v1=${Hex.encode(digest)}` };
 }, Effect.orDie);
 
-// Serves the webhook over HTTP on a port the operating system assigns, and answers a client that calls it.
 const serve = (webhook: StripeWebhook["Service"]): Effect.Effect<HttpClient.HttpClient, never, Scope.Scope> => {
   const route = HttpRouter.add("POST", path, webhook.handle);
 
@@ -95,7 +89,6 @@ const serve = (webhook: StripeWebhook["Service"]): Effect.Effect<HttpClient.Http
     Layer.provideMerge(layerTest),
   );
 
-  // A server that cannot listen fails the case that started it, so its error is a defect.
   return Effect.map(Effect.orDie(Layer.build(served)), Context.get(HttpClient.HttpClient));
 };
 
@@ -108,7 +101,6 @@ const post = (client: HttpClient.HttpClient, signed: Signed): Effect.Effect<numb
   return Effect.map(Effect.orDie(client.execute(request)), (response) => response.status);
 };
 
-// What the app can tell about the customer: the subscription's status and, while it is held, its plan and period.
 const standingOf = (state: Effect.Success<ReturnType<Subscription["Service"]["get"]>>): Standing =>
   Match.valueTags(state, {
     Active: (active) => ({ periodEnd: DateTime.formatIso(active.periodEnd), plan: active.plan, status: "Active" }),
@@ -117,7 +109,6 @@ const standingOf = (state: Effect.Success<ReturnType<Subscription["Service"]["ge
     PastDue: (pastDue) => ({ periodEnd: DateTime.formatIso(pastDue.periodEnd), plan: pastDue.plan, status: "PastDue" }),
   });
 
-// Billing's Subscription client, noting each command before it sends it on.
 const noting = (sent: Ref.Ref<readonly Sent[]>): Layer.Layer<SubscriptionClient, never, SubscriptionClient> =>
   Layer.effect(
     Subscription,
@@ -132,7 +123,6 @@ const noting = (sent: Ref.Ref<readonly Sent[]>): Layer.Layer<SubscriptionClient,
     }),
   );
 
-// A fresh billing host per case, with the webhook in front of it.
 const host = Effect.gen(function* host() {
   const billing = billingHost();
 

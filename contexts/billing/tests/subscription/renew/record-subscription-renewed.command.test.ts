@@ -9,7 +9,6 @@ import { billingStory, customer, pro, reportAt, started } from "#tests/billing.s
 
 type Case = () => ReturnType<typeof billingStory>;
 
-// Story.then is renamed because a lint rule reads any .then( call as a Promise chain.
 const { then: recorded } = Story;
 
 const february = reportAt("2026-02-01T00:00:00Z");
@@ -28,7 +27,6 @@ const movesThePeriodOn: Case = () =>
     }),
   );
 
-// The processor retried the failed payment and it went through.
 const recoversFromPastDue: Case = () => {
   const retried = reportAt("2026-02-04T00:00:00Z");
 

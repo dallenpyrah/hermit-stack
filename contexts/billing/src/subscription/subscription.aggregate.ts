@@ -28,8 +28,6 @@ import {
   SubscriptionState,
 } from "#src/subscription/subscription-state.schema.js";
 
-// What one customer may use, as the payment processor last reported it. The processor is the record of truth for
-// Money; this aggregate is the record of truth for access, so the app never asks the processor on a request.
 class Subscription extends Aggregate(
   "Subscription",
   {

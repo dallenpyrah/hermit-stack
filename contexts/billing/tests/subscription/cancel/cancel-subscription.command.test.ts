@@ -12,11 +12,8 @@ import { billingStory, customer, endedAt, january, pro, started, subscription } 
 
 type Case = () => ReturnType<typeof billingStory>;
 
-// Story.then is renamed because a lint rule reads any .then( call as a Promise chain.
 const { then: recorded } = Story;
 
-// Payments.cancel succeeds without a value. The lint rules refuse every way of writing one (undefined, void 0, a call
-// That returns void), so it is read from an object that holds none.
 const { nothing }: { readonly nothing?: never } = {};
 
 const asksTheProcessor: Case = () =>

@@ -11,7 +11,6 @@ const CancelAtProcessor = Policy(
   { description: "Asks the payment processor to end a subscription the customer cancelled, at the end of its period." },
 );
 
-// Records nothing back: the processor reports the end itself when the period is over, as SubscriptionCancelled.
 const CancelAtProcessorLive = CancelAtProcessor.toLayer(
   Effect.gen(function* cancelAtProcessorLive() {
     const payments = yield* Payments;

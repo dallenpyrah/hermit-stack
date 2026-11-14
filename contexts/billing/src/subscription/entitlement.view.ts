@@ -25,8 +25,6 @@ const paidFor = (event: Paid): Pick<EntitlementState, "periodEnd" | "plan"> => (
   plan: event.plan,
 });
 
-// The one thing the app gates features on. A past-due customer keeps the plan while the processor retries the
-// Payment; access ends only when the processor reports the subscription cancelled.
 class Entitlement extends View(
   "Entitlement",
   {

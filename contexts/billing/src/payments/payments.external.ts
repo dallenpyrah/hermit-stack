@@ -7,8 +7,6 @@ import { UnknownPlan } from "#src/payments/unknown-plan.rejection.js";
 import { CustomerId } from "#src/subscription/customer.id.js";
 import { PlanId } from "#src/subscription/plan.schema.js";
 
-// The calls the model makes to whichever payment processor takes the money, in the model's words. A timeout or a 5xx
-// Is not a refusal: an adapter dies with it, and the policy or request that made the call runs again.
 class Payments extends ExternalSystem(
   "Payments",
   {

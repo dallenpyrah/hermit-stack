@@ -9,12 +9,10 @@ import { RecordSubscriptionRenewed } from "@repo/billing/record-subscription-ren
 import { RecordSubscriptionStarted } from "@repo/billing/record-subscription-started";
 import { DateTime, Layer } from "effect";
 
-// The parts of a Stripe object these tests send.
 interface StripeJson {
   readonly [field: string]: number | string | StripeJson | readonly StripeJson[];
 }
 
-// A Stripe event as it arrives, before its signature is checked.
 interface EventFixture {
   readonly created: number;
   readonly data: { readonly object: StripeJson };
@@ -37,7 +35,6 @@ const prices = { pro: "price_pro" };
 
 const millisPerSecond = 1000;
 
-// Stripe stamps events in whole seconds.
 const second = (iso: string): number => DateTime.toEpochMillis(DateTime.makeUnsafe(iso)) / millisPerSecond;
 
 const january = second("2026-01-01T00:00:00Z");
@@ -53,7 +50,6 @@ const linePaidUntil = (periodEnd: number): StripeJson => ({
   pricing: { price_details: { price: prices.pro } },
 });
 
-// An invoice event in the shape Stripe sends for API versions from 2025-03-31 on, with only the fields that matter.
 const invoiceEvent = ({ created, id, periodEnd, reason, type }: InvoiceEvent): EventFixture => ({
   created,
   data: {
@@ -102,7 +98,6 @@ const deleted: EventFixture = {
   type: "customer.subscription.deleted",
 };
 
-// A first invoice whose payment failed, which billing has no command for.
 const firstPaymentFailed = invoiceEvent({
   created: january,
   id: "evt_first_failed",
@@ -111,7 +106,6 @@ const firstPaymentFailed = invoiceEvent({
   type: "invoice.payment_failed",
 });
 
-// The command each event above must become, written out from the fixtures rather than from the adapter's mapping.
 const held = { payer: "cus_1", plan: PlanId.make("pro"), subscription: "sub_1" };
 
 const at = (iso: string): DateTime.Utc => DateTime.makeUnsafe(iso);
@@ -141,7 +135,6 @@ const commands = {
 
 const unknownType: EventFixture = { ...deleted, id: "evt_customer", type: "customer.created" };
 
-// The billing model with its policies. No checkout or portal runs, so the processor holds nothing.
 const hosted = Billing.layer(BillingHandlers).pipe(
   Layer.provide(PaymentsFake({ payers: [], plans: [], subscriptions: [] })),
 );
@@ -151,7 +144,6 @@ interface BillingHost {
   readonly layer: Layer.Layer<Layer.Success<typeof hosted>>;
 }
 
-// A fresh in-memory host of the billing model, and how many events its commands have committed.
 const billingHost = (): BillingHost => {
   const platform = inMemory();
 

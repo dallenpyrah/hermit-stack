@@ -9,7 +9,6 @@ import { billingStory, customer, endedAt, january, pro, reportAt, started } from
 
 type Case = () => ReturnType<typeof billingStory>;
 
-// Story.then is renamed because a lint rule reads any .then( call as a Promise chain.
 const { then: recorded } = Story;
 
 const startsFromNothing: Case = () =>

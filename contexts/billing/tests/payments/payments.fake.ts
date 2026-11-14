@@ -8,7 +8,6 @@ import { SubscriptionNotFound } from "#src/payments/subscription-not-found.rejec
 import { UnknownPlan } from "#src/payments/unknown-plan.rejection.js";
 import type { PlanId } from "#src/subscription/plan.schema.js";
 
-// What the fake processor sells and holds, as a real processor would after its catalog is set up and a checkout paid.
 interface Holdings {
   readonly payers: readonly string[];
   readonly plans: readonly PlanId[];
@@ -19,7 +18,6 @@ interface Link {
   readonly url: string;
 }
 
-// An in-memory payment processor that answers the Payments port the way the contract suite says a real one must.
 const PaymentsFake = (holdings: Holdings): Layer.Layer<Identifier<typeof Payments>> =>
   Payments.toLayer(
     Effect.succeed({

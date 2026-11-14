@@ -17,7 +17,6 @@ const cancelled = SubscriptionCancelled.make(endedAt("2026-03-20T00:00:00Z"));
 
 const paid = { cancelling: false, entitled: true, plan: pro };
 
-// Each command's story shows the event it records; this one shows what the app reads after each event in turn.
 const followsTheLifecycle: Case = () =>
   billingStory(
     Story.view(Entitlement, customer, Story.none),

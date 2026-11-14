@@ -9,7 +9,6 @@ import { billingStory, customer, pro, reportAt, started } from "#tests/billing.s
 
 type Case = () => ReturnType<typeof billingStory>;
 
-// Story.then is renamed because a lint rule reads any .then( call as a Promise chain.
 const { then: recorded } = Story;
 
 const february = reportAt("2026-02-01T00:00:00Z");
@@ -30,7 +29,6 @@ const keepsThePlanWhileRetrying: Case = () =>
 
 const retriedRenewal = SubscriptionRenewed.make(reportAt("2026-02-04T00:00:00Z"));
 
-// The retry that succeeded was delivered before the failure it recovered from.
 const lateFailureChangesNothing: Case = () =>
   billingStory(
     Story.given(customer, started, retriedRenewal),

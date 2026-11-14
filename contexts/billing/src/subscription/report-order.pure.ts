@@ -2,8 +2,6 @@ import { DateTime, Function as Fn, Match, Option } from "effect";
 
 import type { Mark, SubscriptionState } from "#src/subscription/subscription-state.schema.js";
 
-// The processor's clock counts whole seconds, and a final failed payment and the cancellation it causes can share one.
-// Within a second the more final report wins, so the two land as cancelled in either order.
 const precedence = { cancelled: 3, paymentFailed: 2, renewed: 1, started: 0 } as const;
 
 const lastMark = (state: SubscriptionState): Option.Option<Mark> =>
@@ -20,7 +18,6 @@ const after = (next: Mark, last: Mark): boolean =>
 
 const isNewerArity = 2;
 
-// A report no newer than the last one applied is a repeat or arrived late, so it changes nothing.
 const isNewer: {
   (next: Mark): (state: SubscriptionState) => boolean;
   (state: SubscriptionState, next: Mark): boolean;
@@ -30,7 +27,6 @@ const isNewer: {
 
 const recordArity = 3;
 
-// Processor reports are facts that already happened, so they are never refused: one that is not newer records nothing.
 const recordIfNewer: {
   <Event>(next: Mark, event: () => Event): (state: SubscriptionState) => readonly Event[];
   <Event>(state: SubscriptionState, next: Mark, event: () => Event): readonly Event[];

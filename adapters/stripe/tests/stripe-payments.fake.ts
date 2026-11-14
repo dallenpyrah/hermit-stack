@@ -4,14 +4,12 @@ import type { Scope } from "effect";
 import { Headers, HttpRouter, HttpServer, HttpServerResponse, UrlParams } from "effect/http";
 import type { HttpServerRequest } from "effect/http";
 
-// What the stand-in Stripe account sells and holds.
 interface Account {
   readonly customers: readonly string[];
   readonly prices: readonly string[];
   readonly subscriptions: readonly string[];
 }
 
-// One request the stand-in received: its method, path and form body as Stripe would parse it.
 interface Received {
   readonly form: UrlParams.UrlParams;
   readonly method: string;
@@ -23,7 +21,6 @@ interface StripeStandIn {
   readonly received: Effect.Effect<readonly Received[]>;
 }
 
-// The fields of a Stripe object or error the adapter reads.
 interface StripeObject {
   readonly [field: string]: boolean | string | StripeObject;
 }
@@ -33,7 +30,6 @@ interface Answer {
   readonly status: number;
 }
 
-// The key the adapter under test is given. It is not a Stripe key, so no real account can be reached with it.
 const standInKey = Redacted.make("stand-in-key");
 
 const okStatus = 200;
@@ -44,7 +40,6 @@ const unauthorizedStatus = 401;
 
 const missingPathStatus = 404;
 
-// Stripe's error envelope for a reference it does not hold.
 const missing = (status: number, what: string): Answer => ({
   body: { error: { code: "resource_missing", message: `No such ${what}`, type: "invalid_request_error" } },
   status,
@@ -110,7 +105,6 @@ const answerFor = (account: Account, request: Received): Answer => {
   return missing(missingPathStatus, `route: ${request.method} ${request.path}`);
 };
 
-// Stripe checks the key before anything else.
 const answerTo = (account: Account, request: HttpServerRequest.HttpServerRequest, entry: Received): Answer => {
   const key = Headers.get(request.headers, "authorization");
 
@@ -121,9 +115,6 @@ const answerTo = (account: Account, request: HttpServerRequest.HttpServerRequest
   return answerFor(account, entry);
 };
 
-// A local stand-in for the part of Stripe's HTTP API the adapter calls. It checks the key, parses the form body the
-// Way Stripe does and answers in Stripe's shapes, including its resource_missing errors. It never calls Stripe, and it
-// Listens on a port the operating system assigns.
 const startStripeStandIn = (account: Account): Effect.Effect<StripeStandIn, never, Scope.Scope> =>
   Effect.gen(function* standIn() {
     const received = yield* Ref.make<readonly Received[]>([]);
@@ -144,7 +135,6 @@ const startStripeStandIn = (account: Account): Effect.Effect<StripeStandIn, neve
       disableLogger: true,
     }).pipe(Layer.provideMerge(layerTest));
 
-    // A stand-in that cannot listen fails the test that started it, so its error is a defect.
     const context = yield* Effect.orDie(Layer.build(served));
     const baseUrl = yield* Effect.provideContext(HttpServer.addressFormattedWith(Effect.succeed), context);
 

@@ -20,7 +20,6 @@ type Cancelling = NotSubscribed | readonly CancellationRequested[];
 
 const notSubscribed = (): NotSubscribed => new NotSubscribed();
 
-// Asking twice is accepted and records nothing, so a client that retries never asks the processor twice.
 const requestOnce = (subscribed: SubscribedState): Cancelling => {
   if (subscribed.cancelling) {
     return [];
@@ -29,7 +28,6 @@ const requestOnce = (subscribed: SubscribedState): Cancelling => {
   return [CancellationRequested.make({ subscription: subscribed.subscription })];
 };
 
-// Cancelling takes no input, so the state alone decides it.
 const decideCancelSubscription = (state: SubscriptionState): Cancelling =>
   Match.valueTags(state, {
     Active: requestOnce,

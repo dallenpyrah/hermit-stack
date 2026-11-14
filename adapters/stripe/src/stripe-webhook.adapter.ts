@@ -13,13 +13,10 @@ import type { HttpServerRequest } from "effect/http";
 import { customerIdKey, EndedSubscription, StripeEvent, SubscriptionInvoice } from "#src/stripe-event.schema.js";
 import type { InvoiceLine } from "#src/stripe-event.schema.js";
 
-// The Stripe price that sells each plan, keyed by the plan's id.
 type Prices = Readonly<Record<string, string>>;
 
 interface StripeWebhookOptions {
-  // The same prices the payments layer is given.
   readonly prices: Prices;
-  // The endpoint's signing secret.
   readonly secret: Redacted.Redacted;
 }
 
@@ -35,7 +32,6 @@ type ProcessorReport =
   | RecordSubscriptionRenewed
   | RecordSubscriptionStarted;
 
-// One billing command and the app's id for the customer it is about.
 interface Delivery {
   readonly customer: string;
   readonly report: ProcessorReport;
@@ -46,7 +42,6 @@ interface Paid {
   readonly plan: PlanId;
 }
 
-// What Stripe reports about a subscription it still holds, in the words of billing's processor reports.
 interface Held extends Paid {
   readonly payer: string;
   readonly reportedAt: DateTime.Utc;
@@ -59,7 +54,6 @@ const okStatus = 200;
 
 const badRequestStatus = 400;
 
-// Stripe stamps times in whole seconds.
 const atSecond = (seconds: number): DateTime.Utc => DateTime.makeUnsafe(seconds * millisPerSecond);
 
 const customerIn = (metadata: Readonly<Record<string, string>> | null): Option.Option<string> =>
@@ -78,8 +72,6 @@ const paidLine = (prices: Prices, line: InvoiceLine): Option.Option<Paid> =>
     Option.map((plan) => ({ periodEnd: atSecond(line.period.end), plan })),
   );
 
-// A paid first invoice starts the subscription and a paid cycle invoice renews it. A failed first payment is left
-// Out: Checkout never creates a subscription it could not charge, so there is nothing yet to put past due.
 const reportOf = (kind: string, held: Held): Option.Option<ProcessorReport> => {
   if (kind === "invoice.paid subscription_create") {
     return Option.some(RecordSubscriptionStarted.make(held));
@@ -119,8 +111,6 @@ const cancellationDelivery = (event: StripeEvent): Option.Option<Delivery> =>
     return { customer, report };
   });
 
-// An event billing does not understand, or one about a customer, price or subscription it does not know, is none, so
-// The webhook acknowledges it and Stripe stops resending it.
 const deliveryOf = (event: StripeEvent, prices: Prices): Option.Option<Delivery> => {
   if (event.type === "customer.subscription.deleted") {
     return cancellationDelivery(event);
@@ -131,8 +121,6 @@ const deliveryOf = (event: StripeEvent, prices: Prices): Option.Option<Delivery>
 
 const answer = (status: number): HttpServerResponse.HttpServerResponse => HttpServerResponse.empty({ status });
 
-// A wrong signature, a timestamp outside Stripe's five-minute tolerance and a body that is not an event all come back
-// As none, so the caller learns nothing about which check failed.
 const verify = (
   request: HttpServerRequest.HttpServerRequest,
   secret: Redacted.Redacted,
@@ -145,10 +133,6 @@ const verify = (
     return yield* Schema.decodeUnknownEffect(StripeEvent)(event);
   }).pipe(Effect.option);
 
-// Turns each verified Stripe webhook into a command on the billing context. Stripe delivers at least once and in any
-// Order: the event id is the command id, so a repeat is answered from the first receipt, and every report carries the
-// Time Stripe stamped on it, so the Subscription aggregate drops one older than what it already applied. It answers
-// 200 only after the command is accepted; a failure dies, the host answers 5xx, and Stripe sends the event again.
 class StripeWebhook extends Context.Service<StripeWebhook, StripeWebhookService>()(
   "@repo/stripe/stripe-webhook.adapter/StripeWebhook",
 ) {

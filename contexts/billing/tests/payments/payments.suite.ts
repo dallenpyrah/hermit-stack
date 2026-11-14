@@ -12,8 +12,6 @@ import { PlanId } from "#src/subscription/plan.schema.js";
 
 type PaymentsService = Identifier<typeof Payments>;
 
-// What the processor under test already sells and holds, as a real one would after its catalog is set up and a
-// Checkout was paid.
 interface Held {
   readonly payer: string;
   readonly plan: PlanId;
@@ -32,7 +30,6 @@ const checkout = { cancelUrl: "https://app.example/pricing", customer, successUr
 
 const returnUrl = "https://app.example/account";
 
-// A URL the app sends a browser to, so it must be absolute and secure, not an id or a path.
 const secureUrl = /^https:\/\/[^/\s]+\/\S*$/u;
 
 const startsCheckout = Effect.fn("startsCheckout")(function* startsCheckoutCase(held: Held) {
@@ -63,7 +60,6 @@ const refusesUnknownPayer = Effect.gen(function* refusesUnknownPayerCase() {
   expect(refused).toStrictEqual(new PayerNotFound({ payer: unknownPayer }));
 });
 
-// A policy can run twice for one event, so the second cancel must succeed too.
 const cancelsTwice = Effect.fn("cancelsTwice")(function* cancelsTwiceCase(held: Held) {
   const payments = yield* Payments;
 
@@ -78,8 +74,6 @@ const refusesUnknownSubscription = Effect.gen(function* refusesUnknownSubscripti
   expect(refused).toStrictEqual(new SubscriptionNotFound({ subscription: unknownSubscription }));
 });
 
-// The same cases run against the fake and every real adapter, so the fake cannot drift from what a processor does.
-// Run it with it.layer(adapter)(title, paymentsContract(held)).
 const paymentsContract =
   (held: Held) =>
   (onAdapter: Vitest.MethodsNonLive<PaymentsService>): void => {

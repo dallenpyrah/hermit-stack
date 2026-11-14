@@ -10,8 +10,6 @@ interface Applied {
   readonly report: HeldReport;
 }
 
-// A cancellation the customer asked for survives a renewal or a failed payment reported after it; only a new start
-// Clears it.
 const isCancelling = (state: SubscriptionState): boolean =>
   Match.valueTags(state, {
     Active: (active) => active.cancelling,

@@ -11,10 +11,8 @@ import { billingStory, customer, endedAt, reportAt, started } from "#tests/billi
 
 type Case = () => ReturnType<typeof billingStory>;
 
-// Story.then is renamed because a lint rule reads any .then( call as a Promise chain.
 const { then: recorded } = Story;
 
-// The last retry failed and the processor ended the subscription in the same second.
 const finalSecond = "2026-02-15T00:00:00Z";
 
 const failedInFinalSecond = reportAt(finalSecond);

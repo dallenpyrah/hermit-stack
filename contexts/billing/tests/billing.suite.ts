@@ -9,7 +9,6 @@ import { PlanId } from "#src/subscription/plan.schema.js";
 import { SubscriptionStarted } from "#src/subscription/start/subscription-started.event.js";
 import { Subscription } from "#src/subscription/subscription.aggregate.js";
 
-// A story answers every call to the payment processor itself.
 const billingStory = Story.make(Billing, { layer: BillingHandlers, stub: [Payments] });
 
 const customer = Subscription.ref("customer-1");
@@ -20,7 +19,6 @@ const payer = "payer-1";
 
 const subscription = "subscription-1";
 
-// What the processor reports at a moment for a monthly plan: the period it was paid for ends a month later.
 const reportAt = (iso: string): HeldReport => {
   const reportedAt = DateTime.makeUnsafe(iso);
 
@@ -33,7 +31,6 @@ const endedAt = (iso: string): EndedReport => ({
   subscription,
 });
 
-// The first report most stories start from: the subscription began on the first of January.
 const january = reportAt("2026-01-01T00:00:00Z");
 
 const started = SubscriptionStarted.make(january);

@@ -13,7 +13,6 @@ import { standInKey, startStripeStandIn } from "#tests/stripe-payments.fake";
 
 const pro = PlanId.make("pro");
 
-// A plan the app still offers whose price was archived in Stripe.
 const retired = PlanId.make("retired");
 
 const account = { customers: ["cus_held"], prices: ["price_pro"], subscriptions: ["sub_held"] };
@@ -38,8 +37,6 @@ describe("the Payments contract", () => {
   );
 });
 
-// Every webhook names its customer through the subscription's metadata, so a checkout that forgot it would take money
-// And grant nothing.
 const carriesTheCustomer = Effect.gen(function* carriesTheCustomer() {
   const { payments, standIn } = yield* onStandIn;
   const built = yield* Layer.build(payments);
