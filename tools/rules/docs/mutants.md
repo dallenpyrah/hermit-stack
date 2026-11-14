@@ -34,7 +34,7 @@ Each failure prints the entry for its mutant with an empty reason. Prefer a test
 
 The writer refuses every report failure without changing an existing baseline or creating a new one. A non-empty run with no non-equivalent survivors also refuses unless `--allow-empty-baseline` is explicitly passed with `--write-baseline`; that flag never overrides a failed run. Successful writes flush a new file in a unique sibling directory and rename it over the baseline, so interruption before publication leaves the old baseline intact. Ordinary write or rename failures clean up the staging directory; a killed process can leave that directory for removal, but never publishes its partial file.
 
-## In hermitstack
+## In hermit-stack
 
 The freshness check uses the root's pinned `mutant-cafe@0.1.6` peer binary on `PATH`. Packages without a survivor baseline skip enumeration.
 

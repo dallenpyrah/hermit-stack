@@ -1,0 +1,36 @@
+{
+  "name": "@repo/identity",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Who is signed in: the CurrentUser context, the Session middleware that provides it, a fake adapter for tests, and the contract every auth adapter passes. It names no auth vendor.",
+  "type": "module",
+  "sideEffects": false,
+  "imports": {
+    "#src/*": "./src/*",
+    "#tests/*": "./tests/*.ts"
+  },
+  "exports": {
+    "./current-user": "./src/current-user.context.ts",
+    "./session": "./src/session.middleware.ts",
+    "./session-adapter": "./src/session-adapter.service.ts",
+    "./session-contract": "./src/session.suite.ts",
+    "./session-fake": "./tests/session.fake.ts",
+    "./unauthorized": "./src/unauthorized.rejection.ts",
+    "./user-id": "./src/user.id.ts"
+  },
+  "scripts": {
+    "typecheck": "effect-tsgo tsrs --noEmit -p tsconfig.json",
+    "lint": "effect-tsgo --tsrs-lint oxlint -c ../../oxlint.config.ts --type-aware --tsconfig tsconfig.json src tests",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@alchemy.run/domain": "catalog:",
+    "@effect/vitest": "catalog:",
+    "alchemy": "catalog:",
+    "effect": "catalog:"
+  },
+  "devDependencies": {
+    "vite": "catalog:",
+    "vitest": "catalog:"
+  }
+}

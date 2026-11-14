@@ -1,0 +1,340 @@
+.hs-section-group {
+  flex-direction: column;
+  gap: 1px;
+  margin-top: 8px;
+  display: flex;
+}
+
+.hs-section-head {
+  width: 100%;
+  color: var(--hs-stone);
+  font-size: 13px;
+  font-weight: var(--font-weight-medium);
+  line-height: 16px;
+  letter-spacing: 0;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  padding: 8px 8px 6px;
+  display: flex;
+}
+
+.hs-section-head .hs-row-label {
+  flex: 0 auto;
+}
+
+.hs-nav > .hs-section-group:first-child {
+  margin-top: 4px;
+}
+
+.hs-search-btn {
+  width: 100%;
+  height: var(--h-control-base);
+  border: 1px solid var(--hs-line);
+  border-radius: var(--radius);
+  background: var(--hs-main);
+  color: var(--hs-stone);
+  font: inherit;
+  font-size: var(--text-sm);
+  letter-spacing: 0;
+  cursor: pointer;
+  align-items: center;
+  gap: 8px;
+  padding: 0 6px 0 10px;
+  transition:
+    background-color 0.1s,
+    color 0.1s;
+  display: flex;
+}
+
+.hs-search-btn svg {
+  width: 16px;
+  height: 16px;
+  color: var(--hs-stone);
+}
+
+.hs-search-btn .hs-kbd {
+  margin-left: auto;
+}
+
+.hs-search-btn:hover {
+  background: var(--hs-tile);
+  color: var(--text);
+}
+
+.hs-search-btn .hs-kbd {
+  border-radius: 4px;
+  background: var(--hs-tile);
+  height: 20px;
+  color: var(--hs-stone);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 0 6px;
+}
+
+@media (min-width: 768px), (hover: hover) and (pointer: fine) {
+  .hs-search-btn {
+    height: 34px;
+    font-size: var(--hs-text-nav);
+  }
+}
+
+.hs-cmd-backdrop {
+  z-index: 50;
+  background: var(--overlay);
+  animation: hs-fade var(--duration-base) ease-out;
+  position: fixed;
+  inset: 0;
+}
+
+.hs-cmd-stage {
+  z-index: 51;
+  flex-direction: column;
+  align-items: center;
+  padding: 15dvh 16px 16px;
+  display: flex;
+  position: fixed;
+  inset: 0;
+}
+
+.hs-cmd {
+  border: 0.5px solid var(--border-2);
+  border-radius: var(--radius-panel);
+  background: var(--popover);
+  width: 100%;
+  max-width: 720px;
+  min-height: 0;
+  max-height: 100%;
+  box-shadow: var(--sh-overlay);
+  animation: hs-pop var(--duration-base) var(--ease-out-quint);
+  flex-direction: column;
+  display: flex;
+  overflow: hidden;
+}
+
+.hs-cmd-input-row {
+  border-bottom: 0.5px solid var(--border-1);
+  flex-shrink: 0;
+  align-items: center;
+  gap: 10px;
+  height: 44px;
+  padding: 0 12px 0 16px;
+  display: flex;
+}
+
+.hs-cmd-input-icon {
+  width: var(--icon-base);
+  height: var(--icon-base);
+  color: var(--icon-muted);
+}
+
+.hs-cmd-input {
+  min-width: 0;
+  color: var(--text);
+  font: inherit;
+  font-size: var(--text-sm);
+  letter-spacing: var(--text-sm--letter-spacing);
+  background: 0 0;
+  border: 0;
+  outline: none;
+  flex: 1;
+}
+
+.hs-cmd-input::placeholder {
+  color: var(--muted-foreground-3);
+}
+
+.hs-cmd-filters {
+  flex-shrink: 0;
+  gap: 2px;
+  padding: 6px 6px 0;
+  display: flex;
+}
+
+.hs-cmd-filter {
+  height: var(--h-control-sm);
+  border-radius: var(--radius);
+  color: var(--muted-foreground-1);
+  font: inherit;
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  background: 0 0;
+  border: 0;
+  align-items: center;
+  padding: 0 10px;
+  transition: color 0.1s;
+  display: inline-flex;
+}
+
+.hs-cmd-filter:hover {
+  color: var(--text);
+}
+
+.hs-cmd-filter[aria-selected="true"] {
+  background: var(--secondary);
+  color: var(--text);
+}
+
+.hs-cmd-list {
+  flex-direction: column;
+  flex: 1;
+  gap: 6px;
+  min-height: 0;
+  max-height: min(400px, 60vh);
+  padding: 6px;
+  scroll-padding: 32px 6px;
+  display: flex;
+  overflow-y: auto;
+}
+
+.hs-cmd-group {
+  flex-direction: column;
+  gap: 1px;
+  display: flex;
+}
+
+.hs-cmd-label {
+  min-height: 28px;
+  color: var(--muted-foreground-1);
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-medium);
+  align-items: center;
+  padding: 0 10px;
+  display: flex;
+}
+
+.hs-cmd-item {
+  min-height: var(--h-palette-row);
+  border-radius: var(--radius-overlay);
+  color: var(--text);
+  font-size: var(--text-sm);
+  letter-spacing: var(--text-sm--letter-spacing);
+  cursor: pointer;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px;
+  text-decoration: none;
+  display: flex;
+}
+
+.hs-cmd-item[data-highlighted] {
+  background: var(--popover-hover);
+}
+
+.hs-cmd-lead {
+  min-width: var(--icon-base);
+  color: var(--icon-muted);
+  flex-shrink: 0;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+}
+
+.hs-cmd-lead svg {
+  width: var(--icon-base);
+  height: var(--icon-base);
+}
+
+.hs-cmd-body {
+  flex-direction: column;
+  flex: 1;
+  gap: 2px;
+  min-width: 0;
+  display: flex;
+}
+
+.hs-cmd-line {
+  align-items: baseline;
+  min-width: 0;
+  display: flex;
+}
+
+.hs-cmd-title,
+.hs-cmd-snippet {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.hs-cmd-title mark,
+.hs-cmd-snippet mark {
+  color: var(--text);
+  font-weight: var(--font-weight-medium);
+  background: 0 0;
+}
+
+.hs-cmd-snippet {
+  color: var(--muted-foreground-1);
+  font-size: var(--text-xs);
+  letter-spacing: var(--text-xs--letter-spacing);
+}
+
+.hs-cmd-trail {
+  max-width: 45%;
+  color: var(--muted-foreground-1);
+  font-size: var(--text-xs);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-left: auto;
+  padding-left: 12px;
+  overflow: hidden;
+}
+
+.hs-cmd-empty {
+  text-align: center;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 8px;
+  display: flex;
+}
+
+.hs-cmd-empty-icon {
+  width: 20px;
+  height: 20px;
+  color: var(--muted-foreground-3);
+  margin-bottom: 10px;
+}
+
+.hs-cmd-empty-title {
+  color: var(--muted-foreground-1);
+  font-size: var(--text-sm);
+  margin: 0;
+}
+
+.hs-cmd-empty-body {
+  max-width: 340px;
+  color: var(--muted-foreground-1);
+  font-size: var(--text-xs);
+  margin: 4px 0 0;
+  line-height: 1.5;
+}
+
+.hs-cmd-footer {
+  border-top: 0.5px solid var(--border-1);
+  flex-shrink: 0;
+  align-items: center;
+  gap: 16px;
+  height: 40px;
+  padding: 0 16px;
+  display: flex;
+}
+
+.hs-cmd-hint {
+  color: var(--muted-foreground-1);
+  font-size: var(--text-xs);
+  align-items: center;
+  gap: 6px;
+  display: flex;
+}
+
+.hs-cmd-hint .hs-kbd + .hs-kbd {
+  margin-left: -4px;
+}
+
+.hs-cmd-hint-end {
+  margin-left: auto;
+}

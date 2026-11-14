@@ -1,6 +1,6 @@
 # @repo/rules
 
-hermitstack's rulebook: an Oxlint base with every category at error and one off table, vendored anti-slop, the `taste`, `testing` and `structure` plugins, a `tsconfig.base.json` with every Effect diagnostic at error, and the scripts `pnpm check` runs at the repo root. It is a copy of `rika-labs/rules`, owned here; [UPSTREAM.md](./UPSTREAM.md) records the commit and every change since.
+hermit-stack's rulebook: an Oxlint base with every category at error and one off table, vendored anti-slop, the `taste`, `testing` and `structure` plugins, a `tsconfig.base.json` with every Effect diagnostic at error, and the scripts `pnpm check` runs at the repo root. It is a copy of `rika-labs/rules`, owned here; [UPSTREAM.md](./UPSTREAM.md) records the commit and every change since.
 
 | Export or bin                         | What it is                                                                                                                        |
 | ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
@@ -25,7 +25,7 @@ hermitstack's rulebook: an Oxlint base with every category at error and one off 
 | `mutants` (bin)                       | Fails on a mutant no test kills or explains                                                                                       |
 | `agent-sources` (bin)                 | Clones dependency source at the pinned versions into `.agent_sources/`                                                            |
 
-The root `oxlint.config.ts`, `oxlint-structure.config.ts`, `tsconfig.base.json`, `knip.config.ts`, `ratchets.json` and `.env.schema` are how hermitstack uses them, and `AGENTS.md` here describes each check `pnpm check` runs.
+The root `oxlint.config.ts`, `oxlint-structure.config.ts`, `tsconfig.base.json`, `knip.config.ts`, `ratchets.json` and `.env.schema` are how hermit-stack uses them, and `AGENTS.md` here describes each check `pnpm check` runs.
 
 The `build` role, FoldKit's `command`, `message`, `model`, `subscription` and `update` roles, and Alchemy Domain's twelve roles are opt-in. The root `oxlint-structure.config.ts` enables FoldKit's for the FoldKit packages and calls `domainStructure` for the Domain ones. [ADR 0006](./docs/adr/0006-every-file-names-its-role.md) defines each role's contents and import edges.
 
@@ -56,4 +56,4 @@ The root lint configs load `dist`, which `build` writes. Turbo rebuilds it befor
 
 ## License
 
-Apache-2.0, from `rika-labs/rules` (see [LICENSE](./LICENSE)). `src/oxlint/anti-slop` is MIT, from dmmulroy/anti-slop.
+MIT, with the rest of this repo (see the root [LICENSE](../../LICENSE)). `src/oxlint/anti-slop` is MIT, from dmmulroy/anti-slop.
