@@ -23,18 +23,24 @@ Run everything through mise so the pinned Node and pnpm are used.
 ## Layout
 
 ```
-apps/        things people open: docs (Next.js), cli (an example command line over the Api)
-contexts/    one package per bounded context, written with @alchemy.run/domain: ledger, outbound
-adapters/    one package per vendor; the only place its SDK is imported: otlp, axiom, better-auth
+apps/        things people open: web (FoldKit, rendered on the server and kept live), panels (MCP Apps panels
+             an agent host shows), cli (an example command line over the Api), docs (Next.js)
+contexts/    one package per bounded context, written with @alchemy.run/domain: ledger, outbound, billing
+adapters/    one package per vendor; the only place its SDK is imported.
+             hosts: cloudflare, rivet. telemetry: otlp, axiom. auth: better-auth. payments: stripe.
+             email: resend. push: apns, fcm. webhooks: webhook-http. disks and sandboxes: archil
 packages/    kernel (span names; depends on effect only), ui (design system), client-data (cached queries
-             for FoldKit), flags, identity (who is signed in), telemetry, schedule, conformance
+             for FoldKit), flags, identity (who is signed in), telemetry, schedule, storage (disk and
+             sandbox ports), mcp-app (panels for an MCP server), conformance
 services/    api: where a host, a telemetry backend and the adapters are chosen
 spec/        behaviour tests through the Api only; never imports a context's src
 tools/rules/ the lint and type rules, copied from rika-labs/rules (see UPSTREAM.md)
 .agents/     skills: step-by-step guides for the tasks below
 ```
 
-Planned and not on `main` yet: `apps/web/**` (FoldKit), `apps/desktop/**`, `apps/panels/**` and `infra/**` (Alchemy stacks). The tags and globs for them already exist.
+Planned and not on `main` yet: `apps/desktop/**` and `infra/**` (Alchemy stacks). The tags and globs for them already exist.
+
+`services/api` chooses only a host today (local, Cloudflare or Rivet; Rivet typechecks but has not run). Built but not wired into it yet: the web app's built page, the account panel, billing, and every adapter that is not a host. Each of those adapters is tested against a local stand-in for its vendor, never against the vendor.
 
 ## Skills
 

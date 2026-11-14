@@ -9,10 +9,10 @@ Every package in hermit-stack has a kind, and the kind decides two things: which
 ## The folders
 
 ```text
-apps/        things people open: docs today; web, cli, desktop and panels planned
+apps/        things people open: web, panels, cli and docs; desktop planned
 contexts/    one package per bounded context, written with Alchemy Domain
-adapters/    one package per vendor; the only place its SDK is imported (planned)
-packages/    kernel, ui, schedule, conformance; flags and client-data planned
+adapters/    one package per vendor; the only place its SDK is imported
+packages/    code several contexts or apps share; names no vendor
 services/    api: where a host, a telemetry backend and the adapters are chosen
 infra/       Alchemy stacks (planned)
 spec/        behaviour tests through the Api only; never imports a context's src
@@ -23,16 +23,41 @@ What is on `main` today:
 
 | Package             | Folder                 | What it holds                                                                                     |
 | ------------------- | ---------------------- | ------------------------------------------------------------------------------------------------- |
-| `@repo/kernel`      | `packages/kernel`      | Shared code every context may use. Today: `spanName`, the naming rule for telemetry spans.        |
+| `@repo/web`         | `apps/web`             | FoldKit pages rendered on the server from a view's snapshot and kept live over a WebSocket.       |
+| `@repo/panels`      | `apps/panels`          | MCP Apps panels for the ledger, each built into one HTML document.                                |
+| `@repo/cli`         | `apps/cli`             | An example command line derived from the `LedgerApi`.                                             |
+| `@repo/docs`        | `apps/docs`            | This site.                                                                                        |
 | `@repo/ledger`      | `contexts/ledger`      | The worked example: an `Account` aggregate, four commands, a `Balance` view, and the `LedgerApi`. |
-| `@repo/outbound`    | `contexts/outbound`    | Public events, notifications and outbound webhooks.                                               |
+| `@repo/outbound`    | `contexts/outbound`    | Public events, notifications and outbound webhooks, with the Email, Push and webhook ports.       |
+| `@repo/billing`     | `contexts/billing`     | A `Subscription` aggregate, its entitlement view, and the `Payments` port.                        |
+| `@repo/kernel`      | `packages/kernel`      | Shared code every context may use. Today: `spanName`, the naming rule for telemetry spans.        |
+| `@repo/ui`          | `packages/ui`          | StyleX tokens, light and dark themes, and FoldKit components.                                     |
+| `@repo/client-data` | `packages/client-data` | Cache policy over FoldKit's Query.                                                                |
+| `@repo/flags`       | `packages/flags`       | Feature flags declared in `<name>.flag.ts` files and read through the `Flags` service.            |
+| `@repo/identity`    | `packages/identity`    | Who is signed in: `CurrentUser`, the Session middleware and the contract an auth adapter passes.  |
+| `@repo/telemetry`   | `packages/telemetry`   | The telemetry service every host requires, with a recording fake.                                 |
 | `@repo/schedule`    | `packages/schedule`    | The `Recurring` aggregate and its `Rearm` policy, for scheduled work.                             |
-| `@repo/ui`          | `packages/ui`          | StyleX tokens, light and dark themes, and six FoldKit components.                                 |
+| `@repo/storage`     | `packages/storage`     | The `Disks` and `Sandboxes` ports, with fakes and contract suites.                                |
+| `@repo/mcp-app`     | `packages/mcp-app`     | Panel declarations for an MCP server and the typed client a panel runs in the host's iframe.      |
 | `@repo/conformance` | `packages/conformance` | Guarantees written once against the typed client, run against any target.                         |
 | `@repo/api`         | `services/api`         | The host choice and the HTTP and MCP surfaces.                                                    |
-| `@repo/spec`        | `spec`                 | Runs the conformance suite against the local target, in process and over HTTP.                    |
+| `@repo/spec`        | `spec`                 | Runs the conformance suite against the local target and against Cloudflare in workerd.            |
 | `@repo/rules`       | `tools/rules`          | Oxlint plugins, the type config and the scripts behind `pnpm check`.                              |
-| `@repo/docs`        | `apps/docs`            | This site.                                                                                        |
+
+The adapters, one per vendor:
+
+| Port or role        | Adapters                                                  |
+| ------------------- | --------------------------------------------------------- |
+| Host                | `adapters/cloudflare` (Durable Objects), `adapters/rivet` |
+| Telemetry           | `adapters/otlp`, `adapters/axiom`                         |
+| Session             | `adapters/better-auth`                                    |
+| Payments            | `adapters/stripe`                                         |
+| Email               | `adapters/resend`                                         |
+| Push                | `adapters/apns`, `adapters/fcm`                           |
+| Webhook transport   | `adapters/webhook-http`                                   |
+| Disks and sandboxes | `adapters/archil`                                         |
+
+`services/api` chooses only a host today: the local one, Cloudflare or Rivet. Rivet typechecks but has not run. Every other adapter is tested against a local stand-in for its vendor and is not wired into `services/api` yet.
 
 ## Which way dependencies point
 
