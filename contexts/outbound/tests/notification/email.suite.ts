@@ -18,7 +18,7 @@ const content = { subject: "Invoice paid", text: "Invoice 7 was paid." };
 const sendsTheEmail = Effect.gen(function* sendsTheEmailCase() {
   const email = yield* Email;
   const vendor = yield* EmailVendor;
-  const to = "sends@hermitstack.dev";
+  const to = "sends@hermit-stack.dev";
   const sent = yield* email.send({ ...content, idempotencyKey: "sends:user-1:email", to });
   const delivered = yield* vendor.deliveredTo(to);
 
@@ -29,7 +29,7 @@ const sendsTheEmail = Effect.gen(function* sendsTheEmailCase() {
 const repeatedKeySendsOnce = Effect.gen(function* repeatedKeySendsOnceCase() {
   const email = yield* Email;
   const vendor = yield* EmailVendor;
-  const to = "repeats@hermitstack.dev";
+  const to = "repeats@hermit-stack.dev";
   const first = yield* email.send({ ...content, idempotencyKey: "repeats:user-1:email", to });
   const repeated = yield* email.send({ ...content, idempotencyKey: "repeats:user-1:email", to });
   const delivered = yield* vendor.deliveredTo(to);
@@ -41,7 +41,7 @@ const repeatedKeySendsOnce = Effect.gen(function* repeatedKeySendsOnceCase() {
 const distinctKeysSendEach = Effect.gen(function* distinctKeysSendEachCase() {
   const email = yield* Email;
   const vendor = yield* EmailVendor;
-  const to = "twice@hermitstack.dev";
+  const to = "twice@hermit-stack.dev";
   const first = yield* email.send({ ...content, idempotencyKey: "twice-1:user-1:email", to });
   const second = yield* email.send({ ...content, idempotencyKey: "twice-2:user-1:email", to });
   const delivered = yield* vendor.deliveredTo(to);
@@ -64,7 +64,7 @@ const badAddressUndeliverable = Effect.gen(function* badAddressUndeliverableCase
 const timeoutNotUndeliverable = Effect.gen(function* timeoutNotUndeliverableCase() {
   const email = yield* Email;
   const vendor = yield* EmailVendor;
-  const to = "silent@hermitstack.dev";
+  const to = "silent@hermit-stack.dev";
 
   yield* vendor.stopAnsweringFor(to);
 

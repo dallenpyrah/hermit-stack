@@ -13,6 +13,7 @@
     "./email": "./src/notification/email.external.ts",
     "./email-contract": "./tests/notification/email.suite.ts",
     "./email-fake": "./tests/notification/email.fake.ts",
+    "./endpoint-id": "./src/webhook/endpoint.id.ts",
     "./handlers": "./src/outbound.layer.ts",
     "./model": "./src/outbound.model.ts",
     "./public-event": "./src/feed/public-event.schema.ts",
