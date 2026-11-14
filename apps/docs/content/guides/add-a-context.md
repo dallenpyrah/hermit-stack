@@ -41,7 +41,6 @@ import { Story } from "@alchemy.run/domain/Story";
 import { describe, it } from "@effect/vitest";
 import { Schema } from "effect";
 
-// A brand keeps a list id from being passed where another kind of id is expected.
 const ListId = Schema.String.pipe(Schema.brand("ListId"));
 
 const ItemAdded = Event("ItemAdded", { title: Schema.NonEmptyString });
@@ -54,7 +53,6 @@ class AddItem extends Command(
 
 const ListState = Schema.Struct({ items: Schema.Array(Schema.String) });
 
-// The rule lives in the command's file, beside the events it records.
 const decideAddItem = (_state: typeof ListState.Type, command: AddItem): readonly (typeof ItemAdded.Type)[] => [
   ItemAdded.make({ title: command.title }),
 ];
@@ -74,10 +72,8 @@ class List extends Aggregate(
 
 class Lists extends Model("Lists", { aggregates: [List] }, { description: "Shopping lists." }) {}
 
-// The Story test: given these events, when this command, then these events.
 const story = Story.make(Lists);
 
-// Story.then is renamed because a lint rule reads any .then( call as a Promise chain.
 const { then: recorded } = Story;
 
 const groceries = List.ref("groceries");
@@ -93,6 +89,8 @@ describe("adding an item", () => {
   it.effect("records the item after the ones already on the list", recordsTheItem);
 });
 ```
+
+`ListId` is a branded string, so a list id cannot be passed where another kind of id is expected. The rule, `decideAddItem`, lives in the command's file beside the events it records. The Story test reads as given these events, when this command, then these events; `Story.then` is renamed to `recorded` because a lint rule reads any `.then(` call as a Promise chain.
 
 The `description` on each declaration is not decoration: it becomes the OpenAPI text, the MCP tool description and the CLI help.
 

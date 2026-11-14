@@ -9,12 +9,10 @@ import { EmailVendor } from "#tests/notification/email.fake";
 
 type EmailServices = EmailVendor | Identifier<typeof Email>;
 
-// A case fails with what the port can fail with, or with the answer to a send that should have been refused.
 type Promise = Effect.Effect<void, object, EmailServices>;
 
 const content = { subject: "Invoice paid", text: "Invoice 7 was paid." };
 
-// The cases share one build of the implementation, so each sends to its own address with its own keys.
 const sendsTheEmail = Effect.gen(function* sendsTheEmailCase() {
   const email = yield* Email;
   const vendor = yield* EmailVendor;
@@ -70,7 +68,6 @@ const timeoutNotUndeliverable = Effect.gen(function* timeoutNotUndeliverableCase
 
   const exit = yield* Effect.exit(email.send({ ...content, idempotencyKey: "silent:user-1:email", to }));
 
-  // A timeout is worth retrying, so it fails the call as a defect and never as the typed Undeliverable.
   expect(Exit.isFailure(exit) && Cause.hasDies(exit.cause)).toBe(true);
   expect(Exit.isFailure(exit) && Cause.hasFails(exit.cause)).toBe(false);
 });
@@ -85,9 +82,6 @@ const promises = {
 
 const onLiveClock = (promise: Promise): Promise => TestClock.withLive(promise);
 
-// One test per promise of the Email port, against whatever provides the port together with a view of the vendor
-// Behind it: the in-memory fake, or an adapter wired to a local stand-in for its vendor. Run it with it.layer(implementation)(title, emailContract), so every case
-// Shares one build. The cases run on the live clock because an adapter's timeout is real time.
 const emailContract = (onImplementation: Vitest.MethodsNonLive<EmailServices>): void => {
   for (const [title, promise] of Rec.toEntries(promises)) {
     onImplementation.effect(title, () => onLiveClock(promise));

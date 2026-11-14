@@ -4,10 +4,6 @@ import path from "node:path";
 
 import { publishedSlugs, welcomeSlug } from "#src/content/navigation/navigation.pure.ts";
 
-// Runs after next build. Next writes route handlers under the route's own path, so the Markdown twins land in
-// Out/md/<slug>; this moves each to out/<slug>.md beside its page, then fails the build if a file people or agents
-// Rely on is missing from the export.
-
 const NONE = 0;
 
 const REQUIRED_FILES = [

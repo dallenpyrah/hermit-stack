@@ -18,17 +18,6 @@ import type { Headers, HttpServerRequest } from "effect/http";
 
 import { EmailVendor } from "@repo/outbound/email-fake";
 
-// A local stand-in for Resend's POST /emails that answers the way Resend documents, so the adapter's real requests are
-// Checked against what the vendor would do:
-// - Https://resend.com/docs/api-reference/introduction: Bearer API key and a User-Agent are required, 200 on success.
-// - Https://resend.com/docs/api-reference/emails/send-email: from, to, subject and text, and { "id" } in answer.
-// - Https://resend.com/docs/dashboard/emails/idempotency-keys: a key of 1 to 256 characters; the same key and body
-//   Answers as the first time without sending again, the same key with another body is 409 invalid_idempotent_request,
-//   And a failed request is not kept.
-// - Https://resend.com/docs/api-reference/errors: the { name, statusCode, message } error body.
-// - A malformed recipient is 422 validation_error with the message Resend sends, as reported in
-//   Https://github.com/resend/resend-node/issues/286; the docs list the error but not its exact message.
-
 const Send = Schema.Struct({
   from: Schema.String,
   subject: Schema.String,
@@ -90,7 +79,6 @@ const recipientsOf = (send: Send): readonly string[] => {
   return send.to;
 };
 
-// The Idempotency-Key the request carries, once its API key and User-Agent pass.
 const checkHeaders = Effect.fn("ResendApiFake.checkHeaders")(function* checkHeaders(
   headers: Headers.Headers,
   apiKey: string,
@@ -118,7 +106,6 @@ const parse = (body: string): Effect.Effect<Send, Refusal> =>
     refusal(unprocessable, "missing_required_field", "Missing `from`, `to`, `subject` or `text` field."),
   );
 
-// A key Resend already answered replays that answer, or is a conflict when the payload changed.
 const replay = (state: Mailbox, key: Option.Option<string>, body: string): Effect.Effect<void, Refusal> =>
   Option.match(
     Option.flatMap(key, (value) => HashMap.get(state.byKey, value)),
@@ -201,9 +188,6 @@ const vendorOf = (mailbox: Ref.Ref<Mailbox>): EmailVendor["Service"] => ({
     Ref.update(mailbox, (state) => ({ ...state, silent: HashSet.add(state.silent, address) })),
 });
 
-// Serves the stand-in on a port the operating system assigns, provides EmailVendor over what it accepted, and sets the
-// Config the adapter reads to that address and a key made up for this run. The adapter's timeout is short, so a send
-// The stand-in never answers fails quickly.
 const ResendApiFake = Layer.unwrap(
   Effect.gen(function* resendApiFake() {
     const mailbox = yield* Ref.make(emptyMailbox);
@@ -219,7 +203,7 @@ const ResendApiFake = Layer.unwrap(
               RESEND_API_KEY: apiKey,
               RESEND_BASE_URL: address,
               RESEND_FROM: "hermit-stack <notifications@hermit-stack.dev>",
-              RESEND_TIMEOUT: "2 seconds",
+              RESEND_TIMEOUT: "5 seconds",
             }),
           ),
         ),

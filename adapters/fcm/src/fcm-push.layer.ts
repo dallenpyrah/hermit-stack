@@ -7,7 +7,6 @@ import { DeviceGone, Push } from "@repo/outbound/push";
 import { AccessToken, FcmError, SentMessage } from "#src/fcm-api.schema.js";
 import { signedAssertion } from "#src/service-account.pure.js";
 
-// FCM asks for a timeout of at least 10 seconds: https://firebase.google.com/docs/cloud-messaging/scale-fcm
 const defaultTimeout = Duration.fromInputUnsafe("10 seconds");
 
 const fcmConfig = Config.all({
@@ -21,7 +20,6 @@ const fcmConfig = Config.all({
 
 type FcmConfig = typeof fcmConfig extends Config.Config<infer Values> ? Values : never;
 
-// An access token is used until a minute before Google says it expires, so a send never carries one about to lapse.
 const expiryMarginSeconds = 60;
 
 const unregistered = "UNREGISTERED";
@@ -34,7 +32,6 @@ const unexpected = Effect.fn("FcmPush.unexpected")(function* unexpected(
   return yield* Effect.die(new Error(`FCM answered ${response.status}: ${body}`));
 });
 
-// FCM's own word for a token that will never be valid again: https://firebase.google.com/docs/cloud-messaging/manage-tokens
 const gone = Effect.fn("FcmPush.gone")(function* gone(response: HttpClientResponse.HttpClientResponse) {
   const { error }: FcmError = yield* Effect.orDie(HttpClientResponse.schemaBodyJson(FcmError)(response));
 
@@ -63,11 +60,6 @@ const exchange = Effect.fn("FcmPush.exchange")(function* exchange(
   return yield* Effect.orDie(HttpClientResponse.schemaBodyJson(AccessToken)(response));
 });
 
-// The Push port through FCM's HTTP v1 messages:send, authorised as the service account through Google's OAuth token
-// Endpoint. FCM keeps no idempotency key, so the adapter makes a repeat harmless where the notification is shown: the
-// Key's hash is the Android notification tag and the APNs collapse id, so a repeat replaces the one already shown,
-// And it is the message id the send answers with, the same for every repeat. A forgotten token is DeviceGone; a
-// Timeout, a quota or a 5xx fails as a defect, so the dispatch runs again later.
 const FcmPush = Push.toLayer(
   Effect.gen(function* fcmPush() {
     const config = yield* fcmConfig;

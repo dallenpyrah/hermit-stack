@@ -1,7 +1,5 @@
 import { defineVars } from "@stylexjs/stylex";
 
-// The light theme is the default value of every variable; theme.view.ts overrides them for dark. The names follow
-// Shadcn's, so a component written against Shadcn's tokens reads the same here.
 export const colors = defineVars({
   accent: "oklch(0.97 0 0)",
   accentForeground: "oklch(0.205 0 0)",
@@ -12,7 +10,6 @@ export const colors = defineVars({
   destructive: "oklch(0.577 0.245 27.325)",
   destructiveForeground: "oklch(1 0 0)",
   foreground: "oklch(0.145 0 0)",
-  // Darker than Shadcn's 0.922 so a field's edge reaches 3:1 against the page (WCAG 1.4.11).
   input: "oklch(0.65 0 0)",
   muted: "oklch(0.97 0 0)",
   mutedForeground: "oklch(0.556 0 0)",
@@ -21,14 +18,11 @@ export const colors = defineVars({
   popoverForeground: "oklch(0.145 0 0)",
   primary: "oklch(0.205 0 0)",
   primaryForeground: "oklch(0.985 0 0)",
-  // Darker than Shadcn's 0.708 because the ring is drawn solid, not at half opacity, and must reach 3:1.
   ring: "oklch(0.556 0 0)",
   secondary: "oklch(0.97 0 0)",
   secondaryForeground: "oklch(0.205 0 0)",
 });
 
-// Shadcn derives sm, md and xl from one --radius; StyleX cannot type a variable that reads its own group, so each
-// Step is written out from the same 0.625rem base.
 export const radius = defineVars({
   full: "9999px",
   lg: "0.625rem",
@@ -69,7 +63,6 @@ export const fontSize = defineVars({
   xxl: "1.5rem",
 });
 
-// Each line height pairs with the font size of the same name.
 export const lineHeight = defineVars({
   base: "1.5rem",
   lg: "1.75rem",

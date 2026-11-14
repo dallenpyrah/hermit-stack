@@ -9,7 +9,6 @@ import { colors, font, fontSize, fontWeight, lineHeight, space } from "#src/toke
 
 type LabelOptions = Readonly<{
   content: Content;
-  // The id of the field this label names; clicking the label then focuses it.
   fieldId: string;
   isDisabled?: boolean;
   style?: StyleXStyles;
@@ -44,8 +43,6 @@ const render = <Message>(config: LabelOptions, html: HtmlBuilder<Message>): Html
 
 const labelArity = 2;
 
-// FoldKit has no label primitive, and needs none: a native label tied to the field by id gives the accessible name
-// And click-to-focus.
 const label: {
   <Message>(html: HtmlBuilder<Message>): (config: LabelOptions) => Html;
   <Message>(config: LabelOptions, html: HtmlBuilder<Message>): Html;

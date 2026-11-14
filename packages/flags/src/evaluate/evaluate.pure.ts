@@ -11,8 +11,6 @@ interface Rule<Value> {
 
 const evaluateArity = 3;
 
-// A rule with subjects matches a listed subject, a rule with a percentage matches a subject whose bucket is below it,
-// And a rule with both matches either way.
 const conditionMatches = <Value>(flagName: string, rule: Rule<Value>, subject: string): boolean =>
   pipe(
     Option.fromUndefinedOr(rule.subjects),
@@ -29,8 +27,6 @@ const isUnconditional = <Value>(rule: Rule<Value>): boolean =>
 const matches = <Value>(flagName: string, rule: Rule<Value>, subject: Option.Option<string>): boolean =>
   isUnconditional(rule) || Option.exists(subject, (id) => conditionMatches(flagName, rule, id));
 
-// The first rule that matches wins. A rule with neither subjects nor a percentage matches everyone, and a read with no
-// Subject matches only such a rule, so a percentage rollout never reaches an anonymous caller by accident.
 const evaluate: {
   <Value>(rules: readonly Rule<Value>[], subject: Option.Option<string>): (flag: Flag<Value>) => Value;
   <Value>(flag: Flag<Value>, rules: readonly Rule<Value>[], subject: Option.Option<string>): Value;

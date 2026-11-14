@@ -56,7 +56,6 @@ expect(
 );
 expect(overCap([{ path: "assets/logo.png", text: `\0${lines(900)}` }]).length === 0, "a binary file is not capped");
 
-// Built from parts, so this file holds no directive the ratchet would count.
 const ts = (word) => `// @ts-${word}`;
 const suppressions = [
   `// ${"oxlint"}-disable-next-line taste/no-type-predicates -- a reason`,

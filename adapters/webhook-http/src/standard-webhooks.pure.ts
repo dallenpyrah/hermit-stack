@@ -11,8 +11,6 @@ const noWait = 0;
 
 const hmac = { hash: "SHA-256", name: "HMAC" } as const;
 
-// The body Standard Webhooks suggests, type, timestamp and data, with the event's feed position so a receiver can read
-// On from the feed. The audience stays inside: it names the users to notify, not something a receiver should see.
 const WebhookBody = Schema.fromJsonString(
   Schema.Struct({
     data: Schema.Json,
@@ -22,7 +20,6 @@ const WebhookBody = Schema.fromJsonString(
   }),
 );
 
-// HMAC-SHA256 through the runtime's WebCrypto, under the key whose base64 follows whsec_ in the secret.
 const sign = Effect.fn("StandardWebhooks.sign")(function* sign(secret: Redacted.Redacted, content: string) {
   const encoded = Str.slice(secretPrefix.length)(Redacted.value(secret));
   const bytes = yield* Effect.orDie(Effect.fromResult(Base64.decode(encoded)));
@@ -45,8 +42,6 @@ interface SignedMessage {
   readonly headers: Readonly<Record<string, string>>;
 }
 
-// The message Standard Webhooks specifies (https://www.standardwebhooks.com): webhook-id is the event id, so a
-// Receiver drops repeats, and the v1 signature covers the id, the time in seconds and the exact body sent.
 const signedMessage = Effect.fn("StandardWebhooks.signedMessage")(function* signedMessage({
   event,
   now,
@@ -72,7 +67,6 @@ interface RetryAfter {
   readonly value: Option.Option<string>;
 }
 
-// Retry-After is either a number of seconds or an HTTP date: https://www.rfc-editor.org/rfc/rfc9110#field.retry-after
 const retryAfterSeconds = ({ now, value }: RetryAfter): Option.Option<number> => {
   const seconds = Option.filter(Option.map(value, Number), Number.isInteger);
 

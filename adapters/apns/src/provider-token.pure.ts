@@ -7,7 +7,6 @@ const p256 = { name: "ECDSA", namedCurve: "P-256" } as const;
 
 const es256 = { hash: "SHA-256", name: "ECDSA" } as const;
 
-// A .p8 key as Apple hands it out, with its line breaks either real or written as \n.
 const pemDecoration = /-----[^-]+-----|\\n|\s/gu;
 
 const JsonText = Schema.fromJsonString(Schema.Json);
@@ -28,9 +27,6 @@ interface ProviderKey {
   readonly teamId: string;
 }
 
-// The provider token APNs takes in place of a certificate: a JWT signed with ES256 under the team's .p8 key, its Key
-// ID in the header and the Team ID and the time it was made in the claims. WebCrypto's ECDSA signature is the raw r
-// And s that JWS expects. https://developer.apple.com/documentation/usernotifications/establishing-a-token-based-connection-to-apns
 const providerToken = Effect.fn("ProviderToken.providerToken")(function* providerToken({
   keyId,
   nowMillis,

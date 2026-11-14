@@ -11,7 +11,6 @@ import { WebhookReceivers } from "#tests/webhook/webhook-transport.fake";
 
 type WebhookServices = WebhookReceivers | Identifier<typeof WebhookTransport>;
 
-// A case fails with what the port can fail with, or with the answer to a post that should have been refused.
 type Promise = Effect.Effect<void, object, WebhookServices>;
 
 interface ReceivedRequest {
@@ -62,17 +61,12 @@ const signaturePrefix = "v1,";
 
 const millisPerSecond = 1000;
 
-// Standard Webhooks' reference verifier accepts a timestamp up to five minutes away from its own clock.
 const toleranceMillis = 300_000;
 
 const retryAfter = 120;
 
-// An HTTP-date carries whole seconds and the post takes a moment, so a date two minutes ahead reads back a little
-// Under 120 seconds.
 const retryAfterSlack = 5;
 
-// The addresses a webhook must never reach: loopback, unspecified, private, link-local and unique local, and an IPv4
-// Loopback written as IPv6.
 const privateHosts = [
   "127.0.0.1",
   "localhost",
@@ -99,8 +93,6 @@ const withoutPrefix = (prefix: string, text: string): string => Str.slice(prefix
 const firstRequest = (posted: Posted): ReceivedRequest =>
   Option.getOrElse(Arr.head(posted.received), () => ({ body: "", headers: {}, method: "" }));
 
-// Opens a receiver that answers as given, posts the event to it for the endpoint, and returns the transport's answer
-// With every request the receiver got.
 const postAnswered = Effect.fn("postAnswered")(function* postAnswered(answer: ReceiverAnswer) {
   const transport = yield* WebhookTransport;
   const receivers = yield* WebhookReceivers;
@@ -114,8 +106,6 @@ const postAnswered = Effect.fn("postAnswered")(function* postAnswered(answer: Re
   return { answer: reply, received } satisfies Posted;
 });
 
-// Verifies a request as a receiver following Standard Webhooks would: HMAC-SHA256 of id.timestamp.body under the
-// Base64 key after whsec_, checked through WebCrypto against each space-separated v1 signature.
 const verifies = Effect.fn("verifies")(function* verifies(secret: string, request: ReceivedRequest) {
   const signed = `${header(request, "webhook-id")}.${header(request, "webhook-timestamp")}.${request.body}`;
   const content = new globalThis.TextEncoder().encode(signed);
@@ -197,7 +187,6 @@ const followsNoRedirect = Effect.gen(function* followsNoRedirectCase() {
   const receivers = yield* WebhookReceivers;
   const receiver = yield* receivers.open;
 
-  // The receiver sends the transport back to itself, so a transport that followed it would post a second time.
   yield* receiver.answerWith({ headers: { location: receiver.url }, status: temporaryRedirect });
 
   const answer = yield* transport.post({ endpointId, event, position, url: receiver.url });
@@ -249,10 +238,6 @@ const promises = {
 
 const onLiveClock = (promise: Promise): Promise => TestClock.withLive(promise);
 
-// One test per promise of the WebhookTransport port, against whatever provides the port together with the receivers
-// It posts to: the in-memory fake, or the HTTP adapter wired to a local receiver. Run it with
-// It.layer(implementation)(title, webhookTransportContract), so every case shares one build. The cases run on the live
-// Clock because signatures carry the real time and an adapter's timeout is real time.
 const webhookTransportContract = (onImplementation: Vitest.MethodsNonLive<WebhookServices>): void => {
   for (const [title, promise] of Rec.toEntries(promises)) {
     onImplementation.effect(title, () => onLiveClock(promise));

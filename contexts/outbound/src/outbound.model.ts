@@ -13,8 +13,6 @@ import { PostDelivery } from "#src/webhook/record-attempt/post-delivery.policy.j
 import { TrackEndpointHealth } from "#src/webhook/record-outcome/track-endpoint-health.policy.js";
 import { StartDeliveries } from "#src/webhook/start-delivery/start-deliveries.policy.js";
 
-// One context for telling the outside world: every public event fans out from the feed to webhook deliveries and
-// Notifications, so the fan-out is a policy inside one model and not wiring between two.
 class Outbound extends Model(
   "Outbound",
   {

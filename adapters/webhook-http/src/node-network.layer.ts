@@ -5,7 +5,6 @@ import { Dns, NetAddress } from "effect/net";
 
 import { Network } from "#src/network.service.js";
 
-// The host's real network: the system resolver answers names, and undici's own connector dials the checked address.
 const NodeNetwork = Layer.effect(
   Network,
   Effect.gen(function* nodeNetwork() {

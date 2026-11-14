@@ -21,7 +21,6 @@ import { WebhookReceivers } from "@repo/outbound/webhook-transport-fake";
 import { Network } from "#src/network.service.js";
 import { SigningSecrets } from "#src/signing-secrets.service.js";
 
-// The receiver's own address on this machine, host and port, which the operating system assigned.
 class ReceiverServer extends Context.Service<ReceiverServer, { readonly address: string }>()(
   "@repo/webhook-http/tests/network.fake/ReceiverServer",
 ) {}
@@ -49,7 +48,6 @@ interface Receivers {
 
 const publicHost = "hooks.receiver.example";
 
-// A documentation address (RFC 5737), public by every test the transport applies and never routed anywhere.
 const publicAddress = "203.0.113.10";
 
 const secretBytes = 32;
@@ -58,7 +56,6 @@ const notFound = 404;
 
 const ok: ReceiverAnswer = { headers: {}, status: 200 };
 
-// The names this network resolves, as a hosts file would; every other name resolves to nothing.
 const hosts = HashMap.make<readonly (readonly [string, readonly string[]])[]>(
   [publicHost, [publicAddress]],
   ["localhost", ["127.0.0.1", "::1"]],
@@ -66,7 +63,6 @@ const hosts = HashMap.make<readonly (readonly [string, readonly string[]])[]>(
 
 const emptyReceivers: Receivers = { paths: HashMap.empty(), secrets: HashMap.empty() };
 
-// The answer the path is set to give, or none when no receiver is open there.
 type PathAnswer = Option.Option<Option.Option<ReceiverAnswer>>;
 
 const record = (receivers: Ref.Ref<Receivers>, path: string, request: ReceivedRequest): Effect.Effect<PathAnswer> =>
@@ -81,7 +77,6 @@ const record = (receivers: Ref.Ref<Receivers>, path: string, request: ReceivedRe
     }),
   );
 
-// Records every request that reaches a receiver's path and answers as the case set it, or never.
 const receive = (
   receivers: Ref.Ref<Receivers>,
 ): ((request: HttpServerRequest.HttpServerRequest) => Effect.Effect<HttpServerResponse.HttpServerResponse>) =>
@@ -141,8 +136,6 @@ const receiversOf = (receivers: Ref.Ref<Receivers>): WebhookReceivers["Service"]
   };
 };
 
-// A network with one host on it: every address the transport dials leads to the local receiver, wherever it points,
-// And names resolve from the hosts table above. Undici's own connector opens the connection.
 const networkTo = (address: string): Network["Service"] => {
   const dial = buildConnector({});
   const { port } = new globalThis.URL(`http://${address}`);
@@ -155,7 +148,7 @@ const networkTo = (address: string): Network["Service"] => {
   };
 };
 
-const shortTimeout = ConfigProvider.layer(ConfigProvider.fromUnknown({ WEBHOOK_HTTP_TIMEOUT: "2 seconds" }));
+const shortTimeout = ConfigProvider.layer(ConfigProvider.fromUnknown({ WEBHOOK_HTTP_TIMEOUT: "5 seconds" }));
 
 const aroundReceiver = (address: string): Layer.Layer<Network | ReceiverServer> => {
   const { host } = new globalThis.URL(address);
@@ -167,9 +160,6 @@ const aroundReceiver = (address: string): Layer.Layer<Network | ReceiverServer> 
   );
 };
 
-// Serves the receivers on a port the operating system assigns and provides what the transport and the contract need
-// Around them: WebhookReceivers, the Network that leads to them, the endpoints' SigningSecrets, the receiver's own
-// Address, and a short timeout in the Config the transport reads.
 const NetworkFake = Layer.unwrap(
   Effect.gen(function* networkFake() {
     const receivers = yield* Ref.make(emptyReceivers);

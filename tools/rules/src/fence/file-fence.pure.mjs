@@ -1,11 +1,5 @@
 const lineCap = 500;
 
-/**
- * Files the cap doesn't read: lockfiles, patches, `.gen` output, vendored and
- * built code (ADR 0006), the generated baselines a gate diffs (an OpenAPI
- * spec, actor contracts, mutant lists) and package manifests, whose exports
- * map grows with the package's modules. A person writes none of them by hand.
- */
 const uncapped = [
   /(?:^|\/)(?:pnpm-lock\.yaml|package-lock\.json|bun\.lockb?|yarn\.lock)$/u,
   /\.patch$/u,
@@ -32,7 +26,6 @@ const linesOf = (text) => {
 
 const isCapped = (file) => !uncapped.some((pattern) => pattern.test(file));
 
-/** The capped text files of `files` (each `{ path, text }`) over 500 lines, longest first. */
 const overCap = (files) =>
   files
     .filter(({ path, text }) => isCapped(path) && isText(text) && linesOf(text) > lineCap)
@@ -50,7 +43,6 @@ const capWhy = `A file over ${lineCap} lines holds more than one idea, and a rea
 const suppressionWhy =
   "An inline suppression turns a rule off where no review of the shared config sees it, so the rule stops meaning what it says";
 
-/** One `<what>. <why>. Fix: <step>.` refusal per long file and per inline suppression in `files`. */
 const verdictsOf = (files) => [
   ...overCap(files).map(
     ({ lines, path }) =>

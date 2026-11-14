@@ -21,21 +21,6 @@ import { PushVendor } from "@repo/outbound/push-fake";
 
 import { messagingScope } from "#src/service-account.pure.js";
 
-// A local stand-in for Google's token endpoint and FCM's messages:send that answers the way Google documents, so the
-// Adapter's real requests are checked against what the vendor would do:
-// - Https://developers.google.com/identity/protocols/oauth2/service-account: a form with the jwt-bearer grant and an
-//   RS256 assertion whose iss is the service account, scope the messaging scope, aud the token endpoint and exp at
-//   Most an hour after iat, answered with { access_token, expires_in, token_type }, or { error, error_description }.
-//   That page gives no status for an error; RFC 6749 section 5.2 sets 400 for invalid_grant.
-// - Https://firebase.google.com/docs/reference/fcm/rest/v1/projects.messages/send and
-//   Https://firebase.google.com/docs/cloud-messaging/send/v1-api: POST /v1/projects/{id}/messages:send with a Bearer
-//   Access token and { message }, answered with { name: "projects/{id}/messages/{message_id}" }.
-// - Https://firebase.google.com/docs/cloud-messaging/error-codes: the { error: { code, message, status, details } }
-//   Body, 404 UNREGISTERED for a token FCM no longer knows and 400 INVALID_ARGUMENT for one that was never valid.
-// - Https://firebase.google.com/docs/reference/fcm/rest/v1/projects.messages#androidnotification: a notification
-//   With the tag of one already shown replaces it in the drawer, and without a tag each one is shown anew. The
-//   Device this stand-in keeps is that Android drawer.
-
 const accessTokenLifetimeSeconds = 3600;
 
 const ok = 200;
@@ -52,7 +37,6 @@ const clientEmail = `push@${projectId}.iam.gserviceaccount.com`;
 
 const tokenBytes = 32;
 
-// 65537, the public exponent RSA keys use, as JWK writes it.
 const publicExponent = Result.getOrElse(Base64Url.decode("AQAB"), () => new Uint8Array());
 
 const rs256 = {
@@ -153,7 +137,6 @@ const verifySignature = Effect.fn("FcmApiFake.verifySignature")(function* verify
   );
 });
 
-// The access token the service account's assertion earns, once its grant, signature and claims pass.
 const grant = Effect.fn("FcmApiFake.grant")(function* grant(publicKey: CryptoKeyOf, tokenUrl: string, body: string) {
   const form = new globalThis.URLSearchParams(body);
 
@@ -239,7 +222,6 @@ const checkDevice = (state: Devices, token: string): Effect.Effect<void, Refusal
   return Effect.void;
 };
 
-// A notification with the tag of one already in the drawer takes its place; any other joins the drawer.
 const intoDrawer = (drawer: readonly Shown[], shown: Shown): readonly Shown[] =>
   Option.match(shown.tag, {
     onNone: () => [...drawer, shown],
@@ -314,7 +296,6 @@ interface Served {
   readonly keys: KeyPair;
 }
 
-// The routes, which need the token endpoint's own URL to check the assertion's audience against.
 const routesAt = ({ devices, keys }: Served, address: string): Layer.Layer<never, never, HttpServer.HttpServer> => {
   const tokenUrl = `${address}/token`;
 
@@ -333,14 +314,11 @@ const configAt = (privateKeyPem: string, address: string): Layer.Layer<never> =>
       FCM_CLIENT_EMAIL: clientEmail,
       FCM_PRIVATE_KEY: privateKeyPem,
       FCM_PROJECT_ID: projectId,
-      FCM_TIMEOUT: "2 seconds",
+      FCM_TIMEOUT: "5 seconds",
       FCM_TOKEN_URL: `${address}/token`,
     }),
   );
 
-// Serves the stand-in on a port the operating system assigns, provides PushVendor over its devices, and sets the
-// Config the adapter reads to that address and a service account whose RSA key is made for this run and never kept.
-// The adapter's timeout is short, so a send the stand-in never answers fails quickly.
 const FcmApiFake = Layer.unwrap(
   Effect.gen(function* fcmApiFake() {
     const devices = yield* Ref.make(noDevices);

@@ -12,9 +12,6 @@ const hashRange = 4_294_967_296;
 const percent = 100;
 const bucketArity = 2;
 
-// FNV-1a over the code points, then MurmurHash3's fmix32 finaliser, so another language can reproduce a bucket.
-// Without the finaliser, subjects that differ only in their last character, such as user-1 and user-2, land side by
-// Side and a 20% rollout reaches a run of consecutive ids instead of a fifth of them.
 const hash = (input: string): number => {
   let state = fnvOffset;
 
@@ -33,8 +30,6 @@ const hash = (input: string): number => {
   return state >>> unsigned;
 };
 
-// The subject's place in [0, 100) for one flag, the same on every host. A NUL joins the two because a flag name cannot
-// Contain one, so no other name and subject pair hashes the same text.
 const bucket: {
   (subject: string): (flagName: string) => number;
   (flagName: string, subject: string): number;

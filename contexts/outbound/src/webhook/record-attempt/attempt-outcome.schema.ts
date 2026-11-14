@@ -1,6 +1,5 @@
 import { Schema } from "effect";
 
-// The receiver answered with a status, and maybe a retry-after in seconds; or no answer came at all.
 const Responded = Schema.TaggedStruct("Responded", {
   retryAfterSeconds: Schema.Option(Schema.Int),
   status: Schema.Int,

@@ -6,7 +6,6 @@ import { NotificationFailed } from "#src/notification/record-delivery/notificati
 import { NotificationSent } from "#src/notification/record-delivery/notification-sent.event.js";
 import { UserId } from "#src/notification/user.id.js";
 
-// Reports what the vendor said, so it never rejects; the vendor's message id lets a later bounce find the notification.
 class RecordDelivery extends Command(
   "RecordDelivery",
   {

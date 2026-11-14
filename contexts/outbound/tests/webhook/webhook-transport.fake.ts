@@ -29,25 +29,18 @@ interface ReceiverAnswer {
   readonly status: number;
 }
 
-// One webhook receiver: a path that answers as a case tells it to, and records every request that reaches it.
 interface Receiver {
   readonly answerWith: (answer: ReceiverAnswer) => Effect.Effect<void>;
   readonly received: Effect.Effect<readonly ReceivedRequest[]>;
   readonly stopAnswering: Effect.Effect<void>;
-  // A public URL that reaches the receiver.
   readonly url: string;
-  // The URL that reaches the same receiver through the given host, such as a private or loopback address.
   readonly urlAt: (host: string) => string;
 }
 
-// What a test sees and controls of the receivers behind the WebhookTransport port. The fake below provides it, and so
-// Does the HTTP adapter's local stand-in, so one contract suite runs against both.
 class WebhookReceivers extends Context.Service<
   WebhookReceivers,
   {
-    // A new receiver on a path of its own, reachable through every address the transport may call.
     readonly open: Effect.Effect<Receiver>;
-    // The endpoint's signing secret as its receiver holds it: whsec_ and the base64 of the key.
     readonly secretOf: (endpointId: string) => Effect.Effect<string>;
   }
 >()("@repo/outbound/tests/webhook/webhook-transport.fake/WebhookReceivers") {}
@@ -80,8 +73,6 @@ const isInternalIpv4 = (address: NetAddress.Ipv4Address): boolean =>
   NetAddress.isPrivate(address) ||
   NetAddress.isLinkLocal(address);
 
-// Loopback, unspecified, private, link-local and unique local addresses, an IPv4 one written as IPv6 included: the
-// Addresses a webhook must never reach.
 const isInternal = (address: NetAddress.IpAddress): boolean => {
   if (NetAddress.isIpv4Address(address)) {
     return isInternalIpv4(address);
@@ -96,7 +87,6 @@ const isInternal = (address: NetAddress.IpAddress): boolean => {
   );
 };
 
-// The fake has no DNS, so every name but localhost counts as public.
 const isRefused = (hostname: string): boolean => {
   const host = Str.replaceAll(/^\[|\]$/gu, "")(hostname);
 
@@ -116,7 +106,6 @@ const retryAfterSeconds = (answer: ReceiverAnswer, now: DateTime.Utc): Option.Op
   return Option.orElse(seconds, () => Option.map(Option.flatMap(value, DateTime.make), untilDate));
 };
 
-// The body Standard Webhooks suggests, with the event's feed position so a receiver can read on from the feed.
 const WebhookBody = Schema.fromJsonString(
   Schema.Struct({
     data: Schema.Json,
@@ -126,7 +115,6 @@ const WebhookBody = Schema.fromJsonString(
   }),
 );
 
-// HMAC-SHA256 through the runtime's WebCrypto, under the base64 key after whsec_.
 const sign = (secret: string, content: string): Effect.Effect<string> =>
   Effect.gen(function* signCase() {
     const bytes = yield* Effect.fromResult(Base64.decode(Str.slice(secretPrefix.length)(secret)));
@@ -149,7 +137,6 @@ interface Signing {
   readonly secret: string;
 }
 
-// The request Standard Webhooks specifies: the body signed under the secret together with the event id and the time.
 const signedRequest = Effect.fn("WebhookTransportFake.signedRequest")(function* signedRequest({
   event,
   now,
@@ -190,8 +177,6 @@ const answerOf = (
     }),
   );
 
-// An in-memory network of receivers. The transport signs as Standard Webhooks specifies, refuses private and loopback
-// Hosts, reports a redirect as the answer it is, and fails as TransportFailed when a receiver never answers.
 const transport = (
   network: Ref.Ref<Network>,
   secretOf: (endpointId: string) => Effect.Effect<string>,

@@ -52,7 +52,6 @@ const opensThroughATool = Effect.fn("opensThroughATool")(function* opensThroughA
   const balance = yield* toolNamed(tools, "LedgerApi_Balance_get");
   const sent = yield* client.callTool({ arguments: { input: { owner: "ada" }, target: "mcp-1" }, tool: open });
 
-  // The view catches up after the commit, so the read waits for the write the open tool just made.
   const read = yield* client.callTool({ arguments: { atLeast: sent.structuredContent, key: "mcp-1" }, tool: balance });
 
   expect(sent.isError).not.toBe(true);

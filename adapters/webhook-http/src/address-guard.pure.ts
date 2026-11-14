@@ -5,8 +5,6 @@ import type { buildConnector } from "@effect/platform-node/Undici";
 
 import type { Network } from "#src/network.service.js";
 
-// Ranges that are neither private nor loopback by NetAddress's own tests but still lead inside a network: the shared
-// Address space carriers and clouds use, and the IPv4 broadcast address.
 const internalRanges = Arr.map(["100.64.0.0/10", "255.255.255.255/32"], IpNetwork.fromStringUnsafe);
 
 const isInternalIpv4 = (address: NetAddress.Ipv4Address): boolean =>
@@ -33,13 +31,9 @@ const isInternal = (address: NetAddress.IpAddress): boolean => {
   return isInternalIpv6(address);
 };
 
-// Whether a webhook may be sent to the IP address: never to loopback, unspecified, private, link-local, unique local,
-// Shared or multicast addresses, an IPv4 one written as IPv6 included, and never to text that is not an IP address.
 const isPublicAddress = (address: string): boolean =>
   Result.match(NetAddress.ipFromString(address), { onFailure: () => false, onSuccess: (ip) => !isInternal(ip) });
 
-// The address a request may connect to: the host itself when it is an IP address, or the first address a name
-// Resolves to when every address it resolves to is public, so a name that also leads inside the network is refused.
 const publicAddressOf = (network: Network["Service"], hostname: string): Effect.Effect<string, string> => {
   const host = Str.replaceAll(/^\[|\]$/gu, "")(hostname);
 
@@ -62,12 +56,8 @@ const publicAddressOf = (network: Network["Service"], hostname: string): Effect.
   );
 };
 
-// Undici's callback takes an error with null in place of the socket; Option.getOrNull supplies that null.
 const noSocket = Option.getOrNull(Option.none());
 
-// Every connection undici opens goes through this check, after the lookup and right before the dial, so a name that
-// Changes what it resolves to between a check and the connection still cannot reach an internal address. Undici's
-// Connector reports through a callback, so the check runs as its own fiber and answers it.
 const guardedConnector =
   (network: Network["Service"]): buildConnector.connector =>
   (options, connected) => {

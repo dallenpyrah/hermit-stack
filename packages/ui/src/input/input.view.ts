@@ -82,8 +82,6 @@ const render = <Message>(config: InputOptions<Message>, html: HtmlBuilder<Messag
 
 const inputArity = 2;
 
-// The text field alone. FoldKit's headless Input sets the id, aria-invalid, aria-describedby and the disabled and
-// Read-only states; name the field with Label.view given the same id.
 const input: {
   <Message>(html: HtmlBuilder<Message>): (config: InputOptions<Message>) => Html;
   <Message>(config: InputOptions<Message>, html: HtmlBuilder<Message>): Html;

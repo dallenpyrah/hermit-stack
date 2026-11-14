@@ -7,7 +7,6 @@ import { promisify } from "node:util";
 import { verdictsOf } from "../../src/fence/check-scripts.pure.mjs";
 
 const root = path.resolve(import.meta.dirname, "../..");
-// The repo's own wiring lives at the monorepo root, two folders up from this package.
 const workspaceRoot = path.resolve(root, "../..");
 const cli = path.join(root, "src", "fence", "check-scripts.cli.mjs");
 const run = promisify(execFile);

@@ -32,7 +32,6 @@ const oneRequest = 1;
 
 const endpointId = EndpointId.make("endpoint-1");
 
-// Whether the transport refused to post to the URL, failing before any answer came.
 const refusesUrl = Effect.fn("refusesUrl")(function* refusesUrlAt(url: string) {
   const transport = yield* WebhookTransport;
   const failure = yield* Effect.flip(transport.post({ endpointId, event, position, url }));
@@ -46,8 +45,6 @@ const postDirectly = Effect.fn("postDirectly")(function* postDirectlyTo(url: str
   return yield* client.execute(HttpClientRequest.post(url));
 });
 
-// The receiver really listens on loopback, so a plain client reaches it there; the transport on the host's real
-// Network must not, by address or by a name that resolves to it.
 const refusesLoopbackReceiver = Effect.gen(function* refusesLoopbackReceiverCase() {
   const receivers = yield* WebhookReceivers;
   const { address } = yield* ReceiverServer;

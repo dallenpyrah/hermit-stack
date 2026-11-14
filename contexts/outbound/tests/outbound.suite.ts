@@ -7,7 +7,6 @@ import { Outbound } from "#src/outbound.model.js";
 import { WebhookTransport } from "#src/webhook/webhook-transport.external.js";
 import { EmailFake } from "#tests/notification/email.fake";
 
-// Email goes through the in-memory fake, so a story sees what it sent; a story answers each Push and webhook call.
 const outboundStory = Story.make(Outbound, {
   layer: OutboundHandlers.pipe(Layer.provide(EmailFake)),
   stub: [Push, WebhookTransport],

@@ -204,7 +204,6 @@ expect(
   `a name.* glob through a symlinked sibling, which turbo matches to nothing, passes:\n${starThroughLink.output}`,
 );
 
-// Turbo 2.11.11 hashes no file through a symlinked sibling, ** globs included; 2.11.10 still matched them.
 siblingThroughLink("src/**");
 const globstarThroughLink = await outcome(run("node", [cli], { cwd: repo, env }));
 expect(

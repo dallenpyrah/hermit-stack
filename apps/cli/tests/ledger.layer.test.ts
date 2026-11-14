@@ -34,9 +34,6 @@ interface RunOptions {
   readonly expose?: typeof exposed;
 }
 
-// Apps do not depend on services, so the test serves the ledger itself: the model on the in-memory host, with the Api's
-// Derived RPC endpoint mounted at /rpc on a port the operating system assigns. Running the CLI against the real server
-// Entry is the spec's job.
 const rpcRoute = HttpRouter.use((router) => Effect.flatMap(LedgerApi, (api) => router.add("POST", "/rpc", api.fetch)));
 
 const served = HttpRouter.serve(rpcRoute, { disableListenLog: true, disableLogger: true }).pipe(
@@ -47,7 +44,6 @@ const served = HttpRouter.serve(rpcRoute, { disableListenLog: true, disableLogge
 
 const serverAddress = HttpServer.addressFormattedWith(Effect.succeed);
 
-// A fresh server that listened and then closed, so nothing answers at its address.
 const otherServer = Layer.build(Layer.fresh(layerTest));
 
 const closedAddress = Effect.scoped(
@@ -65,8 +61,6 @@ const exitCodeOf = (exit: Exit.Exit<unknown, unknown>): Effect.Effect<number> =>
 
 const lineOf = (parts: readonly unknown[]): string => Arr.join(Arr.map(parts, String), " ");
 
-// Runs the program the ledger binary runs, with these arguments, and keeps what it printed and the code runMain would
-// Exit with.
 const run = Effect.fn("run")(function* runLedger(args: readonly string[], options: RunOptions = {}) {
   const stdout: string[] = [];
   const stderr: string[] = [];
@@ -167,7 +161,6 @@ const afterHeading = 1;
 
 const firstWord = 1;
 
-// The first word of each line under SUBCOMMANDS in --help.
 const subcommandsOf = (help: string): readonly string[] =>
   pipe(
     Arr.get(Str.split(help, "SUBCOMMANDS"), afterHeading),

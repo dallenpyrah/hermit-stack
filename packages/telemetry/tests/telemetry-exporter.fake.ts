@@ -8,14 +8,12 @@ import { NetAddress } from "effect/net";
 import { withParentNames } from "#tests/telemetry.fake";
 import type { AttributeValue, RecordedSpan } from "#tests/telemetry.fake";
 
-// One POST the collector received, as it arrived on the wire.
 interface CollectedRequest {
   readonly body: string;
   readonly headers: Readonly<Record<string, string>>;
   readonly path: string;
 }
 
-// A span the collector received, with the service.name of the resource it was exported under.
 interface CollectedSpan extends RecordedSpan {
   readonly service: string | undefined;
 }
@@ -23,7 +21,6 @@ interface CollectedSpan extends RecordedSpan {
 interface OtlpCollector {
   readonly requests: Effect.Effect<readonly CollectedRequest[]>;
   readonly spans: Effect.Effect<readonly CollectedSpan[]>;
-  // The base URL an exporter posts to, with /v1/traces, /v1/logs and /v1/metrics below it.
   readonly url: string;
 }
 
@@ -51,12 +48,10 @@ const Resource = Schema.Struct({ attributes: Schema.Array(KeyValue) });
 
 const ResourceSpans = Schema.Struct({ resource: Resource, scopeSpans: Schema.Array(ScopeSpans) });
 
-// The part of an OTLP/HTTP JSON trace export a test asserts on; Schema ignores the fields it does not name.
 const TraceExport = Schema.fromJsonString(Schema.Struct({ resourceSpans: Schema.Array(ResourceSpans) }));
 
 const tracesPath = "/v1/traces";
 
-// OpenTelemetry's STATUS_CODE_ERROR.
 const errorStatusCode = 2;
 
 const valueOf = (value: typeof AnyValue.Type): Option.Option<AttributeValue> =>
@@ -130,8 +125,6 @@ const keep = (
     return HttpServerResponse.text("{}", { contentType: "application/json" });
   });
 
-// The test server listens on every interface, so the exporter is pointed at loopback the way Effect's own test client
-// Is.
 const urlOf = (address: NetAddress.SocketAddress): Effect.Effect<string> => {
   if (NetAddress.isUnixPathAddress(address)) {
     return Effect.die("The OTLP collector listens on TCP, not on a Unix socket.");
@@ -161,9 +154,6 @@ const collect = Effect.gen(function* collect() {
   return collector;
 });
 
-// An OTLP/HTTP receiver on a free local port for the life of the scope, standing in for a real backend. It answers
-// Every POST with 200 and keeps the request, so a test asserts on what an exporter sent over the wire. A port that
-// Cannot be bound is a broken test machine, not a case a test handles, so it is a defect.
 const otlpCollector: Effect.Effect<OtlpCollector, never, Scope.Scope> = Effect.gen(function* otlpCollector() {
   const server = yield* Effect.orDie(Layer.build(layerTest));
 

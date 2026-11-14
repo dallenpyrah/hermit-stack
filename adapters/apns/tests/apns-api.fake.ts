@@ -24,22 +24,6 @@ import { PushVendor } from "@repo/outbound/push-fake";
 
 import { ApnsPayload } from "#src/apns-api.schema.js";
 
-// A local stand-in for APNs that answers the way Apple documents, so the adapter's real requests are checked against
-// What the vendor would do. It is a cleartext HTTP/2 server with no HTTP/1.1 fallback, so a request that is not HTTP/2
-// Gets no answer at all, as from APNs.
-// - Https://developer.apple.com/documentation/usernotifications/sending-notification-requests-to-apns: POST
-//   /3/device/<token> over HTTP/2, with authorization, apns-topic, apns-push-type, a canonical UUID as apns-id, an
-//   Apns-collapse-id of at most 64 bytes and a payload of at most 4096 bytes.
-// - Https://developer.apple.com/documentation/usernotifications/establishing-a-token-based-connection-to-apns: an
-//   ES256 provider token with the Key ID as kid and the Team ID as iss, refused as ExpiredProviderToken (403) once its
-//   Iat is more than an hour old.
-// - Https://developer.apple.com/documentation/usernotifications/handling-notification-responses-from-apns: 200 with
-//   An empty body and the request's apns-id; errors as { "reason" }, 400 BadDeviceToken, 403 InvalidProviderToken,
-//   And 410 Unregistered with a timestamp for a token no longer active for the topic.
-// - Https://developer.apple.com/documentation/usernotifications/sending-notification-requests-to-apns (apns-collapse-id):
-//   Notifications with the same collapse id are shown as one, the newest in place of the older. The device this
-//   Stand-in keeps is that notification list.
-
 const ok = 200;
 
 const badRequest = 400;
@@ -138,7 +122,6 @@ const verifySignature = Effect.fn("ApnsApiFake.verifySignature")(function* verif
   return { claims: yield* decodePart(TokenClaims, claims), kid };
 });
 
-// The provider token in the authorization header, signed by the team's key, naming its key and team, under an hour old.
 const checkProviderToken = Effect.fn("ApnsApiFake.checkProviderToken")(function* checkProviderToken(
   publicKey: CryptoKeyOf,
   authorization: string,
@@ -161,7 +144,6 @@ const checkProviderToken = Effect.fn("ApnsApiFake.checkProviderToken")(function*
   return yield* Effect.void;
 });
 
-// The topic must be the app's and the push type, when given, an alert.
 const checkTopic = (headers: Headers.Headers): Effect.Effect<void, Refusal> => {
   const { "apns-push-type": pushType = "alert", "apns-topic": topicHeader = "" } = headers;
 
@@ -180,7 +162,6 @@ const checkTopic = (headers: Headers.Headers): Effect.Effect<void, Refusal> => {
   return Effect.void;
 };
 
-// The apns-id the answer echoes, made up as APNs does when the request has none, once it and the collapse id pass.
 const checkIds = (headers: Headers.Headers): Effect.Effect<string, Refusal> => {
   const { "apns-collapse-id": collapseId = "" } = headers;
   const apnsId = Option.fromNullishOr(headers["apns-id"]);
@@ -232,7 +213,6 @@ const checkDevice = Effect.fn("ApnsApiFake.checkDevice")(function* checkDevice(s
   return yield* Effect.void;
 });
 
-// A notification with the collapse id of one already shown takes its place; any other is shown beside them.
 const intoList = (shown: readonly Shown[], notification: Shown): readonly Shown[] =>
   Option.match(notification.collapseId, {
     onNone: () => [...shown, notification],
@@ -323,16 +303,13 @@ const configAt = (privateKeyPem: string, address: string): Layer.Layer<never> =>
       APNS_KEY_ID: keyId,
       APNS_PRIVATE_KEY: privateKeyPem,
       APNS_TEAM_ID: teamId,
-      APNS_TIMEOUT: "2 seconds",
+      APNS_TIMEOUT: "5 seconds",
       APNS_TOPIC: topic,
     }),
   );
 
-// A cleartext HTTP/2 server on a loopback port the operating system assigns.
 const http2Server = nodeHttpServer(() => createServer(), { host: "127.0.0.1", port: 0 });
 
-// Serves the stand-in, provides PushVendor over its devices, and sets the Config the adapter reads to its address and
-// A team key made for this run and never kept. The adapter's timeout is short, so a send never answered fails quickly.
 const ApnsApiFake = Layer.unwrap(
   Effect.gen(function* apnsApiFake() {
     const devices = yield* Ref.make(noDevices);

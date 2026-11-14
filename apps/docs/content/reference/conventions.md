@@ -87,7 +87,6 @@ import { Function as Fn, pipe } from "effect";
 
 const withTaxArity = 2;
 
-// Prices are whole cents, so the tax is rounded once, at the end.
 const withTax: {
   (rate: number): (cents: number) => number;
   (cents: number, rate: number): number;
@@ -104,9 +103,17 @@ const piped = pipe(1000, withTax(0.08));
 
 Do not write `oxlint-disable`, `eslint-disable`, `@ts-ignore`, `@ts-expect-error` or `@ts-nocheck`. A rule is turned off in one place only, the off table in `tools/rules/src/oxlint/base.config.ts`, with a reason beside it. If a rule is wrong for your code, change the code; if the rule is wrong, change it there for everyone.
 
-Comments start with a capital letter and say why the code is the way it is, not what it does.
-
 **Checked by** the pre-commit hook and the ratchet, which counts inline suppressions and rules turned off.
+
+## No comments
+
+TypeScript and JavaScript files hold no comments. Nothing checks a comment, so it drifts from the code it describes, and a reader cannot tell which of the two is right. Put what the comment would say into a name, a type or a test, and put the reason for a design into the docs page or ADR that covers it.
+
+Four things that look like comments stay, because a tool reads each one: a `#!` first line, a `/// <reference ... />` line, the `// SAFETY: <reason>` line another rule requires above a type assertion, and `/** @stability unstable */` alone on its line. The type checker reads that tag: an export built on an unstable Effect API must carry it, and then every package that imports the export has to allow it by name.
+
+The rule reads code only. JSON with comments (a `tsconfig.json` gives the reason for each diagnostic it turns off), YAML, CSS, `.env.schema` and Markdown are outside it, and so are the vendored anti-slop rules, which stay byte for byte as upstream wrote them. Code blocks in these docs follow the rule by hand.
+
+**Checked by** `lint:structure`: the `structure/no-comments` rule.
 
 ## Configuration goes through Effect `Config`
 

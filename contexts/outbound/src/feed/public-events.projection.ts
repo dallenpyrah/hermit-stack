@@ -7,8 +7,6 @@ import { PublicEvent } from "#src/feed/public-event.schema.js";
 
 const FeedEntry = Event("FeedEntry", { event: PublicEvent, position: Schema.Int });
 
-// The feed a customer reads from the last position it saw, so a lost webhook is recovered without a resend.
-// Declared beside its one writer because the structure rules do not let a projection import a .stream file.
 const PublicEvents = Stream(
   "PublicEvents",
   { entries: [FeedEntry], key: Feed },

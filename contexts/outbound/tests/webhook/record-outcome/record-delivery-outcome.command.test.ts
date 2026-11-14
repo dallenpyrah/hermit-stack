@@ -20,10 +20,8 @@ const countedTo = (failuresInRow: number): readonly Step[] => [
   then(endpoints, FailureCounted.make({ endpointId, failuresInRow })),
 ];
 
-// One short of the five in a row that disable an endpoint.
 const oneShort = 4;
 
-// Failures one to four, each counted.
 const fourFailures = Arr.flatMap(Arr.makeBy(oneShort, Num.increment), countedTo);
 
 const disabledAfterFiveInRow = (): Effect.Effect<void, StoryFailure> =>
@@ -32,7 +30,6 @@ const disabledAfterFiveInRow = (): Effect.Effect<void, StoryFailure> =>
     ...fourFailures,
     when(endpoints, RecordDeliveryOutcome.make({ endpointId, outcome: "delivered" })),
     then(endpoints, FailuresCleared.make({ endpointId })),
-    // Eight failures in all by the end of these, but only four in a row, so the endpoint stays active.
     ...fourFailures,
     exhausted,
     then(
@@ -40,7 +37,6 @@ const disabledAfterFiveInRow = (): Effect.Effect<void, StoryFailure> =>
       FailureCounted.make({ endpointId, failuresInRow: 5 }),
       EndpointDisabled.make({ endpointId, reason: "failing" }),
     ),
-    // A delivery still in flight when the endpoint was disabled ends later and changes nothing.
     exhausted,
     then(endpoints),
   );

@@ -21,7 +21,6 @@ import {
   space,
 } from "#src/tokens/tokens.stylex.js";
 
-// Each variant is named for the color token it paints with, except the three that paint no fill.
 const ButtonVariant = Schema.Literals(["primary", "secondary", "destructive", "outline", "ghost", "link"]);
 
 type ButtonVariant = typeof ButtonVariant.Type;
@@ -32,10 +31,8 @@ type ButtonSize = typeof ButtonSize.Type;
 
 type ButtonOptions<Message> = Omit<ButtonPrimitiveConfig<Message>, "toView"> &
   Readonly<{
-    // Extra attributes for the button element, such as a dialog's close attributes.
     attributes?: readonly (Attribute<Message> | ChildAttribute)[];
     content: Content;
-    // A square button that shows only an icon. The label becomes its accessible name, so it cannot be left out.
     iconOnly?: Readonly<{ label: string }>;
     size?: ButtonSize;
     style?: StyleXStyles;
@@ -89,7 +86,6 @@ const variants = create({
   link: {
     backgroundColor: "transparent",
     color: colors.primary,
-    // An underline at rest keeps a link told apart from a ghost button without relying on hover.
     textDecorationColor: {
       ":hover": "currentColor",
       default: "color-mix(in oklab, currentColor 40%, transparent)",
@@ -172,8 +168,6 @@ const render = <Message>(config: ButtonOptions<Message>, html: HtmlBuilder<Messa
 
 const buttonArity = 2;
 
-// FoldKit's headless Button supplies the type, the click handler and a disabled state that keeps the button
-// Focusable (aria-disabled) so a screen reader still finds it; this adds the look.
 const button: {
   <Message>(html: HtmlBuilder<Message>): (config: ButtonOptions<Message>) => Html;
   <Message>(config: ButtonOptions<Message>, html: HtmlBuilder<Message>): Html;

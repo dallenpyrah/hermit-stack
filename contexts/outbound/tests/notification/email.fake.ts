@@ -8,14 +8,10 @@ interface DeliveredEmail {
   readonly text: string;
 }
 
-// What a test sees and controls of the email vendor behind the Email port. The fake below provides it, and so does
-// Each adapter's local stand-in for its real vendor, so one contract suite runs against all of them.
 class EmailVendor extends Context.Service<
   EmailVendor,
   {
-    // The emails the vendor accepted for delivery to this address, in the order it accepted them.
     readonly deliveredTo: (address: string) => Effect.Effect<readonly DeliveredEmail[]>;
-    // From now on the vendor takes each request to send to this address and never answers it.
     readonly stopAnsweringFor: (address: string) => Effect.Effect<void>;
   }
 >()("@repo/outbound/tests/notification/email.fake/EmailVendor") {}
@@ -26,7 +22,6 @@ interface Outbox {
   readonly silent: HashSet.HashSet<string>;
 }
 
-// One local part, one @ and one domain: what every vendor checks before it accepts an address.
 const address = /^[^\s@]+@[^\s@]+$/u;
 
 const deliver = (
@@ -43,9 +38,6 @@ const deliver = (
     onSome: (messageId) => [{ messageId }, state],
   });
 
-// An in-memory email vendor that honours idempotency keys as a real one should: a second send with the same key
-// Answers with the first message id and sends nothing. A malformed address is refused for good, and a send the
-// Vendor never answers fails as a defect, the way an adapter gives up after its timeout.
 const email = (outbox: Ref.Ref<Outbox>): Layer.Layer<Identifier<typeof Email>> =>
   Email.toLayer(
     Effect.succeed({

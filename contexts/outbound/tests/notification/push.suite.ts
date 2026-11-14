@@ -9,12 +9,10 @@ import { PushVendor } from "#tests/notification/push.fake";
 
 type PushServices = PushVendor | Identifier<typeof Push>;
 
-// A case fails with what the port can fail with, or with the answer to a send that should have been refused.
 type Promise = Effect.Effect<void, object, PushServices>;
 
 const content = { body: "Invoice 7 was paid.", title: "Invoice paid" };
 
-// The cases share one build of the implementation, so each registers its own device and uses its own keys.
 const showsTheNotification = Effect.gen(function* showsTheNotificationCase() {
   const push = yield* Push;
   const vendor = yield* PushVendor;
@@ -71,7 +69,6 @@ const timeoutNotGone = Effect.gen(function* timeoutNotGoneCase() {
 
   const exit = yield* Effect.exit(push.send({ ...content, idempotencyKey: "silent:user-1:push", token }));
 
-  // A timeout is worth retrying, so it fails the call as a defect and never as the typed DeviceGone.
   expect(Exit.isFailure(exit) && Cause.hasDies(exit.cause)).toBe(true);
   expect(Exit.isFailure(exit) && Cause.hasFails(exit.cause)).toBe(false);
 });
@@ -87,10 +84,6 @@ const promises = {
 
 const onLiveClock = (promise: Promise): Promise => TestClock.withLive(promise);
 
-// One test per promise of the Push port, against whatever provides the port together with a view of the vendor
-// Behind it: the in-memory fake, or an adapter wired to a local stand-in for its vendor. Run it with
-// It.layer(implementation)(title, pushContract), so every case shares one build. The cases run on the live clock
-// Because an adapter's timeout is real time.
 const pushContract = (onImplementation: Vitest.MethodsNonLive<PushServices>): void => {
   for (const [title, promise] of Rec.toEntries(promises)) {
     onImplementation.effect(title, () => onLiveClock(promise));

@@ -10,8 +10,6 @@ import { NodeNetwork } from "#src/node-network.layer.js";
 import { SigningSecrets } from "#src/signing-secrets.service.js";
 import { retryAfterSeconds, signedMessage } from "#src/standard-webhooks.pure.js";
 
-// Standard Webhooks recommends a timeout between 15 and 30 seconds:
-// Https://github.com/standard-webhooks/standard-webhooks/blob/main/spec/standard-webhooks.md
 const defaultTimeout = Duration.fromInputUnsafe("15 seconds");
 
 const webhookTimeout = Config.Duration("WEBHOOK_HTTP_TIMEOUT").pipe(Config.withDefault(defaultTimeout));
@@ -25,11 +23,8 @@ const guardedDispatcher = Layer.effect(
   }),
 );
 
-// Undici connects through the address guard, and never follows a redirect, so a 3xx comes back as the answer.
 const guardedClient = layerUndiciNoDispatcher.pipe(Layer.provide(guardedDispatcher));
 
-// The WebhookTransport port over HTTP, on whatever Network the host provides, signing with the endpoints'
-// SigningSecrets. WebhookHttpLive is the same transport on the real network.
 const WebhookHttp = WebhookTransport.toLayer(
   Effect.gen(function* webhookHttp() {
     const timeout = yield* webhookTimeout;
@@ -48,7 +43,6 @@ const WebhookHttp = WebhookTransport.toLayer(
           HttpClientRequest.bodyText(message.body, "application/json"),
         );
 
-        // The scope closes once the status and headers are read, which aborts the body the receiver may still send.
         const response = yield* Effect.scoped(client.execute(request)).pipe(
           Effect.timeout(timeout),
           Effect.mapError((failed) => TransportFailed.make({ reason: failed.message })),
@@ -66,8 +60,6 @@ const WebhookHttp = WebhookTransport.toLayer(
   }),
 ).pipe(Layer.provide(guardedClient));
 
-// The WebhookTransport port on the host's real network, refusing loopback, private and the other internal addresses.
-// The host provides SigningSecrets.
 const WebhookHttpLive = WebhookHttp.pipe(Layer.provide(NodeNetwork));
 
 export { WebhookHttp, WebhookHttpLive };

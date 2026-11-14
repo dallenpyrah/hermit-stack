@@ -8,18 +8,12 @@ interface ShownNotification {
   readonly title: string;
 }
 
-// What a test sees and controls of the push vendor behind the Push port. The fake below provides it, and so does each
-// Adapter's local stand-in for its real vendor, so one contract suite runs against all of them.
 class PushVendor extends Context.Service<
   PushVendor,
   {
-    // The vendor forgets the device, as it does once the app is uninstalled.
     readonly forget: (token: string) => Effect.Effect<void>;
-    // A token for a new device the vendor knows, on which nothing has been shown yet.
     readonly register: Effect.Effect<string>;
-    // The notifications the device shows, oldest first.
     readonly shownOn: (token: string) => Effect.Effect<readonly ShownNotification[]>;
-    // From now on the vendor takes each request to this device and never answers it.
     readonly stopAnsweringFor: (token: string) => Effect.Effect<void>;
   }
 >()("@repo/outbound/tests/notification/push.fake/PushVendor") {}
@@ -48,9 +42,6 @@ const show = (devices: Devices, { body, idempotencyKey, title, token }: Send): r
     onSome: (messageId) => [messageId, devices],
   });
 
-// An in-memory push vendor in which a repeated idempotency key shows the device nothing new and answers with the
-// First message id. A device the vendor does not know is gone, and a send the vendor never answers fails as a defect,
-// The way an adapter gives up after its timeout.
 const push = (devices: Ref.Ref<Devices>): Layer.Layer<Identifier<typeof Push>> =>
   Push.toLayer(
     Effect.succeed({
