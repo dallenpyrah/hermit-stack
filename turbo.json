@@ -118,7 +118,6 @@
         "!**/node_modules/**",
         "!**/dist/**",
         "!**/.next/**",
-        ".pi/**",
         "knip.config.ts",
         "pnpm-workspace.yaml"
       ],

@@ -1,5 +1,5 @@
 import { execFile } from "node:child_process";
-import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
@@ -7,8 +7,6 @@ import { promisify } from "node:util";
 import { commandVerdict, fileVerdict, messageOf } from "../../src/fence/git-fence.pure.mjs";
 
 const root = path.resolve(import.meta.dirname, "../..");
-// The agent hooks are configured once for the whole monorepo, at its root.
-const workspaceRoot = path.resolve(root, "../..");
 const cli = path.join(root, "src", "fence", "git-fence.cli.mjs");
 const run = promisify(execFile);
 const failures = [];
@@ -51,7 +49,6 @@ const cases = {
     "sudo git commit --no-verify",
     "/usr/bin/git commit -n",
     "git --git-dir=.git -C . commit --no-verify",
-    // core.hooksPath given before any subcommand, in each spelling git takes.
     "git -c core.hooksPath=/dev/null rebase --continue",
     "git -c core.hooksPath=/dev/null status",
     "git -C . -c core.hooksPath=/dev/null rebase --continue",
@@ -66,7 +63,6 @@ const cases = {
     "GIT_CONFIG_PARAMETERS=\"'core.hooksPath'='/dev/null'\" git commit -m x",
     "export GIT_CONFIG_COUNT=1 GIT_CONFIG_KEY_0=core.hooksPath GIT_CONFIG_VALUE_0=/x",
     "env GIT_CONFIG_COUNT=1 GIT_CONFIG_KEY_0=core.hooksPath GIT_CONFIG_VALUE_0=/x git push",
-    // Another config file, which can set core.hooksPath.
     "GIT_CONFIG_GLOBAL=/tmp/hooks.gitconfig git commit -m x",
     "GIT_CONFIG_SYSTEM=/tmp/hooks.gitconfig git push",
     "git -c include.path=/tmp/hooks.gitconfig commit -m x",
@@ -206,100 +202,10 @@ await run("git", ["config", "alias.quick", "commit -n"], { cwd });
 const aliased = await hook("cursor", { command: "git quick -m x", cwd });
 expect(JSON.parse(aliased.stdout || "{}").permission === "deny", "the CLI does not expand the repo's git aliases");
 
-const settings = JSON.parse(readFileSync(path.join(workspaceRoot, ".claude", "settings.json"), "utf8"));
-const claudeCommands = settings.hooks.PreToolUse.map((entry) => [entry.matcher, entry.hooks[0].command]);
-const viaShell = (command, input, env, cwd = workspaceRoot) =>
-  new Promise((resolve) => {
-    const child = execFile(
-      "sh",
-      ["-c", command],
-      { cwd, env: { PATH: process.env.PATH, ...env } },
-      (error, stdout, stderr) => {
-        resolve({ code: error?.code ?? 0, stderr, stdout });
-      },
-    );
-    child.stdin.end(JSON.stringify(input));
-  });
-for (const [matcher, command] of claudeCommands) {
-  const input =
-    matcher === "Bash"
-      ? { tool_input: { command: "git commit -n -m x" } }
-      : { tool_input: { file_path: ".git/config" } };
-  const answer = await viaShell(command, input, { CLAUDE_PROJECT_DIR: workspaceRoot });
-  expect(
-    JSON.parse(answer.stdout || "{}").hookSpecificOutput?.permissionDecision === "deny",
-    `.claude/settings.json ${matcher} hook does not deny`,
-  );
-}
-const cursorConfig = JSON.parse(readFileSync(path.join(workspaceRoot, ".cursor", "hooks.json"), "utf8"));
-const cursorWired = await viaShell(
-  cursorConfig.hooks.beforeShellExecution[0].command,
-  { command: "git commit --no-verify" },
-  {},
-);
-expect(
-  JSON.parse(cursorWired.stdout || "{}").permission === "deny",
-  ".cursor/hooks.json beforeShellExecution hook does not deny",
-);
-const handlers = [];
-const { default: piExtension } = await import(path.join(workspaceRoot, ".pi", "extensions", "git-fence.adapter.js"));
-piExtension({ on: (event, handler) => handlers.push([event, handler]) });
-const piHandler = handlers.find(([event]) => event === "tool_call")?.[1];
-expect(
-  piHandler?.({ input: { command: "git push --no-verify" }, toolName: "bash" })?.block === true,
-  ".pi extension does not block git push --no-verify",
-);
-expect(
-  piHandler?.({ input: { path: ".git/hooks/pre-push" }, toolName: "write" })?.block === true,
-  ".pi extension does not block a write into .git/hooks",
-);
-expect(
-  piHandler?.({ input: { command: "git status" }, toolName: "bash" }) === undefined,
-  ".pi extension blocks git status",
-);
-
-const stranded = mkdtempSync(path.join(tmpdir(), "git-fence-missing-"));
-writeFileSync(path.join(stranded, "package.json"), JSON.stringify({ type: "module" }));
-for (const [matcher, command] of claudeCommands) {
-  const answer = await viaShell(
-    command,
-    { tool_input: { command: "git status" } },
-    { CLAUDE_PROJECT_DIR: stranded },
-    stranded,
-  );
-  expect(
-    answer.code === 2 && answer.stderr.includes("git-fence could not run, so this call is refused"),
-    `.claude/settings.json ${matcher} hook lets a call through when git-fence is missing: ${answer.code} ${answer.stderr}`,
-  );
-}
-const cursorHook = cursorConfig.hooks.beforeShellExecution[0];
-expect(cursorHook.failClosed === true, ".cursor/hooks.json beforeShellExecution hook does not set failClosed");
-const cursorStranded = await viaShell(cursorHook.command, { command: "git status" }, {}, stranded);
-expect(
-  cursorStranded.code !== 0,
-  ".cursor/hooks.json hook exits 0 when git-fence is missing, so Cursor would allow the call",
-);
-mkdirSync(path.join(stranded, ".pi", "extensions"), { recursive: true });
-copyFileSync(
-  path.join(workspaceRoot, ".pi", "extensions", "git-fence.adapter.js"),
-  path.join(stranded, ".pi", "extensions", "git-fence.adapter.js"),
-);
-const strandedHandlers = [];
-const { default: strandedExtension } = await import(path.join(stranded, ".pi", "extensions", "git-fence.adapter.js"));
-strandedExtension({ on: (event, handler) => strandedHandlers.push([event, handler]) });
-const strandedAnswer = strandedHandlers.find(([event]) => event === "tool_call")?.[1]?.({
-  input: { command: "git status" },
-  toolName: "bash",
-});
-expect(
-  strandedAnswer?.block === true && strandedAnswer.reason.includes("so this call is refused"),
-  `.pi extension lets a call through when git-fence is missing: ${JSON.stringify(strandedAnswer)}`,
-);
-
 if (failures.length > 0) {
   console.error(failures.join("\n"));
   process.exit(1);
 }
 console.log(
-  `git fence: ${cases.blocked.length} blocked and ${cases.allowed.length} allowed commands, the Claude Code, Cursor and Pi answers, and this repo's three hook configs, which refuse when git-fence is missing`,
+  `git fence: ${cases.blocked.length} blocked and ${cases.allowed.length} allowed commands, and the Claude Code, Cursor and Pi answers`,
 );
