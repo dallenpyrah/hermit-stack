@@ -1,0 +1,42 @@
+{
+  "name": "@repo/web",
+  "version": "0.0.0",
+  "private": true,
+  "description": "The hermit-stack web app: FoldKit pages rendered on the server from a view's snapshot, hydrated in the browser, and kept live over a WebSocket. Nothing may depend on it.",
+  "type": "module",
+  "sideEffects": false,
+  "imports": {
+    "#src/*": "./src/*",
+    "#tests/*": "./tests/*.ts"
+  },
+  "exports": {
+    "./browser": "./src/entry/browser.main.ts",
+    "./server": "./src/entry/server.page.ts"
+  },
+  "scripts": {
+    "typecheck": "effect-tsgo tsrs --noEmit -p tsconfig.json",
+    "lint": "effect-tsgo --tsrs-lint oxlint -c ../../oxlint.config.ts --type-aware --tsconfig tsconfig.json src tests",
+    "test": "vitest run",
+    "build": "vite build",
+    "dev": "vite"
+  },
+  "dependencies": {
+    "@alchemy.run/domain": "catalog:",
+    "@effect/platform-browser": "catalog:",
+    "@repo/ledger": "workspace:*",
+    "@repo/ui": "workspace:*",
+    "@stylexjs/stylex": "catalog:",
+    "alchemy": "catalog:",
+    "effect": "catalog:",
+    "foldkit": "catalog:"
+  },
+  "devDependencies": {
+    "@effect/platform-node": "catalog:",
+    "@effect/vitest": "catalog:",
+    "@foldkit/vite-plugin": "catalog:",
+    "@types/ws": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:",
+    "ws": "catalog:"
+  }
+}

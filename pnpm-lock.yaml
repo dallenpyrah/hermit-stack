@@ -218,6 +218,9 @@ catalogs:
     '@types/react':
       specifier: 19.2.2
       version: 19.2.2
+    '@types/ws':
+      specifier: 8.18.2
+      version: 8.18.2
     alchemy:
       specifier: 2.0.0-beta.87
       version: 2.0.0-beta.87
@@ -311,6 +314,9 @@ catalogs:
     vitest:
       specifier: 5.1.0
       version: 5.1.0
+    ws:
+      specifier: 8.23.0
+      version: 8.23.0
     yaml:
       specifier: 2.9.1
       version: 2.9.1
@@ -575,6 +581,55 @@ importers:
       vitest:
         specifier: 'catalog:'
         version: 5.1.0(@types/node@24.19.2)(vite@8.3.8(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
+
+  apps/web:
+    dependencies:
+      '@alchemy.run/domain':
+        specifier: 'catalog:'
+        version: 2.0.0-beta.87(alchemy@2.0.0-beta.87(@effect/platform-node@4.1.4(effect@4.1.4))(@types/react@19.2.2)(effect@4.1.4)(vite@8.3.8(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.23.0))(effect@4.1.4)(foldkit@0.170.0(@effect/platform-browser@4.1.4(effect@4.1.4))(effect@4.1.4))
+      '@effect/platform-browser':
+        specifier: 'catalog:'
+        version: 4.1.4(effect@4.1.4)
+      '@repo/ledger':
+        specifier: workspace:*
+        version: link:../../contexts/ledger
+      '@repo/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      '@stylexjs/stylex':
+        specifier: 'catalog:'
+        version: 0.19.2
+      alchemy:
+        specifier: 'catalog:'
+        version: 2.0.0-beta.87(@effect/platform-node@4.1.4(effect@4.1.4))(@types/react@19.2.2)(effect@4.1.4)(vite@8.3.8(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.23.0)
+      effect:
+        specifier: 'catalog:'
+        version: 4.1.4
+      foldkit:
+        specifier: 'catalog:'
+        version: 0.170.0(@effect/platform-browser@4.1.4(effect@4.1.4))(effect@4.1.4)
+    devDependencies:
+      '@effect/platform-node':
+        specifier: 'catalog:'
+        version: 4.1.4(effect@4.1.4)
+      '@effect/vitest':
+        specifier: 'catalog:'
+        version: 4.1.4(effect@4.1.4)(vitest@5.1.0(@types/node@24.19.2)(vite@8.3.8(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)))
+      '@foldkit/vite-plugin':
+        specifier: 'catalog:'
+        version: 0.29.0(effect@4.1.4)(foldkit@0.170.0(@effect/platform-browser@4.1.4(effect@4.1.4))(effect@4.1.4))(vite@8.3.8(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
+      '@types/ws':
+        specifier: 'catalog:'
+        version: 8.18.2
+      vite:
+        specifier: 'catalog:'
+        version: 8.3.8(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)
+      vitest:
+        specifier: 'catalog:'
+        version: 5.1.0(@types/node@24.19.2)(vite@8.3.8(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
+      ws:
+        specifier: 'catalog:'
+        version: 8.23.0
 
   contexts/ledger:
     dependencies:
