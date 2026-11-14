@@ -1,0 +1,27 @@
+{
+  "name": "@repo/rivet",
+  "version": "0.0.0",
+  "private": true,
+  "description": "The Rivet host: each aggregate instance of a Domain model is one Rivet actor.",
+  "type": "module",
+  "sideEffects": false,
+  "imports": {
+    "#src/*": "./src/*",
+    "#tests/*": "./tests/*.ts"
+  },
+  "exports": {
+    "./durable-objects": "./src/durable-objects.layer.ts",
+    "./local-swarm": "./src/local-swarm.layer.ts"
+  },
+  "scripts": {
+    "typecheck": "effect-tsgo tsrs --noEmit -p tsconfig.json",
+    "lint": "effect-tsgo --tsrs-lint oxlint -c ../../oxlint.config.ts --type-aware --tsconfig tsconfig.json src"
+  },
+  "dependencies": {
+    "@alchemy.run/docker": "catalog:",
+    "@alchemy.run/domain": "catalog:",
+    "@alchemy.run/rivet": "catalog:",
+    "alchemy": "catalog:",
+    "effect": "catalog:"
+  }
+}

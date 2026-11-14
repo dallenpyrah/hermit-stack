@@ -29,6 +29,11 @@ const entryPoints = {
   rules: { "vitest/require-hook": "off" },
 } as const;
 
+const alchemyEntries = {
+  files: ["services/api/src/**/*.stack.ts", "services/api/src/**/*.worker.ts"],
+  rules: { "import/no-default-export": "off" },
+} as const;
+
 const flagBucketHash = {
   files: ["packages/flags/src/evaluate/bucket.pure.ts"],
   rules: { "eslint/no-bitwise": "off" },
@@ -60,6 +65,7 @@ export default defineConfig({
     domainLists,
     flagBucketHash,
     localAuthDatabase,
+    alchemyEntries,
     apnsStandIn,
   ],
 });
