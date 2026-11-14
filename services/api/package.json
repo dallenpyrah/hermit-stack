@@ -10,19 +10,27 @@
     "#tests/*": "./tests/*.ts"
   },
   "exports": {
+    "./cloudflare-stack": "./src/cloudflare/local.stack.ts",
+    "./handler": "./src/handler.layer.ts",
     "./host": "./src/host.layer.ts",
     "./http": "./src/http.layer.ts",
-    "./mcp": "./src/mcp.layer.ts"
+    "./mcp": "./src/mcp.layer.ts",
+    "./rivet": "./src/rivet/ledger.layer.ts"
   },
   "scripts": {
+    "start": "bun src/server.main.ts",
+    "dev:cloudflare": "alchemy dev src/cloudflare/local.stack.ts",
     "typecheck": "effect-tsgo tsrs --noEmit -p tsconfig.json",
     "lint": "effect-tsgo --tsrs-lint oxlint -c ../../oxlint.config.ts --type-aware --tsconfig tsconfig.json src tests",
     "test": "vitest run"
   },
   "dependencies": {
+    "@alchemy.run/cloudflare": "catalog:",
     "@alchemy.run/domain": "catalog:",
     "@effect/platform-node": "catalog:",
+    "@repo/cloudflare": "workspace:*",
     "@repo/ledger": "workspace:*",
+    "@repo/rivet": "workspace:*",
     "alchemy": "catalog:",
     "effect": "catalog:"
   },

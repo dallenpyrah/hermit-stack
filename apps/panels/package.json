@@ -1,0 +1,36 @@
+{
+  "name": "@repo/panels",
+  "version": "0.0.0",
+  "private": true,
+  "description": "MCP Apps panels for the ledger: FoldKit apps an agent host shows in a sandboxed iframe, each built into one self-contained HTML document.",
+  "type": "module",
+  "sideEffects": false,
+  "imports": {
+    "#src/*": "./src/*",
+    "#tests/*": "./tests/*.ts"
+  },
+  "scripts": {
+    "typecheck": "effect-tsgo tsrs --noEmit -p tsconfig.json",
+    "lint": "effect-tsgo --tsrs-lint oxlint -c ../../oxlint.config.ts --type-aware --tsconfig tsconfig.json src tests",
+    "test": "vitest run",
+    "build": "vite build",
+    "host": "bun src/host/host.main.ts"
+  },
+  "dependencies": {
+    "@alchemy.run/domain": "catalog:",
+    "@effect/platform-node": "catalog:",
+    "@repo/ledger": "workspace:*",
+    "@repo/mcp-app": "workspace:*",
+    "@repo/ui": "workspace:*",
+    "@stylexjs/stylex": "catalog:",
+    "alchemy": "catalog:",
+    "effect": "catalog:",
+    "foldkit": "catalog:"
+  },
+  "devDependencies": {
+    "@effect/vitest": "catalog:",
+    "@foldkit/vite-plugin": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
+  }
+}

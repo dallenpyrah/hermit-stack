@@ -29,6 +29,11 @@ const entryPoints = {
   rules: { "vitest/require-hook": "off" },
 } as const;
 
+const alchemyEntries = {
+  files: ["services/api/src/**/*.stack.ts", "services/api/src/**/*.worker.ts"],
+  rules: { "import/no-default-export": "off" },
+} as const;
+
 const flagBucketHash = {
   files: ["packages/flags/src/evaluate/bucket.pure.ts"],
   rules: { "eslint/no-bitwise": "off" },
@@ -44,6 +49,11 @@ const localAuthDatabase = {
   rules: { "import/no-nodejs-modules": ["error", { allow: ["node:sqlite"] }] },
 } as const;
 
+const apnsStandIn = {
+  files: ["adapters/apns/tests/apns-api.fake.ts"],
+  rules: { "import/no-nodejs-modules": ["error", { allow: ["node:http2"] }] },
+} as const;
+
 export default defineConfig({
   ...base,
   ignorePatterns: [...(base.ignorePatterns ?? []), "tools/rules/**"],
@@ -55,5 +65,7 @@ export default defineConfig({
     domainLists,
     flagBucketHash,
     localAuthDatabase,
+    alchemyEntries,
+    apnsStandIn,
   ],
 });

@@ -1,0 +1,28 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    // A panel runs in the host's iframe and reaches the DOM through FoldKit.
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "plugins": [
+      {
+        "name": "@effect/language-service",
+        "allowedExperimentalApis": ["effect/ai/McpClient"],
+        // The local host serves the ledger's MCP server and is an MCP client of it.
+        "allowedUnstableApis": [
+          "@effect/platform-node",
+          "@effect/vitest",
+          "effect/FileSystem",
+          "effect/Path",
+          "effect/ai",
+          "effect/http"
+        ],
+        "diagnosticSeverity": {
+          // The local host's routes are an HttpRouter Layer over the MCP modules, unstable Effect modules, so exporting
+          // Them to its entry point exposes those types by design.
+          "apiStabilityLeak": "off"
+        }
+      }
+    ]
+  },
+  "include": ["src/**/*.ts", "tests/**/*.ts"]
+}
