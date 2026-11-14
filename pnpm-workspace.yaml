@@ -53,6 +53,8 @@ catalog:
   "@types/ws": "8.18.2"
   ws: "8.23.0"
   # Domain, infrastructure and actors
+  "@alchemy.run/archil": "2.0.0-beta.87"
+  "@distilled.cloud/archil": "1.0.0-rc.20"
   "@alchemy.run/aws": "2.0.0-beta.87"
   "@alchemy.run/better-auth": "2.0.0-beta.87"
   "@alchemy.run/cloudflare": "2.0.0-beta.87"
@@ -61,6 +63,7 @@ catalog:
   "@alchemy.run/effect-cluster": "2.0.0-beta.87"
   "@alchemy.run/gcp": "2.0.0-beta.87"
   "@alchemy.run/rivet": "2.0.0-beta.87"
+  "@distilled.cloud/stripe": "1.0.0-rc.20"
   "@rivetkit/effect": "3.1.1"
   alchemy: "2.0.0-beta.87"
   rivetkit: "3.1.1"

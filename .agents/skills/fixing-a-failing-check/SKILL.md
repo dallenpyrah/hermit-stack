@@ -46,7 +46,7 @@ Then run that task alone until it passes: `mise exec -- pnpm exec turbo run <tas
 
 ## Gotchas
 
-- Lint loads the built rules from `tools/rules/dist/`. After changing a rule, run `mise exec -- pnpm exec turbo run build --filter=@repo/rules` first.
+- Lint loads the built rules from the `dist/` folder of `tools/rules`, which only exists after a build. After changing a rule, run `mise exec -- pnpm exec turbo run build --filter=@repo/rules` first.
 - Root Oxlint cannot lint the whole repo in one call, because the type-aware rules need a package's `tsconfig.json`. Lint per package through Turbo.
 - Turbo replays a cached pass. To prove a fix, run the task with `--force` once.
 - The commit hook typechecks and lints but never runs tests. A commit that the hook accepts can still fail `pnpm check`.
