@@ -25,7 +25,7 @@ It is built against the MCP Apps specification revision 2026-01-26 (`specificati
 ```
 
 - **Server half**, `packages/mcp-app/src/server/panel.layer.ts`: `panel(...)` declares a panel (its `ui://` uri, the calls it renders, its document as an Effect, its content policy and border preference). `panels([...])` is a Layer over `McpServer`: provide it to the tools `toMcp` derives and give it the transport. It adds each panel's resource and wraps `addTool`, so a tool the panel renders is registered with `_meta.ui.resourceUri` (and the deprecated flat `ui/resourceUri` key the official SDK also writes). The tools stay exactly what `toMcp` made of the Api.
-- **The ledger's panel**, `packages/mcp-app/src/ledger/account-panel.layer.ts`: renders `Balance.get` and reads its document from `apps/panels/dist/account.html` on every `resources/read`, so a rebuilt panel is served without a restart.
+- **The ledger's panel**, `packages/mcp-app/src/ledger/account-panel.layer.ts`: renders `Balance.get` and reads its document, `account.html` in the `dist/` folder that `apps/panels` builds, on every `resources/read`, so a rebuilt panel is served without a restart.
 - **Panel half**, `packages/mcp-app/src/panel/`: `PanelHost` is an Effect service for code inside the iframe. `panelHost(appInfo)` performs the handshake over any `HostChannel`; `browserPanelHost(appInfo)` is that over `postMessage` to the framing window, with the panel's size reported as it changes. A test gives it a fake `HostChannel`, so the protocol runs with no browser.
 - **The panel**, `apps/panels`: one FoldKit app, built by Vite into one self-contained `dist/account.html`.
 
