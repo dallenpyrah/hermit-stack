@@ -6,7 +6,6 @@ import type { DeliveryState } from "#src/webhook/delivery-state.schema.js";
 import { DeliveryTarget } from "#src/webhook/delivery-target.schema.js";
 import { DeliveryStarted } from "#src/webhook/start-delivery/delivery-started.event.js";
 
-// Sent by a policy, so it never rejects: starting a delivery that already started records nothing.
 class StartDelivery extends Command(
   "StartDelivery",
   { events: [DeliveryStarted], input: DeliveryTarget.fields, target: DeliveryId },

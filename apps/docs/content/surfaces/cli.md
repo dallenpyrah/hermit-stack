@@ -11,10 +11,10 @@ The CLI will be `apps/cli/**`: the Api as a command line, derived with Alchemy D
 ```text
 Sketch, not code on main:
 
-$ hermitstack ledger open-account acc-1 --owner sam
-$ hermitstack ledger deposit-money acc-1 --amount 5000
+$ hermit-stack ledger open-account acc-1 --owner sam
+$ hermit-stack ledger deposit-money acc-1 --amount 5000
 { "balance": 5000 }
-$ hermitstack ledger withdraw-money acc-1 --amount 9000
+$ hermit-stack ledger withdraw-money acc-1 --amount 9000
 InsufficientFunds: balance 5000, requested 9000
 ```
 

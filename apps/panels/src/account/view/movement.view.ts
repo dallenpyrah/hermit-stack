@@ -34,7 +34,6 @@ const savingNames: Readonly<Record<Movement, string>> = { deposit: "Depositingâ€
 
 const moveVariants: Readonly<Record<Movement, ButtonVariant>> = { deposit: "primary", withdraw: "outline" };
 
-// Both buttons wait while either movement is in flight, so the ledger never sees two at once from this panel.
 const moveButton = ({ html, model }: Context, kind: Movement): Html => {
   const inFlight = Option.filter(model.saving, (saving) => saving === kind);
   const name = Option.match(inFlight, { onNone: () => moveNames[kind], onSome: () => savingNames[kind] });
@@ -50,7 +49,6 @@ const moveButton = ({ html, model }: Context, kind: Movement): Html => {
   );
 };
 
-// The form submits on Enter as a deposit, so the keyboard reaches one without leaving the field.
 const movement = (context: Context): Content => {
   const { html, model } = context;
   const buttons = [moveButton(context, "deposit"), moveButton(context, "withdraw")];

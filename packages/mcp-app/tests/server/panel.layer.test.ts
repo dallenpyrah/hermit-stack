@@ -38,7 +38,6 @@ const readsTheDocument = Effect.fn("readsTheDocument")(function* readsTheDocumen
   const client = yield* McpClient.McpClient;
   const read = yield* client.readResource({ uri: "ui://test/account" });
 
-  // An empty origin list is left out, so the host keeps its default of no network access.
   expect(read.contents).toStrictEqual([
     {
       _meta: { ui: { csp: { resourceDomains: ["https://fonts.example.com"] }, prefersBorder: true } },
@@ -73,7 +72,6 @@ const linksOnlyTheRenderedTools = Effect.fn("linksOnlyTheRenderedTools")(functio
   ]);
 });
 
-// The account panel sets no content policy, so its _meta must leave the key out rather than send it undefined.
 const readsTheAccountPanel = Effect.fn("readsTheAccountPanel")(function* readsTheAccountPanelCase() {
   const client = yield* McpClient.McpClient;
   const read = yield* client.readResource({ uri: "ui://hermit-stack/ledger/account" });

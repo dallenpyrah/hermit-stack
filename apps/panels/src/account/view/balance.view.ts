@@ -31,7 +31,6 @@ const styles = create({
 
 type BalanceContext = Readonly<{ balance: number; below: Content; html: HtmlBuilder<Message> }>;
 
-// The balance, then whatever the account allows below it. A screen reader hears the new balance after a movement.
 const balanceBody = ({ balance, below, html }: BalanceContext): Html => {
   const caption = html.p(styleAttributes(styles.caption), ["Balance"]);
   const figure = html.p([html.AriaLive("polite"), ...styleAttributes(styles.figure)], [formatCents(balance)]);

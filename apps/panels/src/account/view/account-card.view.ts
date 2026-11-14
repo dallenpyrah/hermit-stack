@@ -17,7 +17,6 @@ type Loaded = Extract<Account, Readonly<{ _tag: "Loaded" }>>;
 
 const statusNames: Readonly<Record<AccountStatus, string>> = { closed: "Closed", open: "Open", unopened: "Not opened" };
 
-// Only an open account takes deposits and withdrawals, so a closed or unopened one shows its balance alone.
 const loadedCard = (context: Context, loaded: Loaded): Html => {
   const { html, model } = context;
   const owner = Option.match(loaded.owner, { onNone: () => "No owner", onSome: (name) => `Owned by ${name}` });

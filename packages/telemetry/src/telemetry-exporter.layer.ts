@@ -11,12 +11,7 @@ const telemetryOf = (backend: string): Layer.Layer<Telemetry, never, OtlpExporte
     Effect.map(Effect.service(OtlpExporter.Flusher), ({ flush }) => Telemetry.of({ backend, flush })),
   );
 
-/**
- * Provides Telemetry from an Effect OTLP exporter Layer, such as `Otlp.layerJson(...)`, so an adapter cannot provide
- * the service without installing a backend.
- *
- * @stability unstable
- */
+/** @stability unstable */
 const fromExporter: {
   (
     backend: string,
@@ -29,8 +24,6 @@ const fromExporter: {
   ): Layer.Layer<Telemetry, Failure, Services>;
 } = Fn.dual(
   fromExporterArity,
-  // The exporter installs the tracer, logger and metrics as references in the context it builds. Layer.provide would
-  // Keep only the Telemetry service and drop them, so the exporter's context is merged into the output.
   <Failure, Services>(
     exporter: Layer.Layer<OtlpExporter.Flusher, Failure, Services>,
     backend: string,

@@ -1,5 +1,3 @@
-// Each guarantee is one sentence a client can check through the Api alone, and it is the title of its test, so the list
-// Reads as what every target promises.
 const guaranteeTitles = {
   closedRefusesMoney: "a closed account refuses deposits, withdrawals and a second closing with NotOpen",
   closesOnlyWhenEmpty: "an account closes only at a balance of zero, and then reads as closed",

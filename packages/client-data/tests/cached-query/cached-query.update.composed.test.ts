@@ -10,8 +10,6 @@ import { Ledger } from "@repo/ledger/model";
 
 import { define } from "#src/cached-query/cached-query.update.js";
 
-// The ledger's Api has no queries yet, so this reads its Balance view once through the typed client. A screen would
-// Watch that view instead; the point here is that execute may require the client and the runtime supplies it.
 const balances = define({
   args: { accountId: AccountId },
   data: Schema.Finite,
@@ -40,7 +38,6 @@ const repliedAt = 5000;
 
 const accountId = AccountId.make("client-data-sam");
 
-// The in-memory host catches its views up in real time, so the setup runs on the live clock.
 const depositedSixtyFive = Effect.gen(function* depositSixtyFive() {
   const ledger = yield* LedgerApi.Client;
 
@@ -48,7 +45,6 @@ const depositedSixtyFive = Effect.gen(function* depositSixtyFive() {
 
   const receipt = yield* ledger.DepositMoney(accountId, { amount: 65 });
 
-  // Waiting for the deposit's receipt means the query below reads a view that already holds it.
   yield* ledger.Balance.get(accountId, { atLeast: { stream: receipt.stream, version: receipt.version } });
 }).pipe(TestClock.withLive);
 

@@ -14,7 +14,6 @@ const panelUri = "ui://hermit-stack/ledger/account";
 
 const hostPage = new globalThis.URL("host.html", import.meta.url);
 
-// The ledger's MCP server as services/api serves it, with the account panel added: the server an agent host connects to.
 const ledgerMcp = toMcp(LedgerApi, {
   expose: ["OpenAccount", "DepositMoney", "WithdrawMoney", "CloseAccount", "Balance.get"],
 }).pipe(
@@ -24,8 +23,6 @@ const ledgerMcp = toMcp(LedgerApi, {
   ),
 );
 
-// The local host is an MCP client of that server, as a real agent host is. It connects for each request, because the
-// Server is not listening yet while the routes are built.
 const agent = McpClient.layerHttp({
   name: "hermit-stack-panel-host",
   protocol: McpProtocol.v2025_11_25,
@@ -44,7 +41,6 @@ const page = Effect.gen(function* page() {
   return HttpServerResponse.html(document);
 });
 
-// The panel's document and _meta, read through MCP resources/read exactly as a host reads them.
 const panel = Effect.gen(function* panel() {
   const client = yield* McpClient.McpClient;
   const read = yield* client.readResource({ uri: panelUri });
@@ -58,7 +54,6 @@ const tools = Effect.flatMap(McpClient.McpClient, (client) =>
   ),
 );
 
-// The panel's tools/call, run on the server by name, as the specification has a host do.
 const callTool = Effect.gen(function* callTool() {
   const call = yield* HttpServerRequest.schemaBodyJson(ToolCall);
   const client = yield* McpClient.McpClient;
@@ -80,7 +75,6 @@ type Handler<Failure> = Effect.Effect<
   McpClient.McpClient | Services | HttpServerRequest.HttpServerRequest
 >;
 
-// Each request connects its own MCP client, and a failure answers 500 with what went wrong.
 const served =
   (services: Context.Context<Services>) =>
   <Failure extends Readonly<{ message: string }>>(
@@ -95,7 +89,6 @@ const served =
     return Effect.map(Effect.result(connected), Result.getOrElse(failed));
   };
 
-// The local host's own routes beside /mcp: its page, the panel it frames, and the tool calls it forwards.
 const hostRoutes = HttpRouter.use((router) =>
   Effect.gen(function* hostRoutesLayer() {
     const services = yield* Effect.context<Services>();

@@ -7,7 +7,6 @@ import { PageActions } from "#src/components/mdx/page-actions.view.tsx";
 import { PageFooter } from "./page-footer.view.tsx";
 import { Toc } from "./toc.view.tsx";
 
-// A planned page describes a decided design that is not on main yet, so it says so before anything else.
 const PlannedNotice = (props: { readonly planned: boolean }): ReactNode => {
   if (props.planned) {
     return (

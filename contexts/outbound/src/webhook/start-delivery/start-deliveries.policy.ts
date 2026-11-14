@@ -8,7 +8,6 @@ import { DeliveryId } from "#src/webhook/delivery.id.js";
 import { Endpoints } from "#src/webhook/endpoints.aggregate.js";
 import { StartDelivery } from "#src/webhook/start-delivery/start-delivery.command.js";
 
-// Bounds how many deliveries one public event starts at once.
 const startConcurrency = 8;
 
 class StartDeliveries extends Policy(
@@ -17,8 +16,6 @@ class StartDeliveries extends Policy(
   { description: "Starts a delivery to every active endpoint of the tenant that takes the event's type." },
 ) {}
 
-// The endpoints are read from the tenant's Endpoints aggregate as of its latest commit, so an endpoint registered a
-// Moment after the event misses it, and the receiver reads it from the feed instead.
 const StartDeliveriesLive = StartDeliveries.toLayer(
   Effect.gen(function* startDeliveriesLive() {
     const endpoints = yield* Endpoints;

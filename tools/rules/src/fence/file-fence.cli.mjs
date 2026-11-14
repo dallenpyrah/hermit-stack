@@ -4,7 +4,6 @@ import path from "node:path";
 
 import { verdictsOf } from "./file-fence.pure.mjs";
 
-// The files to check, as lefthook passes {staged_files}. A staged deletion names a file that no longer exists.
 const files = process.argv
   .slice(2)
   .filter((file) => existsSync(path.resolve(file)) && statSync(path.resolve(file)).isFile())

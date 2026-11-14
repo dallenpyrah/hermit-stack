@@ -1,6 +1,6 @@
-# hermitstack rules
+# hermit-stack rules
 
-The rulebook hermitstack's packages are checked against: what a change must satisfy before the gate passes, and how each rule is checked.
+The rulebook hermit-stack's packages are checked against: what a change must satisfy before the gate passes, and how each rule is checked.
 
 ## Language
 

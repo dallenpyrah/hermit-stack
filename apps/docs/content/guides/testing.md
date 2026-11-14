@@ -4,7 +4,7 @@ description: "Story tests for contexts, Scene tests for views, conformance suite
 status: built
 ---
 
-hermitstack sorts tests by what they are allowed to know, and puts the weight on the ones that know least. A test that only knows the Api survives a rewrite of the code behind it; a test that knows the events survives a new handler but not a new model. Every test runs with `@effect/vitest` on Vitest, with no network and no cloud.
+hermit-stack sorts tests by what they are allowed to know, and puts the weight on the ones that know least. A test that only knows the Api survives a rewrite of the code behind it; a test that knows the events survives a new handler but not a new model. Every test runs with `@effect/vitest` on Vitest, with no network and no cloud.
 
 ## The levels
 

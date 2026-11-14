@@ -4,7 +4,7 @@ description: "Typed flags behind a port, read the same way on every host, with a
 status: planned
 ---
 
-A flag is a typed value declared in its own file and read through one `Flags` service. Where the values are stored is a Layer, like every other choice in hermitstack. The package will be `packages/flags/**`.
+A flag is a typed value declared in its own file and read through one `Flags` service. Where the values are stored is a Layer, like every other choice in hermit-stack. The package will be `packages/flags/**`.
 
 ## The design
 

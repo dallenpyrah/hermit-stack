@@ -19,14 +19,12 @@ import { http } from "#src/http.layer.js";
 
 const localTarget = ConfigProvider.layer(ConfigProvider.fromUnknown({ APP_TARGET: "local" }));
 
-// NodeHttpServer.layerTest listens on a port the operating system assigns, and its HttpClient already points there.
 const served = HttpRouter.serve(http, { disableListenLog: true, disableLogger: true }).pipe(
   Layer.provide(host),
   Layer.provide(localTarget),
   Layer.provideMerge(layerTest),
 );
 
-// The typed client calls the RPC endpoint at the server's own address, the way a separate process would.
 const rpcProtocol = Layer.unwrap(
   HttpServer.addressFormattedWith((address) => Effect.succeed(protocolHttp(`${address}/rpc`))),
 ).pipe(Layer.provide(FetchHttpClient.layer));

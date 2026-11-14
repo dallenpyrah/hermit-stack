@@ -4,9 +4,9 @@ description: "StyleX tokens and FoldKit components written from scratch, with li
 status: built
 ---
 
-`packages/ui` (`@repo/ui`) is hermitstack's design system: typed tokens, two themes and a set of components every FoldKit app shares. It follows the shadcn model of three parts, with each part replaced by something that fits an Effect and StyleX stack:
+`packages/ui` (`@repo/ui`) is hermit-stack's design system: typed tokens, two themes and a set of components every FoldKit app shares. It follows the shadcn model of three parts, with each part replaced by something that fits an Effect and StyleX stack:
 
-| shadcn                               | hermitstack                                             |
+| shadcn                               | hermit-stack                                            |
 | ------------------------------------ | ------------------------------------------------------- |
 | Radix headless primitives            | `@foldkit/ui` headless primitives                       |
 | Tailwind theme variables             | StyleX `defineVars` tokens with the same semantic names |

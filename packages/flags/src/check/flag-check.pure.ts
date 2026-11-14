@@ -1,6 +1,5 @@
 import { Array as Arr, DateTime, Function as Fn, Match, Option, Predicate, Result, Schema, pipe } from "effect";
 
-// Node runs flags:check without a build step, and Node resolves only real file names, so this import names the .ts file.
 import { FlagTypeId } from "#src/flag/flag.pure.ts";
 
 interface Declared {
@@ -28,8 +27,6 @@ const fields = {
   purpose: Schema.NonEmptyString,
 };
 
-// What flags:check needs from a flag. It decodes every exported flag, so a date a flag file computed wrongly is a
-// Failure rather than a flag that never expires.
 const FlagMetadata = Schema.Union([
   Schema.Struct({ ...fields, kind: Schema.Literal("release"), removeBy: IsoDate }),
   Schema.Struct({ ...fields, kind: Schema.Literal("ops"), reviewBy: IsoDate }),
@@ -57,8 +54,6 @@ const declaredProblem = (declared: Declared, today: string): Option.Option<strin
     onSuccess: (metadata) => datedProblem(metadata, declared.file, today),
   });
 
-// One line per flag past its date or with a definition flags:check cannot read. Exports that are not flags are skipped,
-// So a .flag.ts file may also export the schema its flag uses.
 const flagProblems: {
   (today: string): (declared: readonly Declared[]) => readonly string[];
   (declared: readonly Declared[], today: string): readonly string[];

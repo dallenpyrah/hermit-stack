@@ -22,7 +22,6 @@ const title = "Ledger account";
 
 const viewArity = 2;
 
-// The panel paints in the host's theme, which arrives with the handshake and changes when the host's does.
 const view: {
   (html: HtmlBuilder<Message>): (model: Model) => Document;
   (model: Model, html: HtmlBuilder<Message>): Document;
@@ -34,7 +33,6 @@ const view: {
   title,
 }));
 
-// What the panel shows when it cannot run, most often because no MCP Apps host answered its handshake.
 const crashView = (html: HtmlBuilder<never>): Document => ({
   body: html.main(styleAttributes(...themeStyles("light"), styles.page), [
     refused(

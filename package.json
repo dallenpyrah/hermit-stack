@@ -1,6 +1,7 @@
 {
-  "name": "hermitstack",
+  "name": "hermit-stack",
   "private": true,
+  "license": "MIT",
   "type": "module",
   "scripts": {
     "check": "mise exec -- turbo boundaries && mise exec -- turbo run fmt:check typecheck lint lint:structure test build knip ratchet lint:inputs lint:paths sherif gitleaks lint:env lint:scripts flags:check --concurrency=100% --continue=dependencies-successful",

@@ -7,7 +7,6 @@ import type { RecipientState } from "#src/notification/recipient-state.schema.js
 import { PreferenceSet } from "#src/notification/set-preference/preference-set.event.js";
 import { UserId } from "#src/notification/user.id.js";
 
-// Every kind reaches every channel until the recipient turns one off, so a new kind needs no migration.
 class SetPreference extends Command(
   "SetPreference",
   {
@@ -20,7 +19,6 @@ class SetPreference extends Command(
 
 const decideArity = 2;
 
-// Records only a change: turning on what is on, or off what is off, is accepted and records nothing.
 const decideSetPreference: {
   (command: SetPreference): (state: RecipientState) => readonly PreferenceSet[];
   (state: RecipientState, command: SetPreference): readonly PreferenceSet[];

@@ -12,17 +12,12 @@ const ToolCall = Schema.Struct({ arguments: Schema.Record(Schema.String, Schema.
 type ToolCall = typeof ToolCall.Type;
 
 interface FakeHostOptions {
-  // The host's context at ui/initialize.
   readonly context: HostContext;
-  // The tool call the agent made that opened the panel, run once the panel says it is initialized.
   readonly opening: ToolCall;
-  // The tool calls the agent made before it, such as opening the account the panel shows.
   readonly prepare: readonly ToolCall[];
-  // Whether the host refuses ui/initialize, as a host that does not support MCP Apps would.
   readonly refuses: boolean;
 }
 
-// What a test does to the host from outside the panel: read what the panel sent, and change the host's context.
 class FakeHost extends Context.Service<
   FakeHost,
   {
@@ -45,7 +40,6 @@ const notification = (method: string, params: RpcNotification["params"]): RpcNot
   params,
 });
 
-// Runs a tool on the ledger's MCP server the way an agent host does: it finds the tool by name and calls it.
 const runTool = Effect.fn("FakeHost.runTool")(function* runTool(call: ToolCall) {
   const client = yield* McpClient.McpClient;
   const tools = yield* client.listTools();
@@ -68,7 +62,6 @@ const initializeAnswer = (options: FakeHostOptions, request: RpcRequest): Incomi
     })),
   );
 
-// The host sends the opening call's input, then its result, once the panel is ready for them.
 const opened = (options: FakeHostOptions, offer: Offer, run: Run): Effect.Effect<void> =>
   Effect.gen(function* openedCall() {
     yield* offer(notification("ui/notifications/tool-input", { arguments: options.opening.arguments }));
@@ -102,8 +95,6 @@ const receive =
       Match.orElse(() => Effect.void),
     );
 
-// A host as the specification describes one, in memory: it answers ui/initialize, sends the opening tool call's
-// Input and result once the panel is initialized, and forwards the panel's tools/call to a real MCP client.
 const fakeHost = (options: FakeHostOptions): Layer.Layer<HostChannel | FakeHost, never, McpClient.McpClient> =>
   Layer.effectContext(
     Effect.gen(function* fakeHostLayer() {

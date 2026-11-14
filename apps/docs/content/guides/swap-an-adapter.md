@@ -4,7 +4,7 @@ description: "Replace a vendor by writing a new Layer for the same port, and pro
 status: planned
 ---
 
-Every vendor in hermitstack sits behind a port the domain declares. Swapping a vendor means writing one adapter package that implements the same port, running the port's contract suite against it, and providing it where the target is composed. No context changes.
+Every vendor in hermit-stack sits behind a port the domain declares. Swapping a vendor means writing one adapter package that implements the same port, running the port's contract suite against it, and providing it where the target is composed. No context changes.
 
 ## What is on `main` today
 

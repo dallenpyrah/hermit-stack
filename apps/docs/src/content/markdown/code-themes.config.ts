@@ -10,12 +10,11 @@ interface Palette {
   readonly type: "dark" | "light";
 }
 
-// The colors are CSS variables from tokens.css, which resolve per theme, so the same palette serves light and dark.
 const paletteFor = (type: "dark" | "light"): Palette => ({
   comment: "var(--code-comment)",
   ink: "var(--code-ink)",
   keyword: "var(--code-keyword)",
-  name: `hermitstack-${type}`,
+  name: `hermit-stack-${type}`,
   number: "var(--code-number)",
   string: "var(--code-string)",
   type,

@@ -15,7 +15,6 @@ const feed = Feed.ref("tenant-1");
 const sam = Recipient.ref("user-1");
 const address = "sam@example.com";
 
-// An example of what another context would publish: an invoice was paid, and its owner should hear about it.
 const invoicePaid = {
   audience: ["user-1"],
   id: "event-1",
@@ -28,7 +27,6 @@ const notification = { kind: "invoice.paid", notificationId: "event-1", payload:
 
 const publishInvoicePaid = when(feed, Publish.make({ event: invoicePaid }), { commandId: invoicePaid.id });
 
-// Sam has an email address, the event is published, and it reaches the feed and the public stream.
 const publishedToSam = [
   given(sam, EmailSet.make({ address })),
   publishInvoicePaid,

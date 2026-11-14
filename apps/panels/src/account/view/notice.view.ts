@@ -14,7 +14,6 @@ const movedNames: Readonly<Record<Movement, string>> = { deposit: "Deposited", w
 
 const refusedArity = 2;
 
-// A failure the person should read before they try again.
 const refused: {
   <AnyMessage>(html: HtmlBuilder<AnyMessage>): (problem: Problem) => Html;
   <AnyMessage>(problem: Problem, html: HtmlBuilder<AnyMessage>): Html;
@@ -26,7 +25,6 @@ const invalidAmount: Problem = { reason: "Enter dollars and cents, such as 12.50
 
 const noticeArity = 2;
 
-// The outcome of the person's last deposit or withdrawal.
 const noticeView: {
   (html: HtmlBuilder<Message>): (notice: Notice) => Html;
   (notice: Notice, html: HtmlBuilder<Message>): Html;

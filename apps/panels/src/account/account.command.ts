@@ -8,8 +8,6 @@ import { Message } from "#src/account/account.message.js";
 import { Movement } from "#src/account/account.model.js";
 import { formatCents } from "#src/account/money.pure.js";
 
-// Deposits or withdraws through the host, which runs the ledger's tool on the server. The ledger's rejections come
-// Back typed, so each one says what happened in the person's terms.
 const Move = Command.define("Move", {
   args: { amount: Schema.Int, key: Schema.String, kind: Movement },
   execute: ({ amount, key, kind }) =>

@@ -4,7 +4,7 @@ description: "Plans, checkout and entitlements behind a port, with the payment v
 status: planned
 ---
 
-Billing runs both ways. Outbound, the product asks a payment vendor to start a checkout. Inbound, the vendor reports hours later that a payment settled. In hermitstack both go through one adapter, and what a customer may use is the state of an aggregate, not a call to the vendor.
+Billing runs both ways. Outbound, the product asks a payment vendor to start a checkout. Inbound, the vendor reports hours later that a payment settled. In hermit-stack both go through one adapter, and what a customer may use is the state of an aggregate, not a call to the vendor.
 
 ## The design
 

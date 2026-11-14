@@ -26,7 +26,6 @@ const decideArity = 2;
 
 const notOpen = (): NotOpen => new NotOpen();
 
-// The balance never goes below zero: a withdrawal of exactly the balance empties the account, one cent more is refused.
 const withdrawFrom = (open: OpenState, amount: number): Withdrawal => {
   if (amount > open.balance) {
     return new InsufficientFunds({ balance: open.balance, requested: amount });

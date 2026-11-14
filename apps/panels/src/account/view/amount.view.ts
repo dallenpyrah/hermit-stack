@@ -27,7 +27,6 @@ const styles = create({
 
 const amountId = "account-amount";
 
-// The amount to move, in dollars. It is marked invalid while the last attempt's amount could not be read.
 const amountField = ({ html, model }: Readonly<{ html: HtmlBuilder<Message>; model: Model }>): Html => {
   const field = input(
     {

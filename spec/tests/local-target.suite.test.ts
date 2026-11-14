@@ -9,8 +9,6 @@ import { http } from "@repo/api/http";
 import { ledgerConformance } from "@repo/conformance/ledger";
 import { LedgerApi } from "@repo/ledger/api";
 
-// The spec reaches the ledger only through the client derived from its Api, so it holds for any implementation behind
-// That Api. What changes between these runs is how the client reaches the local target.
 const localConfig = ConfigProvider.fromUnknown({ APP_TARGET: "local" });
 
 const localHost = Layer.provide(host, ConfigProvider.layer(localConfig));

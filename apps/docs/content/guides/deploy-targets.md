@@ -4,7 +4,7 @@ description: "A target is a named composition of Layers, picked by one config va
 status: planned
 ---
 
-A target is a host, a cloud and the adapters for it, given a name. Choosing where hermitstack runs is choosing a name in one config value, `APP_TARGET`. Infrastructure is Effect code too: Alchemy stacks describe what each target deploys.
+A target is a host, a cloud and the adapters for it, given a name. Choosing where hermit-stack runs is choosing a name in one config value, `APP_TARGET`. Infrastructure is Effect code too: Alchemy stacks describe what each target deploys.
 
 ## What is on `main` today
 

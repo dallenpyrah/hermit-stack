@@ -16,7 +16,6 @@ const { clock, then, when } = Story;
 
 const nightly = Recurring.ref("nightly-report");
 
-// Nine in the morning in New York is 14:00 UTC in January.
 const cron = "0 9 * * *";
 const timeZone = "America/New_York";
 const arm = Arm.make({ cron, timeZone });

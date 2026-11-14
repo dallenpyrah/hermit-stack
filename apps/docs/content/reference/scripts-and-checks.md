@@ -34,14 +34,14 @@ Run each through `mise exec --` so the pinned Node and pnpm are used.
 
 ## Git hooks
 
-`pnpm install` installs lefthook. Before each commit it formats the staged files, checks the line cap and inline suppressions, scans for secrets, checks boundaries, then typechecks, lints and runs the file-role pass. Hooks never run tests. Never skip them with `--no-verify`; the agent fence in `tools/rules` refuses it, and `tools/rules/docs/git-fence.md` says what that fence covers.
+`pnpm install` installs lefthook. Before each commit it formats the staged files, checks the line cap and inline suppressions, scans for secrets, checks boundaries, then typechecks, lints and runs the file-role pass. Hooks never run tests. Never skip them with `--no-verify`. `tools/rules` has a policy an agent hook can run to refuse it; no agent config ships in the template, and `tools/rules/docs/git-fence.md` says how to wire one and what it covers.
 
 ## CI
 
-`.github/workflows/check.yml` runs `pnpm check` on GitHub Actions. It has not run yet, because the repository has no remote.
+`.github/workflows/check.yml` runs `pnpm check` on GitHub Actions: on every pull request, every night with the Turbo cache off, and when started by hand. It does not run on a push to `main`.
 
 ## Not in `pnpm check` yet
 
 - **Mutation testing.** The `mutants` gate is copied (`tools/rules/docs/mutants.md`) but no package runs it.
-- **A checker time budget** per package, from principle 9 in [Why hermitstack](/why-hermitstack).
+- **A checker time budget** per package, from principle 9 in [Why hermit-stack](/why-hermit-stack).
 - **Deleting each target and rerunning the check**, once there is more than one target.

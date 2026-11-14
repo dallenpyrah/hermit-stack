@@ -12,7 +12,6 @@ import type { GuaranteeName } from "#src/guarantee-titles.pure.js";
 
 type LedgerClient = Layer.Success<typeof LedgerApi.layerClient>;
 
-// A target is whatever provides the typed client: in process over a host, over HTTP to a server, or a deployed stage.
 type Target<Failure> = Layer.Layer<LedgerClient, Failure>;
 
 interface Receipt {
@@ -24,13 +23,10 @@ interface ReadAtReceipt {
   readonly atLeast: Receipt;
 }
 
-// A view catches up after the commit, so a read that must see a write waits for that write's receipt.
 const atReceipt = (receipt: Receipt): ReadAtReceipt => ({
   atLeast: { stream: receipt.stream, version: receipt.version },
 });
 
-// The cases share one build of the target, and a deployed stage keeps its accounts between runs, so every case opens an
-// Account no other case or earlier run has used.
 const freshAccount = Effect.map(Random.nextInt, (suffix) => AccountId.make(`conformance-${suffix}`));
 
 const opensAtZero = Effect.gen(function* opensAtZeroCase() {
@@ -146,7 +142,6 @@ const retriedCommandId = Effect.gen(function* retriedCommandIdCase() {
   expect(next.reply).toStrictEqual({ balance: 31 });
 });
 
-// Each case fails with whatever the client can fail with, or with the receipt of a command that should have been refused.
 type Guarantee = Effect.Effect<void, object, LedgerClient>;
 
 const guarantees: Readonly<Record<GuaranteeName, Guarantee>> = {
@@ -160,11 +155,8 @@ const guarantees: Readonly<Record<GuaranteeName, Guarantee>> = {
   retriedCommandId,
 };
 
-// One test per guarantee, titled with its sentence. Run it against a target with it.layer(target)(title, ledgerConformance),
-// So every case shares one build of that target.
 const ledgerConformance = (onTarget: Vitest.MethodsNonLive<LedgerClient>): void => {
   for (const [name, guarantee] of Rec.toEntries(guarantees)) {
-    // A target is a real system whose views catch up in real time, so the cases run on the live clock.
     onTarget.effect(guaranteeTitles[name], () => TestClock.withLive(guarantee));
   }
 };

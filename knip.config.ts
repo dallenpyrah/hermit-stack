@@ -7,13 +7,6 @@ interface Exception {
   readonly reason: string;
 }
 
-const entries: ReadonlyArray<Exception> = [
-  {
-    paths: [".pi/extensions/git-fence.adapter.js"],
-    reason: "The Pi extension that runs the git fence. Pi loads every file in .pi/extensions, so nothing imports it.",
-  },
-];
-
 const fixtures: ReadonlyArray<Exception> = [
   {
     paths: ["fixtures/**"],
@@ -91,7 +84,6 @@ const config: KnipConfig = {
     ...Record.fromEntries(Arr.map(pathsOf(pendingCatalog), (glob) => [glob, ["catalog"]])),
   },
   workspaces: {
-    ".": { entry: pathsOf(entries) },
     "apps/docs": { ignoreDependencies: pathsOf(docExamples) },
     "tools/rules": {
       ignore: pathsOf(fixtures),

@@ -5,7 +5,6 @@ import { AttemptStarted } from "#src/webhook/attempt-delivery/attempt-started.ev
 import { DeliveryId } from "#src/webhook/delivery.id.js";
 import type { DeliveryState } from "#src/webhook/delivery-state.schema.js";
 
-// Scheduled at the retry time, so it never rejects: an attempt the delivery no longer waits for records nothing.
 class AttemptDelivery extends Command(
   "AttemptDelivery",
   { events: [AttemptStarted], input: { attempt: Schema.Int }, target: DeliveryId },

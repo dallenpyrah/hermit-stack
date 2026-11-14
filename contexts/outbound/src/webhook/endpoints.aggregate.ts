@@ -24,9 +24,6 @@ const updateEndpoint = (
   }),
 });
 
-// A tenant's webhook endpoints in one instance, so finding who receives a public event is one read of decided state
-// And not a query across instances. Each command's rule lives in its own file beside its events; this file holds the
-// State and how events change it.
 class Endpoints extends Aggregate(
   "Endpoints",
   {
@@ -38,7 +35,6 @@ class Endpoints extends Aggregate(
     evolve: {
       EndpointDisabled: (state, event) =>
         updateEndpoint(state, event.endpointId, (endpoint) => ({ ...endpoint, active: false })),
-      // A registration replaces the endpoint with that id and starts it afresh: active, with no failures.
       EndpointRegistered: (state, event) => ({
         endpoints: [
           ...Arr.filter(state.endpoints, (registered) => registered.endpointId !== event.endpointId),

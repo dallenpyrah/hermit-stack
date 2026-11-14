@@ -8,7 +8,6 @@ import { styleAttributes } from "#src/style/style.view.js";
 import type { Content } from "#src/style/style.view.js";
 import { colors, font, fontSize, fontWeight, lineHeight, radius, space } from "#src/tokens/tokens.stylex.js";
 
-// Default reports an outcome; destructive reports a failure the person should act on.
 const AlertVariant = Schema.Literals(["default", "destructive"]);
 
 type AlertVariant = typeof AlertVariant.Type;
@@ -59,7 +58,6 @@ const variants = create({
   },
 });
 
-// A failure interrupts a screen reader at once; any other outcome waits until it finishes what it is reading.
 const roles: Readonly<Record<AlertVariant, string>> = { default: "status", destructive: "alert" };
 
 const render = <Message>(config: AlertOptions, html: HtmlBuilder<Message>): Html => {
@@ -84,8 +82,6 @@ const render = <Message>(config: AlertOptions, html: HtmlBuilder<Message>): Html
 
 const alertArity = 2;
 
-// A message about what just happened, such as a saved change or a refused request. It is text only; put the control
-// That acts on it beside it.
 const alert: {
   <Message>(html: HtmlBuilder<Message>): (config: AlertOptions) => Html;
   <Message>(config: AlertOptions, html: HtmlBuilder<Message>): Html;

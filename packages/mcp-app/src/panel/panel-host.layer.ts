@@ -41,20 +41,17 @@ import {
 import type { Implementation, RequestId } from "#src/protocol/message.schema.js";
 import { protocolVersion } from "#src/protocol/mcp-app.pure.js";
 
-// The host answered a request with a JSON-RPC error.
 class HostRequestError extends Schema.TaggedError<HostRequestError, { readonly brand: unique symbol }>()(
   "HostRequestError",
   { code: Schema.Int, message: Schema.String },
 ) {}
 
-// A host that never answers ui/initialize is no host; the panel fails instead of waiting for ever.
 const handshakeSeconds = 10;
 
 const methodNotFound = -32_601;
 
 const firstRequestId = 0;
 
-// The tool call that opened the panel ends in a result, or in a cancellation with the host's reason.
 type Outcome = Result.Result<CallToolResult, string>;
 
 type Arguments = (typeof ToolInput.Type)["arguments"];
@@ -77,14 +74,11 @@ interface State {
   readonly pending: Ref.Ref<HashMap.HashMap<RequestId, Deferred.Deferred<Reply, HostRequestError>>>;
 }
 
-// One tool of an Api, under the name toMcp serves it by.
 interface NamedTool {
   readonly name: string;
   readonly tool: Tool.Any;
 }
 
-// Domain builds each tool's schemas with Schema.toCodecJson from the Api call the tool is named for, so they need no
-// Services and decode to that call's types. The overload states those types, which the implementation cannot see.
 function codecAs<Value>(schema: Schema.Top): Schema.Codec<Value>;
 function codecAs(schema: Schema.Top): Schema.Top {
   return schema;
@@ -110,7 +104,6 @@ const textOf = (result: CallToolResult): string =>
     onSome: (content) => content.text,
   });
 
-// Domain's tools return a rejection as an error result whose text is the encoded rejection.
 const rejectionOf = <Rejection>(
   { name, tool }: NamedTool,
   result: CallToolResult,
@@ -159,7 +152,6 @@ const settle = (state: State, id: RequestId, exit: Exit.Exit<Reply, HostRequestE
     ),
   );
 
-// The host's own requests: teardown and ping are answered with an empty result, anything else is not supported.
 const answerHost = (send: Send, request: RpcRequest): Effect.Effect<void> =>
   Match.value(request.method).pipe(
     Match.whenOr("ping", "ui/resource-teardown", () => send({ id: request.id, jsonrpc: "2.0", result: {} })),
@@ -208,7 +200,6 @@ const route =
       Match.orElse(() => Effect.void),
     );
 
-// A message that is not JSON-RPC as the specification shapes it is dropped: the host is not trusted to send only that.
 const listen = (state: State, { incoming, send }: HostChannel["Service"]): Effect.Effect<void> =>
   incoming.pipe(
     Stream.map((message) => Schema.decodeUnknownOption(IncomingMessage)(message)),
@@ -308,8 +299,6 @@ const serviceOf = (state: State, channel: Channel, hostInfo: Implementation): Pa
     toolResult: toolResultOf(state),
   });
 
-// The panel side of the protocol over any HostChannel: it routes every host message, performs ui/initialize, then
-// Announces ui/notifications/initialized. The Layer fails with HostHandshakeError when the host does not answer.
 const panelHost = (appInfo: Implementation): Layer.Layer<PanelHost, HostHandshakeError, HostChannel> =>
   Layer.effect(
     PanelHost,

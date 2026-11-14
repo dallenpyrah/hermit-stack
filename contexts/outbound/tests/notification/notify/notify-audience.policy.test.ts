@@ -39,7 +39,6 @@ const reachesInboxAndEmailOnce = (): Effect.Effect<void, StoryFailure> =>
       sam,
       NotificationSent.make({ channel: "email", messageId: "email-1", notificationId: "event-1", to: address }),
     ),
-    // The publisher runs again for the same event: the feed keeps one copy, and nobody is told twice.
     publishInvoicePaid,
     then(feed),
     then(sam),

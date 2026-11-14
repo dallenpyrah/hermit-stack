@@ -8,10 +8,8 @@ const noCents = 0;
 
 const dollars = new Intl.NumberFormat("en-US", { currency: "USD", style: "currency" });
 
-// The ledger counts whole cents; a person reads dollars.
 const formatCents = (cents: number): string => dollars.format(cents / centsPerDollar);
 
-// Dollars with at most two decimals, such as 12, 12.5 or $12.50. Anything else, and zero, is not an amount.
 const amountPattern = /^\$?(?<whole>\d{1,9})(?:\.(?<fraction>\d{1,2}))?$/u;
 
 const padCents = Str.padEnd(centDigits, "0");

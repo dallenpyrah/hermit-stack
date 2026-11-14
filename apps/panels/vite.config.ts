@@ -5,8 +5,6 @@ import { stylexPlugin } from "@repo/ui/vite";
 
 import { singleFile } from "./src/build/single-file.plugin.ts";
 
-// Each panel is one HTML document with its script and styles inside it, because an MCP Apps host serves the
-// Document from a ui:// resource and loads nothing beside it.
 export default defineConfig({
   base: "./",
   build: {

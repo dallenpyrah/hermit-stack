@@ -40,7 +40,6 @@ const retriedUntilDelivered = (): Effect.Effect<void, StoryFailure> =>
     clock("2026-01-01T00:00:05Z"),
     then(delivery, AttemptStarted.make({ attempt: 2 })),
     posted,
-    // The second backoff is five minutes and the receiver asks for ten, so ten wins.
     succeed(WebhookTransport.post, { retryAfterSeconds: Option.some(tenMinutes), status: 429 }),
     then(delivery, rateLimited),
     clock("2026-01-01T00:05:05Z"),

@@ -4,7 +4,7 @@ description: "Where each kind of code lives and which way dependencies are allow
 status: built
 ---
 
-Every package in hermitstack has a kind, and the kind decides two things: which folder it lives in and which other packages it may import. Turbo checks the second on every run.
+Every package in hermit-stack has a kind, and the kind decides two things: which folder it lives in and which other packages it may import. Turbo checks the second on every run.
 
 ## The folders
 
@@ -62,7 +62,6 @@ Packages are named `@repo/<name>` and consumed as TypeScript source. A package's
 ```ts
 import { spanName } from "@repo/kernel/span-name";
 
-// Spans are named <context>.<operation> in kebab case, whatever case the code uses.
 const name = spanName("ledger", "OpenAccount");
 ```
 

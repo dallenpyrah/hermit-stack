@@ -4,7 +4,7 @@ description: "Install the pinned tools, install the workspace and run the one ch
 status: built
 ---
 
-You have forked hermitstack and cloned it. Three commands take you from a clean checkout to a repo that passes every check. Nothing here needs a cloud account.
+You have forked hermit-stack and cloned it. Three commands take you from a clean checkout to a repo that passes every check. Nothing here needs a cloud account.
 
 ## Install the pinned tools
 
@@ -64,6 +64,6 @@ The build writes a static site to the app's `out/` folder, including a Markdown 
 
 ## What to read next
 
-- [Why hermitstack](/why-hermitstack): the principles, and the check that holds each one.
+- [Why hermit-stack](/why-hermit-stack): the principles, and the check that holds each one.
 - [Repository layout](/repository-layout): where code lives and which way dependencies point.
 - [Add a context](/guides/add-a-context): your first piece of product code.

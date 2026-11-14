@@ -1,18 +1,20 @@
 # Git fence
 
-`src/fence/git-fence.cli.mjs` (`git-fence`) is the policy every agent hook runs before a shell command or a file write. It keeps an agent from skipping or switching off the lefthook hooks, which run the format, secrets, typecheck and lint gate on each commit. A refusal reads `<what>. <why>. Fix: <step>.`
+`src/fence/git-fence.cli.mjs` (`git-fence`) is a policy an agent hook runs before a shell command or a file write. It keeps an agent from skipping or switching off the lefthook hooks, which run the format, secrets, typecheck and lint gate on each commit. A refusal reads `<what>. <why>. Fix: <step>.`
 
-## Where it is wired
+## Wiring it to an agent
 
-| Agent       | Config                                | Hook                                                                       | Answer                                                            |
-| ----------- | ------------------------------------- | -------------------------------------------------------------------------- | ----------------------------------------------------------------- |
-| Claude Code | `.claude/settings.json`               | `PreToolUse` on `Bash` and on `Edit`, `Write`, `MultiEdit`, `NotebookEdit` | `permissionDecision: "deny"` with the message                     |
-| Cursor      | `.cursor/hooks.json`                  | `beforeShellExecution`                                                     | `permission: "deny"`, with the message for the agent and the user |
-| Pi          | `.pi/extensions/git-fence.adapter.js` | `tool_call` on `bash`, `edit` and `write`                                  | `{ block: true, reason }`                                         |
+hermit-stack ships no agent config, so nothing runs the fence until a fork adds the config for the agent it uses. Until then the rule is only written down: `AGENTS.md` forbids `--no-verify`.
 
-Each config sits at the repo root. Claude Code and Pi load the script through the `@repo/rules/git-fence` export, which the root `package.json` links, and Cursor runs `tools/rules/src/fence/git-fence.cli.mjs` by path. Upstream also wires an Amp plugin (`git-fence.adapter.js` in its Amp plugins folder); hermitstack does not have one yet.
+The command reads the hook's JSON on stdin and takes `--agent claude`, `--agent cursor` or `--agent pi`, which picks the form of the answer:
 
-Each hook fails closed. When the script can't be found or exits with an unexpected code, the Claude Code command exits 2, the Cursor hook sets `failClosed: true`, and the Pi extension returns `{ block: true }`. Each one refuses the call with `git-fence could not run, so this call is refused. Fix: run pnpm install --force …`. An agent never runs the call unchecked.
+| Agent       | Hook to call it from                                                       | Answer                                                            |
+| ----------- | -------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| Claude Code | `PreToolUse` on `Bash` and on `Edit`, `Write`, `MultiEdit`, `NotebookEdit` | `permissionDecision: "deny"` with the message                     |
+| Cursor      | `beforeShellExecution`                                                     | `permission: "deny"`, with the message for the agent and the user |
+| Pi          | `tool_call` on `bash`, `edit` and `write`                                  | exit code 2 with the message on stderr                            |
+
+Run it by path (`node tools/rules/src/fence/git-fence.cli.mjs --agent cursor`) or through the `@repo/rules/git-fence` export. Make the hook fail closed: when the script can't be found or exits with an unexpected code, the hook should refuse the call, so an agent never runs it unchecked.
 
 ## What it refuses
 
@@ -27,6 +29,6 @@ It reads through `&&`, `||`, `;`, pipes, `sh -c` and the other shells, `eval`, `
 ## What it cannot close
 
 - Git run from a script file, a variable (`$CMD`), a decoded string or another language (`node -e`, `python -c`): the hook sees the outer command only.
-- An agent with no hook support, Amp included until it has a plugin here, and people. `AGENTS.md` forbids `--no-verify` for them instead.
+- An agent with no hook wired, which is every agent until a fork adds a config, and people. `AGENTS.md` forbids `--no-verify` for them instead.
 - Cursor file edits: Cursor's file hooks observe edits after the fact and cannot refuse them, so a Cursor agent can still write `.git/config`.
 - Hooks a person turns off in their agent's settings.

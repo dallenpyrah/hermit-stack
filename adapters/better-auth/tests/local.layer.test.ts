@@ -14,18 +14,13 @@ const password = "correct-horse-battery-staple";
 
 const noneYet = 0;
 
-// Long ago enough that every clock agrees the session is over.
 const longAgo = DateTime.toDateUtc(DateTime.makeUnsafe("2000-01-01T00:00:00Z"));
 
-// The settings a deployment reads from its environment, fixed for the test.
 const testConfig = ConfigProvider.fromUnknown({
   AUTH_BASE_URL: "http://localhost:3000",
   AUTH_SECRET: "test-only-secret-test-only-secret-test-only",
 });
 
-// Signs each user up and then in through better-auth's own endpoints, against the SQLite database, and hands the
-// Contract the cookie a browser would send. Expiring a session moves its expiry into the past in the database, as time
-// Passing would.
 const betterAuthHarness = Layer.effect(
   SessionAdapter,
   Effect.gen(function* betterAuthHarness() {

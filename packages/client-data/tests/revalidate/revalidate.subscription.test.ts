@@ -4,7 +4,6 @@ import { TestClock } from "effect/testing";
 
 import { revalidateOnFocus, revalidateOnReconnect } from "#src/revalidate/revalidate.subscription.js";
 
-// Node has no page, so each case stands in a bare event target for the one global the Subscription listens to.
 class FakeDocument extends globalThis.EventTarget {
   public visibilityState: DocumentVisibilityState = "hidden";
 }
@@ -15,7 +14,6 @@ const sentAt = 9000;
 
 const nothingSent = 0;
 
-// Lets the forked Subscription attach its listener, or handle an event already dispatched, before the case goes on.
 const settle = Effect.repeat(Effect.yieldNow, { times: 10 });
 
 const listening = (stream: Stream.Stream<number>): Effect.Effect<Queue.Queue<number>> =>

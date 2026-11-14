@@ -4,7 +4,7 @@ description: "Each aggregate runs as an actor on a host: Rivet Actors by default
 status: planned
 ---
 
-An actor is a single-threaded unit that owns its state and handles one message at a time. In hermitstack every aggregate instance (one account, one schedule, one webhook delivery) runs as one actor. The host is the runtime that runs those actors, and it is a Layer, so the same model runs on any of them.
+An actor is a single-threaded unit that owns its state and handles one message at a time. In hermit-stack every aggregate instance (one account, one schedule, one webhook delivery) runs as one actor. The host is the runtime that runs those actors, and it is a Layer, so the same model runs on any of them.
 
 ## What is decided
 

@@ -7,8 +7,6 @@ import { McpSchema, McpServer } from "effect/ai";
 
 import { htmlMimeType, legacyResourceUriKey } from "#src/protocol/mcp-app.pure.js";
 
-// The origins a panel may reach, each mapped by the host onto a CSP directive. Leaving one out keeps the host's
-// Restrictive default, which allows no network access and no outside scripts, styles or frames.
 interface PanelCsp {
   readonly baseUriDomains?: readonly string[];
   readonly connectDomains?: readonly string[];
@@ -20,22 +18,15 @@ interface PanelOptions<Api extends Toolable, Failure, Services> {
   readonly api: Api;
   readonly csp?: PanelCsp;
   readonly description?: string;
-  // The panel's document, read on each resources/read so a rebuilt panel is served without a restart.
   readonly html: Effect.Effect<string, Failure, Services>;
   readonly name: string;
-  // Whether the host should draw its own border and background around the panel. Hosts differ when it is left out.
   readonly prefersBorder?: boolean;
-  // The calls whose results the panel renders. Each call's tool is listed with the panel's uri, so a host that runs
-  // One of them shows the panel with its result.
   readonly renders: Arr.NonEmptyReadonlyArray<Exposable<Api>>;
   readonly uri: `ui://${string}`;
 }
 
-// What the specification puts in a panel resource's _meta: its content policy and its border preference, each only
-// When the panel sets it, since MCP's schema refuses an undefined value.
 type PanelMeta = Readonly<{ ui: Readonly<Partial<Record<"csp" | "prefersBorder", PanelCsp | boolean>>> }>;
 
-// A panel ready to serve: its resource, its _meta, and the names of the tools it renders.
 interface Panel<Failure, Services> {
   readonly description: string | undefined;
   readonly html: Effect.Effect<string, Failure, Services>;
@@ -79,7 +70,6 @@ const metaOf = (csp: PanelCsp, prefersBorder: boolean | undefined): PanelMeta =>
   }),
 });
 
-// The tool names come from Domain's own naming, so a panel links the exact tool toMcp registers for each call.
 const panel = <Api extends Toolable, Failure, Services>(
   options: PanelOptions<Api, Failure, Services>,
 ): Panel<Failure, Services> => {
@@ -109,7 +99,6 @@ const panel = <Api extends Toolable, Failure, Services>(
   };
 };
 
-// The official SDK writes the deprecated flat key beside _meta.ui.resourceUri for hosts that predate the change.
 const withResourceUri = (meta: ToolMeta, uri: string): ToolMeta => {
   const ui = pipe(
     Option.fromNullishOr(meta),
@@ -172,8 +161,6 @@ const resourceOf = <Failure, Services>(
   };
 };
 
-// Fails the Layer for a call no tool is derived for, or a linked tool already registered: its handler is out of
-// Reach here, so it could not be listed with its panel.
 const misdeclared = (
   unknownCalls: readonly string[],
   registered: Server["tools"],
@@ -197,9 +184,6 @@ const misdeclared = (
   ]);
 };
 
-// Wraps the McpServer the tools register with: each panel's resource is added once, and a tool a panel renders is
-// Registered with the panel's uri in its _meta. Provide it to the tools, so they register through it, and give it the
-// Transport; the derived tools stay exactly what toMcp made of the Api.
 const panels = <Failure, Services>(
   declared: readonly Panel<Failure, Services>[],
 ): Layer.Layer<McpServer.McpServer, never, McpServer.McpServer | Services> =>

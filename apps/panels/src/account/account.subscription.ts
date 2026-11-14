@@ -11,7 +11,6 @@ const fromHost = <Value>(
   toStream: (host: PanelHost["Service"]) => Stream.Stream<Value>,
 ): Stream.Stream<Value, never, PanelHost> => Stream.unwrap(Effect.map(PanelHost, toStream));
 
-// The host's theme, each time it is set: at the handshake and after every change.
 const theme = fromHost((host) =>
   host.context.pipe(
     Stream.filterMap(({ theme: chosen }) => Result.fromNullishOr(chosen, Fn.constVoid)),
@@ -20,7 +19,6 @@ const theme = fromHost((host) =>
   ),
 );
 
-// The account the agent asked about. Input that is not a Balance.get call's is not this panel's, and is left alone.
 const accountKey = fromHost((host) =>
   host.toolInput(LedgerApi, "Balance.get").pipe(
     Stream.filterMap(Fn.identity),
@@ -28,7 +26,6 @@ const accountKey = fromHost((host) =>
   ),
 );
 
-// The view has no state for an account no event has touched, which is the same as one never opened.
 const balanceOf = (
   value: Option.Option<Readonly<{ balance: number; owner?: string; status: AccountStatus }>>,
 ): Message =>
@@ -54,7 +51,6 @@ const balance = fromHost((host) =>
   ),
 );
 
-// The panel listens to its host for as long as it is open.
 const subscriptions = Subscription.make<Model, Message, PanelHost>()(() => ({
   accountKey: Subscription.persistentEntry(accountKey),
   balance: Subscription.persistentEntry(balance),

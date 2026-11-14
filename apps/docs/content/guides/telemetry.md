@@ -4,7 +4,7 @@ description: "Traces, metrics and logs from Effect, exported to whichever backen
 status: planned
 ---
 
-Telemetry in hermitstack is a required Layer: a host that is not given one does not typecheck. Spans come from Effect itself, and the backend they go to is one Layer per target.
+Telemetry in hermit-stack is a required Layer: a host that is not given one does not typecheck. Spans come from Effect itself, and the backend they go to is one Layer per target.
 
 ## What is on `main` today
 
@@ -13,12 +13,12 @@ One piece: the span naming rule. `spanName` in `packages/kernel/src/telemetry/sp
 ```ts
 import { spanName } from "@repo/kernel/span-name";
 
-// "ledger.open-account", whatever case the code names the operation in.
 const opening = spanName("ledger", "OpenAccount");
 
-// The pipeable form fixes the operation first.
 const closing = spanName("CloseAccount")("ledger");
 ```
+
+`opening` is `ledger.open-account`, whatever case the code names the operation in. The pipeable form takes the operation first.
 
 ## The design
 

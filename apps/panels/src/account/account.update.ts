@@ -22,7 +22,6 @@ const init = (): Next => ({
   },
 });
 
-// A deposit or withdrawal starts only for a known, open account, with no other one in flight, and a valid amount.
 const move = (model: Model, kind: Movement): Next => {
   const isOpen = Account.matchOrElse(model.account, { Loaded: ({ status }) => status === "open" }, () => false);
   const target = Option.filter(model.key, () => isOpen && Option.isNone(model.saving));

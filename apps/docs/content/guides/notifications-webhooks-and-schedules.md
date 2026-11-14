@@ -4,7 +4,7 @@ description: "Outbound messages, outbound webhooks and scheduled work, modelled 
 status: built
 ---
 
-Three things every product ends up needing: telling a person something happened, telling another system something happened, and doing work at a time rather than on a request. In hermitstack all three are ordinary domain code (aggregates, commands and policies) with every vendor behind a port. Two packages hold them:
+Three things every product ends up needing: telling a person something happened, telling another system something happened, and doing work at a time rather than on a request. In hermit-stack all three are ordinary domain code (aggregates, commands and policies) with every vendor behind a port. Two packages hold them:
 
 - `contexts/outbound` (`@repo/outbound`): public events, notifications and outbound webhooks, in one model.
 - `packages/schedule` (`@repo/schedule`): the `Recurring` aggregate and its `Rearm` policy.
@@ -69,13 +69,12 @@ A repeated tick does nothing. A late tick runs once and the next one is due afte
 import { Arm } from "@repo/schedule/arm";
 import { Recurring } from "@repo/schedule/recurring";
 
-// The input schemas check the cron expression and the IANA time zone where they enter, so Arm never refuses one.
 const nightly = Arm.make({ cron: "0 3 * * *", timeZone: "Europe/Paris" });
 
 const digest = Recurring.ref("nightly-digest");
 ```
 
-Your own work hangs off `Ticked`: a policy in your context that reacts to the tick of the schedule it owns.
+The input schemas check the cron expression and the IANA time zone where they enter, so `Arm` never refuses one. Your own work hangs off `Ticked`: a policy in your context that reacts to the tick of the schedule it owns.
 
 ## Still planned
 

@@ -1,10 +1,10 @@
 const scrollRestoreScript = [
   "(function(){var w=window;try{",
-  "var path=w.location.pathname,key='hermitstack:scroll:'+path;",
+  "var path=w.location.pathname,key='hermit-stack:scroll:'+path;",
   "var nav=w.performance.getEntriesByType('navigation')[0];",
   "var saved=w.sessionStorage.getItem(key),y=Number(saved);",
   "w.addEventListener('pagehide',function(){",
-  "try{w.sessionStorage.setItem('hermitstack:scroll:'+w.location.pathname,String(w.scrollY))}catch(e){}});",
+  "try{w.sessionStorage.setItem('hermit-stack:scroll:'+w.location.pathname,String(w.scrollY))}catch(e){}});",
   "if(!nav||nav.type!=='reload'||saved===null||saved===''||!Number.isFinite(y)||y<0)return;",
   "w.scrollTo(0,y);",
   "var keep=function(){if(w.location.pathname!==path){release();return}if(w.scrollY!==y)w.scrollTo(0,y)};",

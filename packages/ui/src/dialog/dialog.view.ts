@@ -9,14 +9,12 @@ import { shared, styleAttributes } from "#src/style/style.view.js";
 import type { Content } from "#src/style/style.view.js";
 import { colors, font, fontSize, fontWeight, lineHeight, radius, shadow, space } from "#src/tokens/tokens.stylex.js";
 
-// The attributes that close the dialog. Spread them onto any button in `actions`, such as Cancel.
 type CloseAttributes = RenderInfo["closeButton"];
 
 type DialogOptions = Readonly<{
   actions?: (close: CloseAttributes) => Content;
   body?: Content;
   description?: Content;
-  // The corner button that closes the dialog. Leave it on unless `actions` holds a close button of its own.
   hasCloseButton?: boolean;
   style?: StyleXStyles;
   title: Content;
@@ -162,12 +160,6 @@ const render = <Message>(config: DialogOptions, html: HtmlBuilder<Message>): Vie
 
 const dialogArity = 2;
 
-// The look of FoldKit's headless Dialog. Keep the Dialog's Model, Message and update from `@foldkit/ui/dialog`, and
-// Render it with `html.submodel`, passing the primitive's view and `dialogViewInputs(options, html)` as its view
-// Inputs. The primitive opens the native dialog, makes the page behind it inert, traps focus, locks scroll and
-// Closes on Escape or a click on the overlay. This adds the overlay, the panel and the close button, and ties the
-// Title and description to the dialog's aria-labelledby and aria-describedby. The content is built with the
-// Caller's builder, so its handlers dispatch the caller's Messages.
 const dialogViewInputs: {
   <Message>(html: HtmlBuilder<Message>): (config: DialogOptions) => ViewInputs;
   <Message>(config: DialogOptions, html: HtmlBuilder<Message>): ViewInputs;

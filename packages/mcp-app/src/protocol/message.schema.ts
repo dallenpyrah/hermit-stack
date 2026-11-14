@@ -1,8 +1,5 @@
 import { Schema } from "effect";
 
-// The MCP Apps messages a panel reads, as the specification shapes them. Each Struct drops the fields it does not name,
-// So a host that sends more than the specification requires still decodes.
-
 const RequestId = Schema.Union([Schema.String, Schema.Int]);
 
 type RequestId = typeof RequestId.Type;
@@ -32,13 +29,10 @@ const RpcNotification = Schema.Struct({
 
 type RpcNotification = typeof RpcNotification.Type;
 
-// Everything a host sends, decoded in this order: an answer before a request, and a request before a notification, since
-// The notification schema would also accept a request and drop its id.
 const IncomingMessage = Schema.Union([ErrorResponse, SuccessResponse, RpcRequest, RpcNotification]);
 
 type IncomingMessage = typeof IncomingMessage.Type;
 
-// Everything a panel sends: requests and notifications of its own, and answers to the host's requests.
 const OutgoingMessage = Schema.Union([RpcRequest, RpcNotification, SuccessResponse, ErrorResponse]);
 
 type OutgoingMessage = typeof OutgoingMessage.Type;
@@ -47,8 +41,6 @@ const Theme = Schema.Literals(["light", "dark"]);
 
 type Theme = typeof Theme.Type;
 
-// Each side is either fixed (height, width), so the panel fills it, or flexible up to a maximum, so the panel reports
-// Its own size; a side with neither is unbounded.
 const ContainerDimensions = Schema.Struct({
   height: Schema.optionalKey(Schema.Finite),
   maxHeight: Schema.optionalKey(Schema.Finite),
@@ -58,8 +50,6 @@ const ContainerDimensions = Schema.Struct({
 
 type ContainerDimensions = typeof ContainerDimensions.Type;
 
-// The host's style variables and fonts are left out on purpose: a hermit-stack panel paints with its own design tokens
-// And follows only the host's light or dark choice.
 const HostContext = Schema.Struct({
   containerDimensions: Schema.optionalKey(ContainerDimensions),
   displayMode: Schema.optionalKey(Schema.Literals(["inline", "fullscreen", "pip"])),
@@ -84,7 +74,6 @@ const ToolInput = Schema.Struct({ arguments: Schema.Record(Schema.String, Schema
 
 const ToolCancelled = Schema.Struct({ reason: Schema.optionalKey(Schema.String) });
 
-// The standard MCP CallToolResult: text for the model, structuredContent for the panel, isError for a failed call.
 const CallToolResult = Schema.Struct({
   content: Schema.Array(Schema.Unknown),
   isError: Schema.optionalKey(Schema.Boolean),

@@ -8,8 +8,6 @@ import { FlagStoreError } from "#src/store/flag-store.errors.js";
 import { FlagStore } from "#src/store/flag-store.service.js";
 import { FlagStoreFake } from "#tests/store/flag-store.fake";
 
-// The default is true so that a read that ignored the store, or one that fell back by mistake, answers differently from
-// A store holding false.
 const InstantWithdrawals = Flag.release("ledger.instant-withdrawals", Schema.Boolean, {
   default: true,
   owner: "ledger",
@@ -32,7 +30,6 @@ interface Traced<Value> {
   readonly value: Value;
 }
 
-// Reads the flag inside a span standing for the caller's request, and returns what that span carries afterwards.
 const readInSpan = <Value>(
   flag: Flag<Value>,
   layer: Layer.Layer<Flags>,

@@ -25,7 +25,6 @@ const opened: FakeHostOptions = {
   refuses: false,
 };
 
-// The handshake is the panel's first two messages: its ui/initialize request, then its initialized notification.
 const handshakeLength = 2;
 
 const panelOver = (
@@ -83,7 +82,6 @@ const followsTheTheme = Effect.fn("followsTheTheme")(function* followsTheThemeCa
 
   yield* fake.changeContext({ theme: "dark" });
 
-  // A change carries only what changed, so the locale from ui/initialize stays.
   const context = yield* Fiber.join(changed);
 
   expect(context).toStrictEqual({ locale: "en-US", theme: "dark" });

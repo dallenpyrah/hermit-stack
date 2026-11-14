@@ -11,10 +11,8 @@ import type { HttpServerError } from "effect/http";
 import { LedgerApi } from "@repo/ledger/api";
 import { Ledger } from "@repo/ledger/model";
 
-// Stands in for the panel's built document, so the server can be tested without building apps/panels first.
 const accountDocument = "<!doctype html><html><body><p>An account</p></body></html>";
 
-// The file system the account panel reads its document from: it holds the one built file, and records nothing else.
 const builtPanels = Layer.merge(
   FileSystem.layerNoop({
     readFileString: (file) =>
@@ -28,8 +26,6 @@ const builtPanels = Layer.merge(
   Path.layer,
 );
 
-// The ledger's MCP server as services/api builds it, with the given panels Layer as the one added line, served over
-// HTTP to an MCP client: what an agent host connects to.
 type AgentError = Cause.IllegalArgumentError | McpClientError.McpClientError | HttpServerError.ServeError;
 
 const ledger = Ledger.layer(Layer.empty).pipe(Layer.provide(InMemory));
