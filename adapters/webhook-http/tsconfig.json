@@ -1,0 +1,13 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "plugins": [
+      {
+        "name": "@effect/language-service",
+        "allowedExperimentalApis": ["@effect/platform-node", "effect/net"],
+        "allowedUnstableApis": ["@effect/platform-node", "@effect/vitest", "effect/http", "effect/net"]
+      }
+    ]
+  },
+  "include": ["src/**/*.ts", "tests/**/*.ts"]
+}

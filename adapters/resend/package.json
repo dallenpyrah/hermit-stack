@@ -1,0 +1,30 @@
+{
+  "name": "@repo/resend",
+  "version": "0.0.0",
+  "private": true,
+  "description": "The Email port through Resend's REST API.",
+  "type": "module",
+  "sideEffects": false,
+  "imports": {
+    "#src/*": "./src/*",
+    "#tests/*": "./tests/*.ts"
+  },
+  "exports": {
+    "./email": "./src/resend-email.layer.ts"
+  },
+  "scripts": {
+    "typecheck": "effect-tsgo tsrs --noEmit -p tsconfig.json",
+    "lint": "effect-tsgo --tsrs-lint oxlint -c ../../oxlint.config.ts --type-aware --tsconfig tsconfig.json src tests",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@repo/outbound": "workspace:*",
+    "effect": "catalog:"
+  },
+  "devDependencies": {
+    "@effect/platform-node": "catalog:",
+    "@effect/vitest": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
+  }
+}
