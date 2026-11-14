@@ -23,15 +23,28 @@ Run everything through mise so the pinned Node and pnpm are used.
 ## Layout
 
 ```
-apps/        things people open: web (FoldKit), docs (Fumadocs), cli, desktop, panels
-contexts/    one package per bounded context, written with @alchemy.run/domain
-adapters/    one package per vendor; the only place its SDK is imported
-packages/    kernel (shared ids, errors, span names), ui, flags, schedule, conformance
+apps/        things people open: docs (Next.js), cli (an example command line over the Api)
+contexts/    one package per bounded context, written with @alchemy.run/domain: ledger, outbound
+adapters/    one package per vendor; the only place its SDK is imported: otlp, axiom, better-auth
+packages/    kernel (span names; depends on effect only), ui (design system), client-data (cached queries
+             for FoldKit), flags, identity (who is signed in), telemetry, schedule, conformance
 services/    api: where a host, a telemetry backend and the adapters are chosen
-infra/       Alchemy stacks
 spec/        behaviour tests through the Api only; never imports a context's src
 tools/rules/ the lint and type rules, copied from rika-labs/rules (see UPSTREAM.md)
+.agents/     skills: step-by-step guides for the tasks below
 ```
+
+Planned and not on `main` yet: `apps/web/**` (FoldKit), `apps/desktop/**`, `apps/panels/**` and `infra/**` (Alchemy stacks). The tags and globs for them already exist.
+
+## Skills
+
+Load the skill before starting one of these tasks. Each names the code to copy, the mistakes made before, and the check that proves the work.
+
+- `.agents/skills/adding-a-context/SKILL.md`: a bounded context, or an aggregate, command, event or rejection in one.
+- `.agents/skills/adding-an-adapter/SKILL.md`: a vendor behind a port, with its fake and contract suite.
+- `.agents/skills/adding-a-ui-component/SKILL.md`: a component, variant or token in `packages/ui`.
+- `.agents/skills/adding-a-feature-flag/SKILL.md`: declaring, reading, testing and removing a flag.
+- `.agents/skills/fixing-a-failing-check/SKILL.md`: what each failing `pnpm check` task asks for.
 
 ## Dependency direction
 
@@ -69,7 +82,7 @@ Code:
 
 - An exported function with two or more parameters has a pipeable form: `Fn.dual(arity, ...)`, with the arity in a named constant.
 - No inline rule suppressions. A rule is turned off only in the off table in `tools/rules/src/oxlint/base.config.ts`, with a reason.
-- Comments start with a capital letter and say why, not what.
+- No comments in `.ts`, `.tsx`, `.js` or `.mjs` files (`structure/no-comments`). Put what a comment would say into a name, a type or a test, and the reason for a design into the docs page that covers it. Four lines a tool reads stay: a `#!` first line, `/// <reference ... />`, the `// SAFETY: <reason>` line a type assertion needs, and `/** @stability unstable */` alone on its line, which marks an export built on an unstable Effect API. Code blocks in Markdown follow the same rule.
 
 Domain code (`contexts/**` and `packages/schedule/**`):
 
