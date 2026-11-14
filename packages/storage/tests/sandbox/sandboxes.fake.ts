@@ -23,7 +23,6 @@ import { SandboxId } from "#src/sandbox/sandbox.schema.js";
 import type { Output } from "#src/sandbox/sandbox.schema.js";
 import { Sandboxes } from "#src/sandbox/sandboxes.service.js";
 
-// What a command can reach: the disk it runs against, its output and its input.
 interface Terminal {
   readonly readFile: (path: string) => Effect.Effect<Option.Option<Uint8Array>>;
   readonly writeFile: (path: string, content: Uint8Array) => Effect.Effect<void>;
@@ -93,7 +92,6 @@ const statementOf = (words: readonly string[]): Statement =>
     onSome: (index) => ({ target: targetAt(words)(index), words: Arr.take(words, index) }),
   });
 
-// Splits a script into statements at ";" and line breaks, the only separators the fake understands.
 const parse = (script: string): readonly Statement[] => {
   const statements: Statement[] = [];
   let current: string[] = [];
@@ -114,7 +112,6 @@ const parse = (script: string): readonly Statement[] => {
 
 const done = (status: number): Outcome => ({ status, stop: false });
 
-// Sends bytes where the statement points them: its output, its error output, or a file on the disk.
 const emit =
   (terminal: Terminal, statement: Statement) =>
   (bytes: Uint8Array): Effect.Effect<void> =>
@@ -177,8 +174,6 @@ const step =
     return execute(terminal, statement);
   };
 
-// Runs a script in a tiny subset of sh: echo, cat, read and exit, joined by ";" or line breaks, with "> file" and
-// ">&2" redirections. The status is the last statement's, unless exit ran first.
 const runScript =
   (terminal: Terminal) =>
   (script: string): Effect.Effect<number> => {
@@ -187,7 +182,6 @@ const runScript =
     return Effect.map(outcome, (last) => last.status);
   };
 
-// Reads a line from what was written to the command's input so far, waiting for more when no full line is there.
 const takeLine = (input: Input): Effect.Effect<string> =>
   Effect.flatMap(Ref.get(input.pending), (buffered) =>
     Option.match(Str.indexOf("\n")(buffered), {
@@ -242,7 +236,6 @@ const run =
       };
     });
 
-// Opening the disk's root folder proves it exists, as a real vendor refuses a sandbox on a missing disk.
 const start =
   (disks: Disks["Service"], state: Ref.Ref<State>): Sandboxes["Service"]["start"] =>
   (disk) =>
@@ -260,7 +253,6 @@ const start =
       }),
     );
 
-// Sandboxes that run commands in memory, in the tiny subset of sh above, against whatever Disks it is given.
 const SandboxesFake: Layer.Layer<Sandboxes, never, Disks> = Layer.effect(
   Sandboxes,
   Effect.gen(function* sandboxesFake() {

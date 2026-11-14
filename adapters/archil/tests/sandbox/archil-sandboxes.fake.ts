@@ -8,10 +8,6 @@ import type { Socket } from "effect/socket";
 
 import { bucketPath } from "#tests/disk/archil-disks.fake";
 
-// The sandbox half of the local stand-in for Archil's HTTP API: the control plane's sandbox routes and the process
-// Socket a connection URL opens. A sandbox is the folder of the disk it mounts, and each process is a real `sh` run in
-// That folder, speaking Archil's process protocol: a start message in, then "started", output frames, and "exit" out.
-
 interface Sandbox {
   readonly id: string;
   readonly disk: string;
@@ -34,7 +30,6 @@ type Handler = Effect.Effect<
   HttpServerRequest.HttpServerRequest | HttpRouter.RouteContext | Scope.Scope
 >;
 
-// What the routes need from the server that serves them: a router, and a way to answer a route that failed.
 type Routes = Layer.Layer<never, never, HttpRouter.HttpRouter | HttpRouter.Request<"Error", Failure>>;
 
 interface Chunk {
@@ -58,7 +53,6 @@ const NEXT_ID = 1;
 
 const START_OFFSET = 0;
 
-// An output frame is one byte naming the stream, an 8-byte big-endian offset into the combined output, then the bytes.
 const STDOUT = 1;
 
 const STDERR = 2;
@@ -107,7 +101,6 @@ const Exited = Schema.fromJsonString(
   }),
 );
 
-// Archil wraps every control-plane answer in this envelope.
 const ok = (answer: SandboxResponse | SandboxConnection): HttpServerResponse.HttpServerResponse =>
   HttpServerResponse.jsonUnsafe({ data: answer, success: true });
 
@@ -130,7 +123,6 @@ const sandboxOf = (standIn: StandIn, id: string): Effect.Effect<Option.Option<Sa
 const save = (standIn: StandIn, sandbox: Sandbox): Effect.Effect<void> =>
   Ref.update(standIn.sandboxes, HashMap.set(sandbox.id, sandbox));
 
-// A sandbox boots at once here, so it answers "running" even before Archil's `wait` would.
 const createSandbox = (standIn: StandIn): Handler =>
   Effect.gen(function* createSandboxRoute() {
     const body = yield* HttpServerRequest.schemaBodyJson(CreateSandbox);
@@ -180,7 +172,6 @@ const stopSandbox = (standIn: StandIn): Handler =>
     return ok(sandboxJson(stopped));
   });
 
-// Archil deletes only a stopped sandbox, and answers the delete with a bare object.
 const deleteSandbox = (standIn: StandIn): Handler =>
   Effect.gen(function* deleteSandboxRoute() {
     const { sid } = yield* HttpRouter.schemaPathParams(SandboxParams);
@@ -226,7 +217,6 @@ const tagged =
   (channel: number) =>
   (bytes: Uint8Array): Chunk => ({ bytes, channel });
 
-// Stdin arrives as binary frames, and a "close_stdin" text frame ends it.
 const feed =
   (stdin: Stdin) =>
   (frame: Uint8Array | string): Effect.Effect<unknown> => {
@@ -248,7 +238,6 @@ const pumpStdin = (reader: Socket.Reader, stdin: Stdin): Effect.Effect<void> =>
     Effect.ignore,
   );
 
-// Sends every output chunk as it comes, and answers the offset reached, which the exit message reports as its cursor.
 const relay = (
   output: Stream.Stream<Chunk, PlatformError.PlatformError>,
   writer: Socket.Writer,
@@ -262,7 +251,6 @@ const relay = (
 const inFolder = (sandbox: Sandbox, folder: string, text: string): string =>
   Str.replaceAll(sandbox.mount, folder)(text);
 
-// The first frame starts the process, and every frame after it feeds the process's stdin.
 const attach = (socket: Socket.Socket): Effect.Effect<Attached, Failure, Scope.Scope> =>
   Effect.gen(function* attachToSocket() {
     const reader = yield* socket.reader;
@@ -277,7 +265,6 @@ const attach = (socket: Socket.Socket): Effect.Effect<Attached, Failure, Scope.S
     return { start, stdin, writer };
   });
 
-// Runs the command in the disk's folder, which stands where the sandbox mounts the disk.
 const spawnIn = (
   standIn: StandIn,
   sandbox: Sandbox,
@@ -302,7 +289,6 @@ const outputOf = (
   return Stream.merge(stdout, stderr);
 };
 
-// Archil's process protocol: "started" once the process runs, its output as it comes, then "exit" after all of it.
 const runProcess = (standIn: StandIn, sandbox: Sandbox, socket: Socket.Socket): Handler =>
   Effect.gen(function* runProcessOnSocket() {
     const attached = yield* attach(socket);
@@ -345,7 +331,6 @@ const routesOf = (standIn: StandIn): Routes =>
     HttpRouter.route("GET", "/ws/:sid", processSocket(standIn)),
   ]);
 
-// Archil's sandbox routes, running each process in the folder of the disk it mounts under the root folder.
 const ArchilSandboxesStandIn = (
   root: string,
 ): Layer.Layer<never, never, Layer.Services<Routes> | ChildProcessSpawner.ChildProcessSpawner> =>

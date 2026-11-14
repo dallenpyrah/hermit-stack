@@ -19,10 +19,6 @@ import { HttpRouter, HttpServerRequest, HttpServerResponse } from "effect/http";
 import type { HttpServerError } from "effect/http";
 import { ChildProcess, ChildProcessSpawner } from "effect/process";
 
-// The disk half of a local stand-in for Archil's HTTP API: the control plane's disk, branch and exec routes, and the
-// S3-compatible object routes of its data plane, path-style, with the bucket a disk id or "<disk id>.<branch>". Each
-// Disk is a folder on the machine running the test, so the sandbox half can run real shell commands against it.
-
 interface Disk {
   readonly id: string;
   readonly name: string;
@@ -48,7 +44,6 @@ interface StandIn {
   readonly spawner: ChildProcessSpawner.ChildProcessSpawner["Service"];
 }
 
-// What the disk routes answer inside Archil's envelope, in the SDK's own types.
 type Answer = ApiResponseCreateDiskData | BranchResponse | DiskResponse | ExecDiskResult | readonly DiskResponse[];
 
 type Failure = HttpServerError.HttpServerError | PlatformError.PlatformError | Schema.SchemaError;
@@ -59,7 +54,6 @@ type Handler = Effect.Effect<
   HttpServerRequest.HttpServerRequest | HttpServerRequest.ParsedSearchParams | HttpRouter.RouteContext
 >;
 
-// What the routes need from the server that serves them: a router, and a way to answer a route that failed.
 type Routes = Layer.Layer<never, never, HttpRouter.HttpRouter | HttpRouter.Request<"Error", Failure>>;
 
 const NOT_FOUND = 404;
@@ -68,7 +62,6 @@ const NO_CONTENT = 204;
 
 const OK = 200;
 
-// The exec's three output pipes are read side by side, so a full one never stalls the script.
 const PIPES = 3;
 
 const NEXT_ID = 1;
@@ -77,17 +70,13 @@ const NO_TIME = 0;
 
 const CREATED_AT = "2026-01-01T00:00:00.000Z";
 
-// Where Archil mounts a disk in its serverless exec, and so the path an exec script names it by.
 const MOUNT_PATH = "/mnt/archil";
 
-// Archil's exec image has an `archil` command whose `checkpoints create <path> <name>` freezes the disk. The stand-in
-// Copies the disk's folder aside instead, and refuses a name the disk already used.
 const ARCHIL_COMMAND = `archil() {
   [ "$1 $2" = "checkpoints create" ] && [ ! -e "$ARCHIL_CHECKPOINTS/$4" ] &&
     mkdir -p "$ARCHIL_CHECKPOINTS" && cp -R "$3" "$ARCHIL_CHECKPOINTS/$4"
 }`;
 
-// Where a bucket's files live on the machine running the test.
 const bucketPath =
   (root: string) =>
   (bucket: string): string =>
@@ -95,7 +84,6 @@ const bucketPath =
 
 const checkpointsPath = (root: string, disk: string): string => `${root}/checkpoints/${disk}`;
 
-// Archil wraps every control-plane answer in this envelope.
 const ok = (answer: Answer): HttpServerResponse.HttpServerResponse =>
   HttpServerResponse.jsonUnsafe({ data: answer, success: true });
 
@@ -155,7 +143,6 @@ const listDisks = (standIn: StandIn): Handler =>
     return ok(disks);
   });
 
-// Archil answers a create of a name it already has with that disk's id.
 const register =
   (name: string) =>
   (registry: Registry): readonly [Disk, Registry] => {
@@ -200,7 +187,6 @@ const forget =
     disks: HashMap.remove(registry.disks, id),
   });
 
-// Deleting a disk takes its branches and checkpoints with it, as on Archil.
 const deleteDisk = (standIn: StandIn): Handler =>
   Effect.gen(function* deleteDiskRoute() {
     const { id } = yield* HttpRouter.schemaPathParams(DiskParams);
@@ -227,7 +213,6 @@ const textOf = (
   output: Stream.Stream<Uint8Array, PlatformError.PlatformError>,
 ): Effect.Effect<string, PlatformError.PlatformError> => Stream.mkString(Stream.decodeText(output));
 
-// Runs an exec script in the disk's folder, which stands where Archil would mount the disk.
 const runScript = (
   standIn: StandIn,
   id: string,
@@ -278,7 +263,6 @@ const getBranch = (standIn: StandIn): Handler =>
 
 const CreateBranch = Schema.Struct({ branch_name: Schema.String, from_checkpoint_name: Schema.String });
 
-// A branch starts as a copy of the checkpoint's folder and changes apart from its disk from then on.
 const openBranch = (standIn: StandIn, branch: Branch): Handler =>
   Effect.gen(function* openBranchFolder() {
     const frozen = `${checkpointsPath(standIn.root, branch.disk)}/${branch.checkpoint}`;
@@ -306,7 +290,6 @@ const createBranch = (standIn: StandIn): Handler =>
     return yield* openBranch(standIn, { checkpoint: body.from_checkpoint_name, disk: id, name: body.branch_name });
   });
 
-// A path that is missing, or names a folder, holds no object.
 const isFile = (standIn: StandIn, path: string): Effect.Effect<boolean> =>
   Effect.map(
     Effect.option(standIn.files.stat(path)),
@@ -372,8 +355,6 @@ const contentsOf = (
     (entry) => `<Contents><Key>${key}</Key><Size>${entry.size}</Size></Contents>`,
   );
 
-// ListObjectsV2 without a delimiter, the recursive listing the adapter asks for: every file whose key starts with the
-// Prefix, in key order, on one page.
 const listObjects = (standIn: StandIn, bucket: string): Handler =>
   Effect.gen(function* listObjectsRoute() {
     const search = yield* HttpServerRequest.schemaSearchParams(ListObjects);
@@ -393,8 +374,6 @@ const listObjects = (standIn: StandIn, bucket: string): Handler =>
     );
   });
 
-// One route for every read of the data plane, since the router takes one GET pattern below the root: "/<bucket>" lists
-// The bucket and "/<bucket>/<key>" reads a file.
 const readBucket = (standIn: StandIn): Handler =>
   Effect.flatMap(HttpRouter.schemaPathParams(Schema.Struct({ "*": Schema.String })), (params) => {
     const [bucket, ...key] = Str.split("/")(params["*"]);
@@ -420,7 +399,6 @@ const routesOf = (standIn: StandIn): Routes =>
     HttpRouter.route("DELETE", "/:bucket/*", deleteObject(standIn)),
   ]);
 
-// Archil's disk routes, keeping every disk under the root folder.
 const ArchilDisksStandIn = (
   root: string,
 ): Layer.Layer<

@@ -38,7 +38,6 @@ const isUnder =
   (path: string): boolean =>
     Str.isEmpty(folder) || Str.startsWith(`${folder}/`)(path);
 
-// Adds a disk holding these files; ids count up, so every disk in one store is told apart.
 const addDisk =
   (files: Files) =>
   (state: State): Opened => {
@@ -63,7 +62,6 @@ const changeFiles =
       Ref.update(store, (state) => ({ ...state, disks: HashMap.set(state.disks, disk, change(files)) })),
     );
 
-// Answers the disk already filed under this key, or adds one and files it there.
 const openOnce =
   (index: Index, files: Files) =>
   (state: State): Opened =>
@@ -186,7 +184,6 @@ const emptyState: State = {
   next: FIRST_ID,
 };
 
-// Disks kept in memory. A branch copies its checkpoint's files, so later writes on either side stay on that side.
 const DisksFake: Layer.Layer<Disks> = Layer.effect(Disks, Effect.map(Ref.make(emptyState), serviceOf));
 
 export { DisksFake };

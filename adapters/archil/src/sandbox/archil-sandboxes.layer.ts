@@ -28,11 +28,8 @@ interface Pipes {
   readonly exit: Deferred.Deferred<number, SandboxProviderError>;
 }
 
-// Where the disk is mounted in the sandbox, and so the folder every command starts in: Archil's default mount path,
-// The one its serverless exec uses too.
 const MOUNT_PATH = "/mnt/archil";
 
-// Archil reports no exit code for a process it killed, such as one that ran out of time.
 const KILLED = -1;
 
 const READY_CHECKS = 60;
@@ -44,7 +41,6 @@ const providerError =
 
 const isRunning = (response: ApiResponseSandbox): boolean => response.data.status === "running";
 
-// A sandbox created with `wait` is usually running already; one still booting is checked once a second.
 const untilRunning =
   (run: Run) =>
   (created: ApiResponseSandbox): Effect.Effect<void, SandboxProviderError> => {
@@ -87,8 +83,6 @@ const settle = (pipes: Pipes, ended: ProcessExit): Effect.Effect<void> =>
 const fail = (pipes: Pipes, failure: SandboxProviderError): Effect.Effect<void> =>
   Effect.andThen(Queue.fail(pipes.output, failure), Deferred.fail(pipes.exit, failure));
 
-// Copies Archil's output into the port's own queue and exit code, so the output can be read after the exit code and
-// Nothing is lost: Archil's own exit waits by draining that same output.
 const relay = (attached: ArchilProcess, pipes: Pipes): Effect.Effect<void> => {
   const copied = Stream.runForEach(attached.output, (chunk) =>
     Queue.offer(pipes.output, { bytes: chunk.data, channel: chunk.stream }),
@@ -135,8 +129,6 @@ const stop =
 const clientOf = (settings: ArchilSettings): Layer.Layer<Client> =>
   Layer.provideMerge(FetchHttpClient.layer, fromApiKey(settings));
 
-// Sandboxes on Archil: a Firecracker microVM per sandbox with the disk mounted at /mnt/archil, and each command run
-// Over Archil's process socket, so its output streams while it runs.
 const ArchilSandboxes = (settings: ArchilSettings): Layer.Layer<Sandboxes> => {
   const service = Effect.map(Layer.build(clientOf(settings)), (client) => {
     const run: Run = (effect) => Effect.provideContext(effect, client);

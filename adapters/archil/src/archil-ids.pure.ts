@@ -1,6 +1,5 @@
 import { Option, String as Str, pipe } from "effect";
 
-// Where a port's disk id points on Archil: a disk, or one of its branches.
 interface DiskAddress {
   readonly disk: string;
   readonly branch: Option.Option<string>;
@@ -11,11 +10,8 @@ interface CheckpointAddress {
   readonly name: string;
 }
 
-// Archil names a branch's bucket "<disk id>.<branch name>", and its disk ids ("dsk-…") hold no dot, so a port disk id
-// Uses the same form: a root disk is its Archil id, a branch is that bucket name.
 const BRANCH_SEPARATOR = ".";
 
-// A checkpoint is named per disk, and a run-time checkpoint is always of a disk's root.
 const CHECKPOINT_SEPARATOR = "@";
 
 const AFTER_SEPARATOR = 1;
@@ -44,8 +40,6 @@ const checkpointAddressOf = (checkpointId: string): Option.Option<CheckpointAddr
     Option.map(([disk, name]) => ({ disk, name })),
   );
 
-// The Archil disk name for a port disk name. One prefix per product and stage keeps their disks apart in one account,
-// And an infra stack that declares a disk with this name hands it to the running program's create(name).
 const diskNameOf =
   (prefix: string) =>
   (name: string): string =>

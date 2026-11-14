@@ -19,7 +19,6 @@ const RUN_TAG_LIMIT = 1_000_000_000;
 
 const bytes = (text: string): Uint8Array => encoder.encode(text);
 
-// A disk named for one case and one run, deleted when the case ends, so a real vendor can run the suite again.
 const freshDisk = Effect.fn("freshDisk")(function* freshDisk(label: string) {
   const disks = yield* Disks;
   const tag = yield* Random.nextIntBetween(RUN_TAG_FLOOR, RUN_TAG_LIMIT);
@@ -113,7 +112,6 @@ const listsFolder = Effect.fn("listsFolder")(function* listsFolder() {
   expect(Arr.map(whole, (entry) => entry.path)).toStrictEqual(["src/b.ts", "src/deep/a.ts", "src2/c.ts", "srcfile"]);
 });
 
-// Writes v1, takes a checkpoint, then changes the disk: v2 and a file the checkpoint never saw.
 const changedAfterCheckpoint = Effect.fn("changedAfterCheckpoint")(function* changedAfterCheckpoint() {
   const disks = yield* Disks;
   const disk = yield* freshDisk("restore");
@@ -139,7 +137,6 @@ const restoresByBranching = Effect.fn("restoresByBranching")(function* restoresB
   expect(originalState).toBe("v2");
 });
 
-// Branches a disk, then writes one file on the parent and another on the branch.
 const writtenOnBothSides = Effect.fn("writtenOnBothSides")(function* writtenOnBothSides() {
   const disks = yield* Disks;
   const disk = yield* freshDisk("apart");
@@ -177,7 +174,6 @@ const refusesUnknownCheckpoint = Effect.fn("refusesUnknownCheckpoint")(function*
   const disks = yield* Disks;
   const disk = yield* freshDisk("unknown");
   const taken = yield* disks.checkpoint(disk, "taken");
-  // A checkpoint id the adapter would mint for a name nobody took on this disk.
   const unknown = CheckpointId.make(`${taken}-never`);
 
   const refused = yield* Effect.match(disks.branch(unknown, "nowhere"), {
@@ -226,8 +222,6 @@ type ProvidedCase<Failure> = () => Effect.Effect<
   CheckpointNotFoundError | DiskProviderError | FileNotFoundError | Failure
 >;
 
-// The behaviour every Disks adapter must show, as named cases with the adapter provided, each on a fresh build of its
-// Layer. Run them with it.live, since an adapter may poll its vendor on the real clock.
 const disksContract = <Failure>(
   disks: Layer.Layer<Disks, Failure>,
 ): readonly (readonly [string, ProvidedCase<Failure>])[] =>

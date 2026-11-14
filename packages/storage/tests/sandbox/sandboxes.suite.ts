@@ -33,7 +33,6 @@ const textOf = (outputs: readonly Output[], channel: Output["channel"]): string 
   );
 };
 
-// A disk and a sandbox on it for one case, both removed when the case ends.
 const sandboxOnFreshDisk = Effect.fn("sandboxOnFreshDisk")(function* sandboxOnFreshDisk(label: string) {
   const disks = yield* Disks;
   const sandboxes = yield* Sandboxes;
@@ -95,7 +94,6 @@ const reportsFailure = Effect.fn("reportsFailure")(function* reportsFailure() {
   expect(textOf(result.outputs, "stdout")).toBe("");
 });
 
-// Collects a command's output as it arrives, so a case can look at it before the command ends.
 const collect = Effect.fn("collect")(function* collect(process: Process) {
   const seen = yield* Ref.make<readonly Output[]>([]);
 
@@ -106,7 +104,6 @@ const collect = Effect.fn("collect")(function* collect(process: Process) {
   return { fiber, seen };
 });
 
-// Waits, on the real clock, until the collected output contains the text, and answers the output seen by then.
 const waitForText = (seen: Ref.Ref<readonly Output[]>, text: string): Effect.Effect<string, Cause.TimeoutError> =>
   Ref.get(seen).pipe(
     Effect.map((outputs) => textOf(outputs, "stdout")),
@@ -123,7 +120,6 @@ const runOnFreshDisk = Effect.fn("runOnFreshDisk")(function* runOnFreshDisk(labe
 });
 
 const streamsBeforeEnd = Effect.fn("streamsBeforeEnd")(function* streamsBeforeEnd() {
-  // The command cannot end until the case writes a line, so output seen before that arrived while it ran.
   const process = yield* runOnFreshDisk("stream", "echo ready; read line; echo done");
   const { fiber, seen } = yield* collect(process);
   const early = yield* waitForText(seen, "ready");
@@ -167,8 +163,6 @@ type ProvidedCase<Failure> = () => Effect.Effect<
   Cause.TimeoutError | DiskProviderError | FileNotFoundError | SandboxProviderError | Failure
 >;
 
-// The behaviour every Sandboxes adapter must show, given the Disks of the same vendor, as named cases with the adapter
-// Provided, each on a fresh build of its Layer. Run them with it.live: one case waits on the real clock.
 const sandboxesContract = <Failure>(
   storage: Layer.Layer<Disks | Sandboxes, Failure>,
 ): readonly (readonly [string, ProvidedCase<Failure>])[] =>

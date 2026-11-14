@@ -30,12 +30,10 @@ type Client = Credentials | HttpClient.HttpClient | ObjectCredentials;
 
 type Service = Disks["Service"];
 
-// Runs an Archil call with the client this layer was built with.
 type Run = <Success, Failure, Rest>(
   effect: Effect.Effect<Success, Failure, Client | Rest>,
 ) => Effect.Effect<Success, Failure, Exclude<Rest, Client>>;
 
-// Archil answers through Error subclasses, so their name and message say what went wrong.
 const providerError =
   (operation: string) =>
   (failure: Error): DiskProviderError =>
@@ -53,12 +51,10 @@ const refOf = (disk: DiskId): DiskRef => {
   });
 };
 
-// No bucket of the product's own: Archil keeps the files.
 const archilManagedStorage = Option.getOrUndefined(Option.none<DiskStorage>());
 
 const byPath = Order.mapInput(Order.String, (entry: FileEntry) => entry.path);
 
-// Archil lists folders as keys ending in "/"; the port lists files only.
 const isFile = (summary: ObjectSummary): boolean => !Str.endsWith("/")(summary.key);
 
 const entriesOf = (summaries: readonly ObjectSummary[]): readonly FileEntry[] =>
@@ -69,14 +65,12 @@ const entriesOf = (summaries: readonly ObjectSummary[]): readonly FileEntry[] =>
     Arr.sortBy(byPath),
   );
 
-// An S3 prefix matches any key that starts with it, so a folder's prefix ends in "/" to leave out its neighbours.
 const summariesUnder = (disk: DiskId, folder: string): Stream.Stream<ObjectSummary, Error, Client> =>
   Option.match(Option.liftPredicate(folder, Str.isNonEmpty), {
     onNone: () => listObjects(refOf(disk), "", { recursive: true }),
     onSome: (named) => listObjects(refOf(disk), `${named}/`, { recursive: true }),
   });
 
-// Archil's object API answers a missing file with NoSuchKey and its control plane a missing checkpoint with NotFound.
 const notFoundAs =
   <Missing>(missing: () => Missing, operation: string) =>
   (failure: Error): DiskProviderError | Missing => {
@@ -192,8 +186,6 @@ const clientOf = (settings: ArchilSettings): Layer.Layer<Client> => {
   return Layer.provideMerge(transport, fromApiKey(settings));
 };
 
-// Disks on Archil. Files go through Archil's S3-compatible object API with the account key, and a checkpoint runs
-// `archil checkpoints create` in a serverless exec against the disk, as @alchemy.run/archil's Checkpoint does.
 const ArchilDisks = (settings: ArchilSettings): Layer.Layer<Disks> => {
   const service = Effect.map(Layer.build(clientOf(settings)), (client) =>
     serviceOf((effect) => Effect.provideContext(effect, client), settings.diskPrefix),
