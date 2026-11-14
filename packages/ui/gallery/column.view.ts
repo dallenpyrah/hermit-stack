@@ -11,7 +11,7 @@ import { dialog } from "./dialog-sample.view.js";
 import { fields } from "./fields.view.js";
 import type { Message } from "./gallery.message.js";
 import type { Model, Side } from "./gallery.model.js";
-import { badges, buttons, cards } from "./samples.view.js";
+import { alerts, badges, buttons, cards } from "./samples.view.js";
 
 const styles = create({
   column: {
@@ -75,6 +75,7 @@ const column = ({ html, model, side }: ColumnContext): Html => {
       section("Badge", badges(html), html),
       section("Input and Label", fields({ email: model.email, html, side }), html),
       section("Card", cards(html), html),
+      section("Alert", alerts(html), html),
       section("Dialog", dialog({ html, model, side }), html),
     ],
   );

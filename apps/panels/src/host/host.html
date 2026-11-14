@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>hermit-stack local panel host</title>
+    <style>
+      :root {
+        color-scheme: light;
+        font-family: ui-sans-serif, system-ui, sans-serif;
+        --page: #f4f4f5;
+        --text: #18181b;
+        --muted: #52525b;
+        --line: #d4d4d8;
+      }
+      :root[data-theme="dark"] {
+        color-scheme: dark;
+        --page: #09090b;
+        --text: #fafafa;
+        --muted: #a1a1aa;
+        --line: #3f3f46;
+      }
+      body {
+        background: var(--page);
+        color: var(--text);
+        margin: 0;
+        padding: 1.5rem;
+      }
+      header {
+        align-items: center;
+        display: flex;
+        gap: 1rem;
+        justify-content: space-between;
+        margin-block-end: 1rem;
+        max-width: 28rem;
+      }
+      h1 {
+        font-size: 1rem;
+        margin: 0;
+      }
+      p {
+        color: var(--muted);
+        font-size: 0.8125rem;
+        margin: 0.25rem 0 0;
+      }
+      button {
+        font: inherit;
+        font-size: 0.8125rem;
+        padding: 0.375rem 0.75rem;
+      }
+      iframe {
+        border: 1px solid var(--line);
+        border-radius: 0.75rem;
+        display: block;
+        height: 12rem;
+        max-width: 28rem;
+        width: 100%;
+      }
+      details {
+        font-size: 0.75rem;
+        margin-block-start: 1rem;
+        max-width: 28rem;
+      }
+      pre {
+        max-height: 16rem;
+        overflow: auto;
+        white-space: pre-wrap;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div>
+        <h1>Local MCP Apps host</h1>
+        <p id="linked">Reading the server's tools…</p>
+      </div>
+      <button id="theme" type="button">Dark theme</button>
+    </header>
+    <iframe id="panel" title="Ledger account panel" sandbox="allow-scripts allow-forms"></iframe>
+    <details>
+      <summary>JSON-RPC between host and panel</summary>
+      <pre id="log"></pre>
+    </details>
+    <script type="module">
+      // Plays the host side of the MCP Apps specification (2026-01-26) for one panel: it reads the panel from the
+      // server with resources/read, frames it in a sandboxed iframe under the specification's default content policy,
+      // answers ui/initialize, sends the opening Balance.get call's input and result, forwards tools/call to the
+      // server, and sends host-context-changed when the theme changes.
+      const account = new URLSearchParams(location.search).get("account") ?? "acct-1";
+      const frame = document.querySelector("#panel");
+      const log = document.querySelector("#log");
+      const themeButton = document.querySelector("#theme");
+      let theme = new URLSearchParams(location.search).get("theme") === "dark" ? "dark" : "light";
+
+      const defaultPolicy =
+        "default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self' data:; connect-src 'none'";
+
+      const record = (direction, message) => {
+        log.textContent += `${direction} ${JSON.stringify(message)}\n`;
+      };
+
+      const callTool = async (name, args) => {
+        const response = await fetch("/host/tools/call", {
+          body: JSON.stringify({ arguments: args, name }),
+          headers: { "content-type": "application/json" },
+          method: "POST",
+        });
+
+        if (!response.ok) throw new Error(await response.text());
+
+        return response.json();
+      };
+
+      const send = (message) => {
+        record("host →", message);
+        frame.contentWindow.postMessage(message, "*");
+      };
+
+      const showTheme = () => {
+        document.documentElement.dataset.theme = theme;
+        themeButton.textContent = theme === "dark" ? "Light theme" : "Dark theme";
+      };
+
+      // The agent's part: an account to show, then the Balance.get call whose result opens the panel.
+      const opening = { key: account };
+      const balanceOf = () => callTool("LedgerApi_Balance_get", opening);
+      let openingResult = await balanceOf();
+
+      if (openingResult.structuredContent?.value == null) {
+        await callTool("LedgerApi_OpenAccount_send", { input: { owner: "ada" }, target: account });
+        await callTool("LedgerApi_DepositMoney_send", { input: { amount: 500 }, target: account });
+        openingResult = await balanceOf();
+      }
+
+      const tools = await (await fetch("/host/tools")).json();
+      const linked = tools
+        .filter(({ meta }) => meta?.ui?.resourceUri)
+        .map(({ name, meta }) => `${name} → ${meta.ui.resourceUri}`);
+      document.querySelector("#linked").textContent = `Linked: ${linked.join(", ")}`;
+
+      window.addEventListener("message", async (event) => {
+        if (event.source !== frame.contentWindow) return;
+
+        const message = event.data;
+        record("panel →", message);
+
+        if (message.method === "ui/initialize") {
+          send({
+            id: message.id,
+            jsonrpc: "2.0",
+            result: {
+              hostCapabilities: { serverTools: {} },
+              hostContext: {
+                containerDimensions: { maxHeight: 640, width: 448 },
+                displayMode: "inline",
+                locale: "en-US",
+                theme,
+              },
+              hostInfo: { name: "hermit-stack-local-host", version: "0.0.0" },
+              protocolVersion: "2026-01-26",
+            },
+          });
+        } else if (message.method === "ui/notifications/initialized") {
+          send({ jsonrpc: "2.0", method: "ui/notifications/tool-input", params: { arguments: opening } });
+          send({ jsonrpc: "2.0", method: "ui/notifications/tool-result", params: openingResult });
+        } else if (message.method === "ui/notifications/size-changed") {
+          frame.style.height = `${message.params.height}px`;
+        } else if (message.method === "tools/call") {
+          try {
+            send({
+              id: message.id,
+              jsonrpc: "2.0",
+              result: await callTool(message.params.name, message.params.arguments),
+            });
+          } catch (error) {
+            send({ error: { code: -32_603, message: String(error.message) }, id: message.id, jsonrpc: "2.0" });
+          }
+        }
+      });
+
+      themeButton.addEventListener("click", () => {
+        theme = theme === "dark" ? "light" : "dark";
+        showTheme();
+        send({ jsonrpc: "2.0", method: "ui/notifications/host-context-changed", params: { theme } });
+      });
+
+      showTheme();
+
+      const [resource] = await (await fetch("/host/panel")).json();
+      const policy = `<meta http-equiv="Content-Security-Policy" content="${defaultPolicy}">`;
+      frame.srcdoc = resource.text.replace("<head>", `<head>${policy}`);
+    </script>
+  </body>
+</html>

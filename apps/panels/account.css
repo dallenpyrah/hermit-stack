@@ -1,0 +1,5 @@
+/* The page shell only. The components set every property they rely on, so they need no reset; StyleX appends its
+   compiled rules to this file at build time, and the build puts the whole file inside account.html. */
+body {
+  margin: 0;
+}
