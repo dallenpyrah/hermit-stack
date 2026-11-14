@@ -1,5 +1,5 @@
 import { Policy } from "@alchemy.run/domain";
-import { Effect, Match } from "effect";
+import { Effect, Predicate } from "effect";
 
 import { AttemptStarted } from "#src/webhook/attempt-delivery/attempt-started.event.js";
 import { Delivery } from "#src/webhook/delivery.aggregate.js";
@@ -22,28 +22,18 @@ const PostDeliveryLive = PostDelivery.toLayer(
     return Effect.fn("PostDelivery.handle")(function* handle({ source }) {
       const state = yield* deliveries.get(source);
 
-      yield* Match.valueTags(state, {
-        Fresh: () => Effect.void,
-        Posting: (posting) =>
-          transport
-            .post({
-              endpointId: posting.endpointId,
-              event: posting.event,
-              position: posting.position,
-              url: posting.url,
-            })
-            .pipe(
-              Effect.map((response) => Responded.make(response)),
-              Effect.catchTag("TransportFailed", (failed) =>
-                Effect.succeed(Unreachable.make({ reason: failed.reason })),
-              ),
-              Effect.flatMap((outcome) =>
-                deliveries.send(source, RecordAttempt.make({ attempt: posting.attempt, outcome })),
-              ),
-            ),
-        Settled: () => Effect.void,
-        Waiting: () => Effect.void,
-      });
+      if (!Predicate.isTagged(state, "Posting")) {
+        return;
+      }
+
+      const outcome = yield* transport
+        .post({ endpointId: state.endpointId, event: state.event, position: state.position, url: state.url })
+        .pipe(
+          Effect.map((response) => Responded.make(response)),
+          Effect.catchTag("TransportFailed", (failed) => Effect.succeed(Unreachable.make({ reason: failed.reason }))),
+        );
+
+      yield* deliveries.send(source, RecordAttempt.make({ attempt: state.attempt, outcome }));
     });
   }),
 );

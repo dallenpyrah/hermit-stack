@@ -1,5 +1,5 @@
 import { Policy } from "@alchemy.run/domain";
-import { Effect, Match } from "effect";
+import { Effect, Predicate } from "effect";
 
 import { Delivery } from "#src/webhook/delivery.aggregate.js";
 import { Endpoints } from "#src/webhook/endpoints.aggregate.js";
@@ -22,16 +22,14 @@ const TrackEndpointHealthLive = TrackEndpointHealth.toLayer(
     return Effect.fn("TrackEndpointHealth.handle")(function* handle({ source }) {
       const state = yield* deliveries.get(source);
 
-      yield* Match.valueTags(state, {
-        Fresh: () => Effect.void,
-        Posting: () => Effect.void,
-        Settled: (settled) =>
-          endpoints.send(
-            settled.tenant,
-            RecordDeliveryOutcome.make({ endpointId: settled.endpointId, outcome: settled.outcome }),
-          ),
-        Waiting: () => Effect.void,
-      });
+      if (!Predicate.isTagged(state, "Settled")) {
+        return;
+      }
+
+      yield* endpoints.send(
+        state.tenant,
+        RecordDeliveryOutcome.make({ endpointId: state.endpointId, outcome: state.outcome }),
+      );
     });
   }),
 );

@@ -74,31 +74,6 @@
     "mutant": "replace Delivery.evolve.AttemptStarted.Fresh with ({ \"_tag\": (\"Fresh\" as const) })",
     "reason": "The state has no fields, so { _tag: \"Fresh\" } is the value the branch passes through."
   },
-  "15ca1b89ad3739a59fded640": {
-    "at": "src/webhook/record-attempt/post-delivery.policy.ts:26:22",
-    "mutant": "replace PostDeliveryLive.Fresh with Effect.never",
-    "reason": "PostDelivery runs on DeliveryStarted and AttemptStarted, and decide records neither while a delivery is Fresh: DeliveryStarted moves it to Posting and AttemptStarted is decided only from Waiting, so the handler never reads a Fresh delivery. Match.valueTags still needs the branch."
-  },
-  "742b60f215e27c783739134d": {
-    "at": "src/webhook/record-attempt/post-delivery.policy.ts:26:22",
-    "mutant": "replace PostDeliveryLive.Fresh with Effect.die(\"mutant.cafe\")",
-    "reason": "PostDelivery runs on DeliveryStarted and AttemptStarted, and decide records neither while a delivery is Fresh: DeliveryStarted moves it to Posting and AttemptStarted is decided only from Waiting, so the handler never reads a Fresh delivery. Match.valueTags still needs the branch."
-  },
-  "2c145ab5fd841eb51c0705fd": {
-    "at": "src/webhook/record-attempt/post-delivery.policy.ts:26:22",
-    "mutant": "replace PostDeliveryLive.Fresh with Effect.succeed(undefined)",
-    "reason": "The body is Effect.void, which is Effect.succeed(undefined), the same effect."
-  },
-  "dba755c071bbb28321ba13e1": {
-    "at": "src/webhook/record-attempt/post-delivery.policy.ts:44:24",
-    "mutant": "replace PostDeliveryLive.Settled with Effect.succeed(undefined)",
-    "reason": "The body is Effect.void, which is Effect.succeed(undefined), the same effect."
-  },
-  "79799d124b972e410b887493": {
-    "at": "src/webhook/record-attempt/post-delivery.policy.ts:45:24",
-    "mutant": "replace PostDeliveryLive.Waiting with Effect.succeed(undefined)",
-    "reason": "The body is Effect.void, which is Effect.succeed(undefined), the same effect."
-  },
   "04c349b409d71f15b8cb9307": {
     "at": "src/webhook/record-attempt/record-attempt.command.ts:74:18",
     "mutant": "replace decideRecordAttempt.Fresh with []",
@@ -118,51 +93,6 @@
     "at": "src/webhook/record-outcome/record-delivery-outcome.command.ts:55:21",
     "mutant": "replace decideRecordDeliveryOutcome.onNone with []",
     "reason": "The body already returns this value, so the mutant is the original code."
-  },
-  "20d34c1a1dbb2720998a1b2c": {
-    "at": "src/webhook/record-outcome/track-endpoint-health.policy.ts:26:22",
-    "mutant": "replace TrackEndpointHealthLive.Fresh with Effect.succeed(undefined)",
-    "reason": "The body is Effect.void, which is Effect.succeed(undefined), the same effect."
-  },
-  "d3c1ef8f51a2a9f010ac7391": {
-    "at": "src/webhook/record-outcome/track-endpoint-health.policy.ts:26:22",
-    "mutant": "replace TrackEndpointHealthLive.Fresh with Effect.die(\"mutant.cafe\")",
-    "reason": "TrackEndpointHealth runs on Delivered, Exhausted and Abandoned, which decide records only from Posting and which settle the delivery, and nothing leaves Settled, so the handler only ever reads a Settled delivery. Match.valueTags still needs this branch."
-  },
-  "db68358d0256912933ffd90c": {
-    "at": "src/webhook/record-outcome/track-endpoint-health.policy.ts:26:22",
-    "mutant": "replace TrackEndpointHealthLive.Fresh with Effect.never",
-    "reason": "TrackEndpointHealth runs on Delivered, Exhausted and Abandoned, which decide records only from Posting and which settle the delivery, and nothing leaves Settled, so the handler only ever reads a Settled delivery. Match.valueTags still needs this branch."
-  },
-  "1a93fa34ea15bdd12343fd69": {
-    "at": "src/webhook/record-outcome/track-endpoint-health.policy.ts:27:24",
-    "mutant": "replace TrackEndpointHealthLive.Posting with Effect.never",
-    "reason": "TrackEndpointHealth runs on Delivered, Exhausted and Abandoned, which decide records only from Posting and which settle the delivery, and nothing leaves Settled, so the handler only ever reads a Settled delivery. Match.valueTags still needs this branch."
-  },
-  "bd1c0165bf925a1f24091344": {
-    "at": "src/webhook/record-outcome/track-endpoint-health.policy.ts:27:24",
-    "mutant": "replace TrackEndpointHealthLive.Posting with Effect.die(\"mutant.cafe\")",
-    "reason": "TrackEndpointHealth runs on Delivered, Exhausted and Abandoned, which decide records only from Posting and which settle the delivery, and nothing leaves Settled, so the handler only ever reads a Settled delivery. Match.valueTags still needs this branch."
-  },
-  "ec0ce462be4458a4ce2746ce": {
-    "at": "src/webhook/record-outcome/track-endpoint-health.policy.ts:27:24",
-    "mutant": "replace TrackEndpointHealthLive.Posting with Effect.succeed(undefined)",
-    "reason": "The body is Effect.void, which is Effect.succeed(undefined), the same effect."
-  },
-  "f6e1eda8efd87437e94ab4cc": {
-    "at": "src/webhook/record-outcome/track-endpoint-health.policy.ts:33:24",
-    "mutant": "replace TrackEndpointHealthLive.Waiting with Effect.die(\"mutant.cafe\")",
-    "reason": "TrackEndpointHealth runs on Delivered, Exhausted and Abandoned, which decide records only from Posting and which settle the delivery, and nothing leaves Settled, so the handler only ever reads a Settled delivery. Match.valueTags still needs this branch."
-  },
-  "226cdfeeea4bccd138697376": {
-    "at": "src/webhook/record-outcome/track-endpoint-health.policy.ts:33:24",
-    "mutant": "replace TrackEndpointHealthLive.Waiting with Effect.never",
-    "reason": "TrackEndpointHealth runs on Delivered, Exhausted and Abandoned, which decide records only from Posting and which settle the delivery, and nothing leaves Settled, so the handler only ever reads a Settled delivery. Match.valueTags still needs this branch."
-  },
-  "6e7782c0e4fab88defbe2585": {
-    "at": "src/webhook/record-outcome/track-endpoint-health.policy.ts:33:24",
-    "mutant": "replace TrackEndpointHealthLive.Waiting with Effect.succeed(undefined)",
-    "reason": "The body is Effect.void, which is Effect.succeed(undefined), the same effect."
   },
   "602555dd8e3c39fea1365157": {
     "at": "src/webhook/start-delivery/start-delivery.command.ts:31:20",

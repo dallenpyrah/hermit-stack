@@ -48,7 +48,7 @@
   "tsconfig.base.json allowed unstable APIs": 1,
   "inline suppressions": 0,
   "patched dependencies": 1,
-  "equivalent mutants": 55,
+  "equivalent mutants": 41,
   "trust policy exceptions": 1,
   "files over 500 lines": 0,
   "tests outside the mirror in spec": 2
