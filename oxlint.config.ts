@@ -39,8 +39,36 @@ const alchemyEntries = {
   rules: { "import/no-default-export": "off" },
 } as const;
 
+// A rollout bucket is a 32-bit hash, FNV-1a with MurmurHash3's finaliser, and those are written in XOR and shifts.
+const flagBucketHash = {
+  files: ["packages/flags/src/evaluate/bucket.pure.ts"],
+  rules: { "eslint/no-bitwise": "off" },
+} as const;
+
+// An aggregate names each of its commands and a model names each aggregate, policy and view, and every one of those
+// Classes has its own file, so these two list files import one module per class. Every other file keeps the cap of 10.
+const domainLists = {
+  files: ["contexts/**/*.{aggregate,model}.ts", "packages/schedule/**/*.{aggregate,model}.ts"],
+  rules: { "import/max-dependencies": ["error", { max: 20 }] },
+} as const;
+
+// The local auth database is Node's built-in SQLite, so better-auth runs in a local test with no native build.
+const localAuthDatabase = {
+  files: ["adapters/better-auth/src/sqlite.layer.ts"],
+  rules: { "import/no-nodejs-modules": ["error", { allow: ["node:sqlite"] }] },
+} as const;
+
 export default defineConfig({
   ...base,
   ignorePatterns: [...(base.ignorePatterns ?? []), "tools/rules/**"],
-  overrides: [...(base.overrides ?? []), ...(docs.overrides ?? []), specThroughApiOnly, entryPoints, alchemyEntries],
+  overrides: [
+    ...(base.overrides ?? []),
+    ...(docs.overrides ?? []),
+    specThroughApiOnly,
+    entryPoints,
+    domainLists,
+    flagBucketHash,
+    localAuthDatabase,
+    alchemyEntries,
+  ],
 });

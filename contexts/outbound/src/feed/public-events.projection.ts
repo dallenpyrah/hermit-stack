@@ -2,7 +2,7 @@ import { Event, Projection, Stream } from "@alchemy.run/domain";
 import { Effect, Schema } from "effect";
 
 import { Feed } from "#src/feed/feed.aggregate.js";
-import { Published } from "#src/feed/feed.command.js";
+import { Published } from "#src/feed/publish/published.event.js";
 import { PublicEvent } from "#src/feed/public-event.schema.js";
 
 const FeedEntry = Event("FeedEntry", { event: PublicEvent, position: Schema.Int });

@@ -1,10 +1,8 @@
 import { Aggregate } from "@alchemy.run/domain";
-import { Number as Num, Schema } from "effect";
 
-import { Publish, Published } from "#src/feed/feed.command.js";
+import { FeedState } from "#src/feed/feed-state.schema.js";
+import { decidePublish, Publish } from "#src/feed/publish/publish.command.js";
 import { TenantId } from "#src/feed/tenant.id.js";
-
-const FeedState = Schema.Struct({ published: Schema.Int });
 
 // A tenant's public events in the order they were published. Everything outbound sends starts from a Published.
 class Feed extends Aggregate(
@@ -12,9 +10,7 @@ class Feed extends Aggregate(
   {
     commands: [Publish],
     decide: {
-      Publish: (state, command, { id }) => [
-        Published.make({ event: command.event, position: Num.increment(state.published), tenant: id }),
-      ],
+      Publish: (state, command, { id }) => decidePublish(state, command, id),
     },
     evolve: {
       Published: (_state, event) => ({ published: event.position }),

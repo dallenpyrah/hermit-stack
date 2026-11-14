@@ -9,6 +9,7 @@ Changes made on copy:
 - The repo-level files (`mise.toml`, `lefthook.yml`, `.oxfmtrc.json`, `pnpm-workspace.yaml`, the root `turbo.json`) live at the repo root.
 - `patches/mutant-cafe@0.1.6.patch` moved to the root `patches/`.
 - `domainStructure` takes an optional `exports` map and passes it to `structure/role-imports`, so a Domain file can import a workspace package by its role file.
+- `domainStructure` lets a `.schema` file import a `.id` file. With one class per file, an aggregate's state lives in a `.schema` file so each command file can read it, and that state names ids.
 
 Changes made while wiring `pnpm check` (the root `package.json`, `turbo.json` and the files below run the checks upstream's own `check` ran):
 
@@ -19,7 +20,7 @@ Changes made while wiring `pnpm check` (the root `package.json`, `turbo.json` an
 - Turbo 2.11.11, the catalog's version, hashes no file through a symlinked folder, where 2.11.10 still matched `**` globs. `src/turbo/task-inputs.cli.mjs` says so in its message, and `tests/turbo/task-inputs.cli.test.mjs` expects a `**` glob through a symlinked sibling to fail.
 - `turbo` is a devDependency, because `tests/turbo/task-inputs.cli.test.mjs` runs this package's `node_modules/.bin/turbo`.
 - `turbo.json` lists the packages only `fixtures/` imports under `boundaries.implicitDependencies`, so `turbo boundaries` checks this package. Its `test` task depends on `build` and the root `runtime-pins`, as upstream's did, and hashes the root files the suites read.
-- `checkout-lock` (its `.cli.mjs` and `.pure.mjs` in `src/fence/`, its test and bin, and its two variables in `.env.schema`) was removed. It held a sibling checkout still while another repo's check read it, and hermitstack has no sibling checkouts. Its test races on sub-second timeouts and failed two of four `pnpm check` runs here while the machine was loaded.
+- `checkout-lock` (its `.cli.mjs` and `.pure.mjs` in `src/fence/`, its test and bin, and its two variables in `.env.schema`) was removed. It held a sibling checkout still while another repo's check read it, and hermit-stack has no sibling checkouts. Its test races on sub-second timeouts and failed two of four `pnpm check` runs here while the machine was loaded.
 - `AGENTS.md`, `README.md`, `CONTEXT.md`, `docs/git-fence.md`, `docs/mutants.md` and `docs/ratchet.md` describe this repo instead of upstream and its sibling repos. The ADRs are unchanged.
 
 To take a later upstream change, diff upstream from the commit above to its new head and apply the diff here, then update the commit in this file.

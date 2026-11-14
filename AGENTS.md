@@ -1,4 +1,4 @@
-# Strata
+# hermit-stack
 
 A template monorepo to fork for new products. One Effect program: the domain model, the host that runs its actors, and the cloud are each supplied as a Layer, so a deploy target is a named composition of Layers.
 
@@ -15,7 +15,7 @@ Effect, FoldKit, Alchemy, Oxlint and StyleX always stay. Every vendor, host and 
 Run everything through mise so the pinned Node and pnpm are used.
 
 - `mise exec -- pnpm install`
-- `mise exec -- pnpm check`: boundaries, then format check, typecheck, lint, file roles, tests, build, knip, the ratchet, task inputs, doc paths, sherif, gitleaks, env reads and the check scripts, in one Turbo run. Done means this exits 0. `tools/rules/AGENTS.md` describes each check.
+- `mise exec -- pnpm check`: boundaries, then format check, typecheck, lint, file roles, tests, build, knip, the ratchet, task inputs, doc paths, sherif, gitleaks, env reads, the check scripts and flag dates, in one Turbo run. Done means this exits 0. `tools/rules/AGENTS.md` describes each check.
 - `mise exec -- pnpm check:affected`: the same tasks, limited to what changed on this branch.
 - `mise exec -- pnpm fmt`: format with oxfmt.
 - `mise exec -- pnpm exec turbo run test --filter=@repo/kernel`: one package's tests.
@@ -58,6 +58,7 @@ Files:
 - Tests live in `tests/`, mirroring `src/`: `src/telemetry/span-name.pure.ts` is tested by `tests/telemetry/span-name.pure.test.ts`.
 - A fake lives in `tests/` too, at the path and name of the `src/` file it stands in for: `src/notification/email.external.ts` has `tests/notification/email.fake.ts`. A package may export it for another package's tests. An in-memory implementation that a running target uses is not a fake: it is a `layer` in `src/`.
 - At most 10 code files directly in one folder, and at most 500 lines in a file.
+- A feature flag is declared in a `<name>.flag.ts` file with `Flag.release` or `Flag.ops` from `@repo/flags/flag`, and read with `Flags.get`. `pnpm check` fails once a flag passes its `removeBy` or `reviewBy` date.
 
 Imports:
 
@@ -69,6 +70,16 @@ Code:
 - An exported function with two or more parameters has a pipeable form: `Fn.dual(arity, ...)`, with the arity in a named constant.
 - No inline rule suppressions. A rule is turned off only in the off table in `tools/rules/src/oxlint/base.config.ts`, with a reason.
 - Comments start with a capital letter and say why, not what.
+
+Domain code (`contexts/**` and `packages/schedule/**`):
+
+- One class per file. Copy `contexts/ledger/src/account/`.
+- Each use case has its own folder beside its aggregate, such as `contexts/ledger/src/account/deposit/`. It holds the command, the events that command records, its rejections, and the policy that sends the command, if one does.
+- The command file also holds the command's rule, exported as `decide<Command>`. The aggregate file lists the commands and holds how events change the state.
+- The aggregate's state is in `<aggregate>-state.schema.ts` beside the aggregate, so every command file can read it.
+- A command's `input` lists its own fields. An event's `.fields` include the event's tag, so do not reuse them as an input.
+- Tests mirror the folders: `contexts/ledger/tests/account/deposit/deposit-money.command.test.ts`. Steps that several stories share go in a `.suite.ts` under `tests/`, exported `as const satisfies readonly Step[]`. A suite does not import another suite.
+- An `.aggregate.ts` or `.model.ts` file may import 20 modules, because it lists one class per file. Every other file keeps the cap of 10.
 
 Tests:
 
@@ -85,7 +96,8 @@ Packages:
 
 ## Do not
 
-- Do not push, publish, deploy or add a git remote. Everything stays local until Dallen says otherwise.
+- Do not push, publish or deploy unless Dallen asks for it in that turn.
+- Do not use FoldCN or copy from it. Components in `packages/ui` are designed from the tokens.
 - Do not skip hooks with `--no-verify`.
 - Do not import a vendor SDK outside `adapters/*`.
 - Do not hand-write a shape the domain model already derives (API, client, storage).

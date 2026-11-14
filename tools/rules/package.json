@@ -2,7 +2,7 @@
   "name": "@repo/rules",
   "version": "0.0.0",
   "private": true,
-  "license": "Apache-2.0",
+  "license": "MIT",
   "bin": {
     "agent-sources": "./src/agent-sources/agent-sources.cli.mjs",
     "check-scripts": "./src/fence/check-scripts.cli.mjs",

@@ -12,7 +12,7 @@ const mcpTools = toMcp(LedgerApi, {
 const mcp = mcpTools.pipe(
   Layer.provide(
     McpServer.layerHttp({
-      name: "hermitstack-ledger",
+      name: "hermit-stack-ledger",
       path: "/mcp",
       protocols: [McpProtocol.v2025_11_25],
       version: "0.0.0",
