@@ -2,7 +2,6 @@ import { Array as Arr, Option, Predicate, Record as Rec, Schema, String as Str }
 
 type Json = Schema.Json;
 
-// A value renders as a heading, the text after its name, and the lines nested under it.
 interface Block {
   readonly heading: string;
   readonly lines: readonly string[];
@@ -30,8 +29,6 @@ const named = (prefix: string, block: Block): string => {
   return `${prefix} ${block.heading}`;
 };
 
-// A field with no value says nothing to a person, such as the reply of a command that has none, so it is left out. A
-// Tagged value is a rejection or another named failure, so its tag is its heading and its other fields sit under it.
 const blockOf = (value: Json, indent: string): Block => {
   if (Predicate.isString(value) || Predicate.isNumber(value) || Predicate.isBoolean(value) || Predicate.isNull(value)) {
     return { heading: `${value}`, lines: [] };

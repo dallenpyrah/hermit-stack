@@ -5,7 +5,6 @@ import { Armed } from "#src/recurring/arm/armed.event.js";
 import { nextAfter } from "#src/recurring/next-occurrence.pure.js";
 import { RecurringName } from "#src/recurring/recurring.id.js";
 
-// A cron expression is checked where it enters, so Arm never has to refuse one.
 const CronExpression = Schema.String.check(
   Schema.makeFilter((cron: string) => Result.isSuccess(Cron.parse(cron)) || "a cron expression with 5 or 6 fields"),
 );
@@ -16,7 +15,6 @@ const TimeZoneName = Schema.String.check(
   ),
 );
 
-// Sent at every startup: arming again replaces the pending tick under the same name, and resumes a paused schedule.
 class Arm extends Command(
   "Arm",
   { events: [Armed], input: { cron: CronExpression, timeZone: TimeZoneName }, target: RecurringName },

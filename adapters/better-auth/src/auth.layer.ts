@@ -5,8 +5,6 @@ import { Config, Effect, Layer, Option } from "effect";
 
 import { Auth } from "#src/auth.adapter.js";
 
-// Email and password is the one sign-in method a fork starts with; social providers and plugins are added here. The
-// Database is a Layer of its own, so a target picks SQLite, Postgres or D1 without touching this file.
 const authLayer: Layer.Layer<Auth, Config.ConfigError, Database> = Layer.effect(
   Auth,
   Effect.gen(function* authLayer() {
@@ -30,7 +28,6 @@ const authLayer: Layer.Layer<Auth, Config.ConfigError, Database> = Layer.effect(
       instance: Effect.provideContext(auth.auth, runtime),
     });
   }),
-  // Alchemy's runtime context is ambient on an Alchemy host and empty anywhere else, such as a test or a plain server.
 ).pipe(Layer.provide(RuntimeContext.phantom));
 
 export { authLayer };

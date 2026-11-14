@@ -8,7 +8,6 @@ const Open = Schema.TaggedStruct("Open", { balance: Cents, owner: Schema.NonEmpt
 
 const Closed = Schema.TaggedStruct("Closed", {});
 
-// The state holds only what the rules need. What a client reads is the Balance view, so this can change freely.
 const AccountState = Schema.Union([Unopened, Open, Closed]);
 
 type AccountState = typeof AccountState.Type;

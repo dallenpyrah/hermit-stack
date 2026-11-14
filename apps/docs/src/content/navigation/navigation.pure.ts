@@ -3,7 +3,6 @@ interface NavigationGroup {
   readonly pages: readonly string[];
 }
 
-// The section the sidebar header names. hermit-stack has one, so the header is static rather than a switcher.
 const section = {
   description: "Guides and concepts",
   title: "Documentation",
@@ -11,7 +10,6 @@ const section = {
 
 const welcomeSlug = "welcome";
 
-// The sidebar, in order. Each slug is a file in content/, and the Welcome page leads the first group.
 const navigation: readonly NavigationGroup[] = [
   {
     group: "Get started",

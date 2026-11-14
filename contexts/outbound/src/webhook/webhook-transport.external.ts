@@ -4,11 +4,8 @@ import { Schema } from "effect";
 import { PublicEvent } from "#src/feed/public-event.schema.js";
 import { EndpointId } from "#src/webhook/endpoint.id.js";
 
-// No HTTP answer came: a timeout, a refused connection, or an address the transport will not call.
 const TransportFailed = Rejection("TransportFailed", { reason: Schema.String });
 
-// The adapter signs the body with the endpoint's secret, sends the event id as webhook-id so a receiver can drop
-// Repeats, refuses private and loopback addresses, and follows no redirects.
 class WebhookTransport extends ExternalSystem(
   "WebhookTransport",
   {

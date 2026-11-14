@@ -40,15 +40,16 @@ Run each from the repo root through mise (`mise exec -- pnpm <script>`), so the 
 - Do not raise a number in `ratchets.json` without saying why in the same commit, and do not leave it above the real count.
 - Do not list deprecated Effect diagnostics (`preferSchemaOverJson`, `effectGenUsesAdapter`) in `tsconfig.base.json`. The warning fails every package's typecheck (ADR 0004).
 - Do not edit `src/oxlint/anti-slop` or `tests/oxlint/anti-slop` by hand. Re-vendor a newer upstream commit instead, placing each file where `src/oxlint/anti-slop/UPSTREAM.md` maps it (ADR 0003).
+- Do not write a comment in a `.ts`, `.tsx`, `.js` or `.mjs` file. Put the reason in a name, a test, an off-table entry or the doc that covers it.
 - Do not write a file over 500 lines, Markdown included.
 - Do not change a copied file without recording the change in `UPSTREAM.md`.
-- Do not push, publish or add a git remote.
+- Do not push or publish unless Dallen asks for it in that turn.
 - Do not report a result you did not measure.
 
 ## Layout
 
 - `src/oxlint/base.config.ts`: the Oxlint base config, the off table and the `structure` config. `src/oxlint/domain.config.ts`: `domainStructure`, which turns on Alchemy Domain's roles for the files it is given. `src/oxlint/effect-call-syntax.pure.ts`: AST helpers both plugins share, imported as `#oxlint/...`.
-- `src/oxlint/taste/`: the taste plugin, one `.rule.ts` per rule. `src/oxlint/testing/`: the testing plugin, whose `no-fixed-port` fails a test that binds a fixed port. `src/oxlint/structure/`: the file-role plugin (`file-role`, `role-imports`, `role-exports`), the role table, `vendor-imports` with its list of banned vendor SDKs (`vendor-sdks.pure.ts`) and `barrel-imports`. `src/oxlint/anti-slop`: vendored anti-slop, with its tests in the `tests/oxlint/anti-slop/` mirror.
+- `src/oxlint/taste/`: the taste plugin, one `.rule.ts` per rule. `src/oxlint/testing/`: the testing plugin, whose `no-fixed-port` fails a test that binds a fixed port. `src/oxlint/structure/`: the file-role plugin (`file-role`, `role-imports`, `role-exports`), the role table, `vendor-imports` with its list of banned vendor SDKs (`vendor-sdks.pure.ts`), `barrel-imports`, and `no-comments`, which is hermit-stack's own: code holds no comments except a `#!` line, a `/// <reference ... />` line, a `// SAFETY: <reason>` line and a `/** @stability unstable */` tag alone on its line. `src/oxlint/anti-slop`: vendored anti-slop, with its tests in the `tests/oxlint/anti-slop/` mirror.
 - `tsconfig.base.json`: strict TypeScript and every Effect diagnostic at error. The root `tsconfig.base.json` extends it.
 - `src/agent-sources/`, `src/env/`, `src/fence/`, `src/ratchet/`, `src/docs/`, `src/mutants/` and `src/turbo/`: the CLIs listed above, each a `.cli.mjs` with its `.pure.mjs` logic.
 - `tests/`: the tests, mirroring `src/`. A suite that drives a CLI is named for that `.cli.mjs`, and `tests/oxlint/base.config.test.mjs` lints the fixtures under `fixtures/<plugin>/<rule>/`.

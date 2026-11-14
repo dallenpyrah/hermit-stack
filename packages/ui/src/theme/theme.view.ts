@@ -11,7 +11,6 @@ const ThemeName = Schema.Literals(["light", "dark"]);
 
 type ThemeName = typeof ThemeName.Type;
 
-// An empty override still gets its own class, so a light region can sit inside a dark one.
 const light = createTheme(colors, {});
 
 const dark = createTheme(colors, {
@@ -22,7 +21,6 @@ const dark = createTheme(colors, {
   card: "oklch(0.205 0 0)",
   cardForeground: "oklch(0.985 0 0)",
   destructive: "oklch(0.704 0.191 22.216)",
-  // White on this red is about 3:1, so dark text keeps the destructive button at 6.8:1.
   destructiveForeground: "oklch(0.145 0 0)",
   foreground: "oklch(0.985 0 0)",
   input: "oklch(0.55 0 0)",
@@ -50,12 +48,8 @@ const surface = create({
 
 const themes = { dark, light };
 
-// The styles that apply a theme to an element's subtree: its variables, the page colors, and color-scheme, so native
-// Scrollbars, carets and autofill follow the theme. Pass them to styleAttributes with the element's own styles, since
-// An element keeps only one Class.
 const themeStyles = (name: ThemeName): readonly StyleArgument[] => [themes[name], surface[name], surface.root];
 
-// For an element that takes a theme and no styles of its own, usually the app's root.
 const themeAttributes = (name: ThemeName): readonly Attribute<never>[] => [
   ih.DataAttribute("theme", name),
   ...styleAttributes(...themeStyles(name)),

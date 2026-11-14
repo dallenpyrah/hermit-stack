@@ -6,9 +6,6 @@ import { Array as Arr, String as Str, pipe } from "effect";
 import { pageAlignedSource, typeScriptFences } from "#src/fences/code-fences.pure.ts";
 import type { CodeFence } from "#src/fences/code-fences.pure.ts";
 
-// Writes every TypeScript fence in content/ to .fences/<page>/line-<n>.ts, where tsconfig.fences.json typechecks it
-// With the repo's Effect diagnostics. Each file keeps the page's line numbers, so an error names the page line.
-
 const app = path.resolve(import.meta.dirname, "../..");
 
 const content = path.join(app, "content");

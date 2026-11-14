@@ -19,7 +19,6 @@ const mutes: {
     muted.kind === preference.kind && muted.channel === preference.channel,
 );
 
-// Every kind reaches every channel until the recipient turns one off, so a kind nobody muted is never muted.
 const isMuted: {
   (preference: Preference): (state: RecipientState) => boolean;
   (state: RecipientState, preference: Preference): boolean;

@@ -6,8 +6,6 @@ import { Recurring } from "#src/recurring/recurring.aggregate.js";
 import { Tick } from "#src/recurring/tick/tick.command.js";
 import { Ticked } from "#src/recurring/tick/ticked.event.js";
 
-// Every arming and every tick schedules the next Tick under one name per schedule, so a new arming replaces the
-// Pending one and a schedule never has two ticks waiting.
 class Rearm extends Policy(
   "Rearm",
   { from: Recurring, on: [Armed, Ticked] },

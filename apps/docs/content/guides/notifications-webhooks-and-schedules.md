@@ -69,13 +69,12 @@ A repeated tick does nothing. A late tick runs once and the next one is due afte
 import { Arm } from "@repo/schedule/arm";
 import { Recurring } from "@repo/schedule/recurring";
 
-// The input schemas check the cron expression and the IANA time zone where they enter, so Arm never refuses one.
 const nightly = Arm.make({ cron: "0 3 * * *", timeZone: "Europe/Paris" });
 
 const digest = Recurring.ref("nightly-digest");
 ```
 
-Your own work hangs off `Ticked`: a policy in your context that reacts to the tick of the schedule it owns.
+The input schemas check the cron expression and the IANA time zone where they enter, so `Arm` never refuses one. Your own work hangs off `Ticked`: a policy in your context that reacts to the tick of the schedule it owns.
 
 ## Still planned
 

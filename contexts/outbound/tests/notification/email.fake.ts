@@ -2,8 +2,6 @@ import { Effect, HashMap, Number as Num, Option, Ref } from "effect";
 
 import { Email } from "#src/notification/email.external.js";
 
-// An in-memory email vendor that honours idempotency keys as a real one should: a second send with the same key
-// Answers with the first message id and sends nothing.
 const EmailFake = Email.toLayer(
   Effect.gen(function* emailFake() {
     const sent = yield* Ref.make(HashMap.empty<string, string>());

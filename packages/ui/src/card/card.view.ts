@@ -7,8 +7,6 @@ import { styleAttributes } from "#src/style/style.view.js";
 import type { Content } from "#src/style/style.view.js";
 import { colors, font, fontSize, fontWeight, lineHeight, radius, shadow, space } from "#src/tokens/tokens.stylex.js";
 
-// A card is one titled region, so it takes its parts as data and lays them out itself: a header with the title, an
-// Optional description and an optional action beside them, then the body, then a footer.
 type CardOptions = Readonly<{
   action?: Content;
   body?: Content;
@@ -91,7 +89,6 @@ const render = <Message>(config: CardOptions, html: HtmlBuilder<Message>): Html 
 
 const cardArity = 2;
 
-// The title is an h3 because a card usually sits under a page heading and a section heading.
 const card: {
   <Message>(html: HtmlBuilder<Message>): (config: CardOptions) => Html;
   <Message>(config: CardOptions, html: HtmlBuilder<Message>): Html;

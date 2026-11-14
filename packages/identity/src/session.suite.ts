@@ -14,7 +14,6 @@ const visitsModel = VisitsModel.layer(Layer.empty).pipe(Layer.provide(InMemory))
 
 type SessionTarget = Layer.Success<typeof visitsModel> | Session | SessionAdapter;
 
-// The sample model in memory beside the adapter, so the contract reaches Session through a command's typed client.
 const sessionTarget = <Failure>(
   adapter: Layer.Layer<Session | SessionAdapter, Failure>,
 ): Layer.Layer<SessionTarget, Failure> => Layer.merge(adapter, visitsModel);
@@ -42,8 +41,6 @@ const swapped = (character: string): string =>
     () => "b",
   );
 
-// The contract alters the credential itself rather than asking the adapter to, so an adapter cannot pass by tampering
-// In a way it happens to detect.
 const tamperedAt = (
   headers: Rec.ReadonlyRecord<string, string>,
   indexOf: (value: string) => number,
@@ -118,12 +115,8 @@ const contractCases = {
   "a request with no session is refused as Unauthorized": refusesNoSession,
 } as const;
 
-// The behaviour every auth adapter owes the Session port. Run it with it.layer(sessionTarget(adapter))(title,
-// SessionContract); a third adapter is correct when it passes this unchanged. Each case signs up its own users, so the
-// Cases may share one build of the target.
 const sessionContract = (onTarget: Vitest.MethodsNonLive<SessionTarget>): void => {
   for (const [title, contractCase] of Rec.toEntries(contractCases)) {
-    // Adapters check session expiry against real time, so the cases run on the live clock.
     onTarget.effect(title, () => TestClock.withLive(contractCase));
   }
 };

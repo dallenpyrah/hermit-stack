@@ -12,8 +12,6 @@ import { decideSetEmail, SetEmail } from "#src/notification/set-email/set-email.
 import { decideSetPreference, SetPreference } from "#src/notification/set-preference/set-preference.command.js";
 import { UserId } from "#src/notification/user.id.js";
 
-// One user as someone to notify. Each command's rule lives in its own file beside its events; this file holds the
-// State and how events change it.
 class Recipient extends Aggregate(
   "Recipient",
   {
