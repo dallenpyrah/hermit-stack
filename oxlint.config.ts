@@ -51,6 +51,12 @@ const localAuthDatabase = {
   rules: { "import/no-nodejs-modules": ["error", { allow: ["node:sqlite"] }] },
 } as const;
 
+// APNs speaks only HTTP/2, so its local stand-in is Node's HTTP/2 server; no Effect or web module serves HTTP/2.
+const apnsStandIn = {
+  files: ["adapters/apns/tests/apns-api.fake.ts"],
+  rules: { "import/no-nodejs-modules": ["error", { allow: ["node:http2"] }] },
+} as const;
+
 export default defineConfig({
   ...base,
   ignorePatterns: [...(base.ignorePatterns ?? []), "tools/rules/**"],
@@ -62,5 +68,6 @@ export default defineConfig({
     domainLists,
     flagBucketHash,
     localAuthDatabase,
+    apnsStandIn,
   ],
 });
