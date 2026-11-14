@@ -29,10 +29,7 @@ const addresses = (state: RecipientState, userId: UserId): readonly Address[] =>
 
 const decideArity = 3;
 
-const decideNotify: {
-  (command: Notify, userId: UserId): (state: RecipientState) => readonly NotificationQueued[];
-  (state: RecipientState, command: Notify, userId: UserId): readonly NotificationQueued[];
-} = Fn.dual(decideArity, (state: RecipientState, command: Notify, userId: UserId): readonly NotificationQueued[] =>
+const notify = (state: RecipientState, command: Notify, userId: UserId): readonly NotificationQueued[] =>
   Arr.map(
     Arr.filter(
       addresses(state, userId),
@@ -46,7 +43,11 @@ const decideNotify: {
         payload: command.payload,
         to: address.to,
       }),
-  ),
-);
+  );
+
+const decideNotify: {
+  (command: Notify, userId: UserId): (state: RecipientState) => readonly NotificationQueued[];
+  (state: RecipientState, command: Notify, userId: UserId): readonly NotificationQueued[];
+} = Fn.dual(decideArity, notify);
 
 export { decideNotify, Notify };

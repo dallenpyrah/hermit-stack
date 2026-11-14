@@ -41,3 +41,13 @@ The freshness check uses the root's pinned `mutant-cafe@0.1.6` peer binary on `P
 The root `pnpm-workspace.yaml` permits exactly `mutant-cafe@0.1.6` under pnpm's `trustPolicyExclude`, with its release-workflow/SLSA rationale, because npm's trusted-publisher metadata stops at 0.1.2; `trustPolicy` stays `no-downgrade`. The exception is counted in `ratchets.json`; upgrade and remove it when a release restores provenance.
 
 A package that adopts mutation testing adds `mutants` and `mutants:diff` scripts: `pnpm mutants` runs every mutant in the package's `mutants.config.json` scope and then `mutants --all`. `pnpm mutants:diff` runs only the mutants on lines changed since `main` (`--in-diff-range main...HEAD`) and then `mutants`. A baseline id outside the selected diff stays valid only when complete enumeration still generates it; an absent id fails in either mode.
+
+`packages/kernel`, `contexts/ledger`, `packages/schedule` and `contexts/outbound` run it. The root `turbo.json` defines the `mutants` and `mutants:diff` tasks, and the root `pnpm mutants` and `pnpm mutants:diff` run them in every package that has the script. Neither is in `pnpm check`. A diff run of a one-line change took 29 s for the package it touched and 7 to 11 s for each package it did not, on a quiet machine, and grows with every mutant a change selects and every package that adopts it; it also needs a local `main` branch, which a pull request checkout does not have. The nightly job in `.github/workflows/check.yml` runs the full `pnpm mutants`; run `pnpm mutants:diff` yourself before you push.
+
+### Adopting it in a package
+
+1. Copy `mutants.config.json` from `contexts/ledger`: `include` is `src/**/*.ts`, and `jobs` is how many scratch copies run at once.
+2. Copy the `mutants` and `mutants:diff` scripts from its `package.json`. `mutant-cafe` and `mutants` come from the root's `node_modules/.bin`, so the package adds no dependency, and the root tasks pick it up without a change to the root `turbo.json`.
+3. Run `pnpm mutants` in the package. For each survivor, write a test through the package's public behaviour that fails on it: a Story for a context, the exported function for a pure file. A function passed straight to `Fn.dual` is in callback position and is not mutated, so name it first, as `packages/kernel/src/telemetry/span-name.pure.ts` does, when it holds logic no other function covers.
+4. List a survivor in `mutants.equivalent.json` only when no test could tell it from the original, with the reason. Leave one in `mutants.baseline.json` (`mutants --write-baseline`) only when it cannot be killed yet, and say why in the commit.
+5. Set the `equivalent mutants` and `baseline surviving mutants` counts with `pnpm exec ratchet --print`.

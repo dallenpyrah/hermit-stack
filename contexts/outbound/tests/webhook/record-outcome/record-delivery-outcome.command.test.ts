@@ -24,11 +24,15 @@ const oneShort = 4;
 
 const fourFailures = Arr.flatMap(Arr.makeBy(oneShort, Num.increment), countedTo);
 
+const delivered = when(endpoints, RecordDeliveryOutcome.make({ endpointId, outcome: "delivered" }));
+
 const disabledAfterFiveInRow = (): Effect.Effect<void, StoryFailure> =>
   outboundStory(
     registered,
+    delivered,
+    then(endpoints),
     ...fourFailures,
-    when(endpoints, RecordDeliveryOutcome.make({ endpointId, outcome: "delivered" })),
+    delivered,
     then(endpoints, FailuresCleared.make({ endpointId })),
     ...fourFailures,
     exhausted,
@@ -38,6 +42,8 @@ const disabledAfterFiveInRow = (): Effect.Effect<void, StoryFailure> =>
       EndpointDisabled.make({ endpointId, reason: "failing" }),
     ),
     exhausted,
+    then(endpoints),
+    delivered,
     then(endpoints),
   );
 

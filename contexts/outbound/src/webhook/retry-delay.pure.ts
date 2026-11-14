@@ -7,15 +7,17 @@ const retryDelays: readonly Duration.Duration[] = Arr.map(
 
 const retryDelayArity = 2;
 
+const delayAfter = (
+  failedAttempt: number,
+  retryAfter: Option.Option<Duration.Duration>,
+): Option.Option<Duration.Duration> =>
+  Option.map(Arr.get(retryDelays, Num.decrement(failedAttempt)), (delay) =>
+    Option.match(retryAfter, { onNone: () => delay, onSome: (asked) => Duration.max(delay, asked) }),
+  );
+
 const retryDelay: {
   (retryAfter: Option.Option<Duration.Duration>): (failedAttempt: number) => Option.Option<Duration.Duration>;
   (failedAttempt: number, retryAfter: Option.Option<Duration.Duration>): Option.Option<Duration.Duration>;
-} = Fn.dual(
-  retryDelayArity,
-  (failedAttempt: number, retryAfter: Option.Option<Duration.Duration>): Option.Option<Duration.Duration> =>
-    Option.map(Arr.get(retryDelays, Num.decrement(failedAttempt)), (delay) =>
-      Option.match(retryAfter, { onNone: () => delay, onSome: (asked) => Duration.max(delay, asked) }),
-    ),
-);
+} = Fn.dual(retryDelayArity, delayAfter);
 
 export { retryDelay };

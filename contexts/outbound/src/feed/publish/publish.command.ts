@@ -14,11 +14,13 @@ class Publish extends Command(
 
 const decideArity = 3;
 
+const publish = (state: FeedState, command: Publish, tenant: TenantId): readonly Published[] => [
+  Published.make({ event: command.event, position: Num.increment(state.published), tenant }),
+];
+
 const decidePublish: {
   (command: Publish, tenant: TenantId): (state: FeedState) => readonly Published[];
   (state: FeedState, command: Publish, tenant: TenantId): readonly Published[];
-} = Fn.dual(decideArity, (state: FeedState, command: Publish, tenant: TenantId): readonly Published[] => [
-  Published.make({ event: command.event, position: Num.increment(state.published), tenant }),
-]);
+} = Fn.dual(decideArity, publish);
 
 export { decidePublish, Publish };

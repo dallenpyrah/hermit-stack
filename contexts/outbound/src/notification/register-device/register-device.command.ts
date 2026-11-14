@@ -13,14 +13,15 @@ class RegisterDevice extends Command(
 
 const decideArity = 2;
 
-const decideRegisterDevice: {
-  (command: RegisterDevice): (state: RecipientState) => readonly DeviceRegistered[];
-  (state: RecipientState, command: RegisterDevice): readonly DeviceRegistered[];
-} = Fn.dual(decideArity, (state: RecipientState, command: RegisterDevice): readonly DeviceRegistered[] =>
+const registerDevice = (state: RecipientState, command: RegisterDevice): readonly DeviceRegistered[] =>
   Arr.map(
     Arr.filter([command.token], (token) => !Arr.contains(state.devices, token)),
     (token) => DeviceRegistered.make({ token }),
-  ),
-);
+  );
+
+const decideRegisterDevice: {
+  (command: RegisterDevice): (state: RecipientState) => readonly DeviceRegistered[];
+  (state: RecipientState, command: RegisterDevice): readonly DeviceRegistered[];
+} = Fn.dual(decideArity, registerDevice);
 
 export { decideRegisterDevice, RegisterDevice };

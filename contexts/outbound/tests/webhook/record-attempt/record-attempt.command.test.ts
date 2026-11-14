@@ -17,6 +17,13 @@ const posted = call(WebhookTransport.post, attempt);
 
 const tenMinutes = 600;
 
+const oneSecond = 1;
+
+const firstRetry = DateTime.makeUnsafe("2026-01-01T00:00:05Z");
+const secondRetry = DateTime.makeUnsafe("2026-01-01T00:05:05Z");
+const failedAt300 = AttemptFailed.make({ attempt: 1, reason: "status 300", retryAt: firstRetry });
+const failedAt199 = AttemptFailed.make({ attempt: 2, reason: "status 199", retryAt: secondRetry });
+
 const unavailable = AttemptFailed.make({
   attempt: 1,
   reason: "status 503",
@@ -52,6 +59,36 @@ const retriedUntilDelivered = (): Effect.Effect<void, StoryFailure> =>
     then(endpoints),
   );
 
+const successIsAny2xx = (): Effect.Effect<void, StoryFailure> =>
+  outboundStory(
+    ...published,
+    posted,
+    succeed(WebhookTransport.post, { retryAfterSeconds: Option.some(oneSecond), status: 300 }),
+    then(delivery, failedAt300),
+    clock(firstRetry),
+    then(delivery, AttemptStarted.make({ attempt: 2 })),
+    posted,
+    succeed(WebhookTransport.post, { retryAfterSeconds: Option.none(), status: 199 }),
+    then(delivery, failedAt199),
+    clock(secondRetry),
+    then(delivery, AttemptStarted.make({ attempt: 3 })),
+    posted,
+    succeed(WebhookTransport.post, { retryAfterSeconds: Option.none(), status: 299 }),
+    then(delivery, Delivered.make({ attempt: 3 })),
+    Story.state(delivery, { attempts: 3, outcome: "delivered" }),
+  );
+
+const deliveredAt200 = (): Effect.Effect<void, StoryFailure> =>
+  outboundStory(
+    ...published,
+    posted,
+    succeed(WebhookTransport.post, { retryAfterSeconds: Option.none(), status: 200 }),
+    then(delivery, Delivered.make({ attempt: 1 })),
+    then(endpoints),
+  );
+
 describe("a webhook delivery whose attempt fails", () => {
   it.effect("is retried with backoff after a failure and succeeds on a later attempt", retriedUntilDelivered);
+  it.effect("is delivered on any 2xx status and retried on any other", successIsAny2xx);
+  it.effect("is delivered on a 200", deliveredAt200);
 });

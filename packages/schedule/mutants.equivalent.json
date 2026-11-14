@@ -1,0 +1,57 @@
+{
+  "bc16fb9dda1cf8a00ef052d6": {
+    "at": "src/recurring/next-occurrence.pure.ts:15:22",
+    "mutant": "replace nextAfter.onFailure with []",
+    "reason": "The body is already [], so the mutant is the original code."
+  },
+  "8f07c353645722f8fae2602f": {
+    "at": "src/recurring/pause/pause.command.ts:17:20",
+    "mutant": "replace decidePause.Stopped with []",
+    "reason": "The body is already [], so the mutant is the original code."
+  },
+  "81ecdd2222b81eac9bc73dfa": {
+    "at": "src/recurring/pause/pause.command.ts:18:20",
+    "mutant": "replace decidePause.Unarmed with []",
+    "reason": "The body is already [], so the mutant is the original code."
+  },
+  "158eb8bd3ab28b752060add5": {
+    "at": "src/recurring/recurring.aggregate.ts:24:33",
+    "mutant": "replace Recurring.evolve.Paused.Stopped with stopped",
+    "reason": "The body is already stopped, so the mutant is the original code."
+  },
+  "69fc9717363197825549b80e": {
+    "at": "src/recurring/recurring.aggregate.ts:25:33",
+    "mutant": "replace Recurring.evolve.Paused.Unarmed with ({ \"_tag\": (\"Unarmed\" as const) })",
+    "reason": "The Unarmed state has no fields, so the state the branch passes through is this same value."
+  },
+  "a2c9de0add63b29df07e70eb": {
+    "at": "src/recurring/recurring.aggregate.ts:25:33",
+    "mutant": "replace Recurring.evolve.Paused.Unarmed with unarmed",
+    "reason": "The body is already unarmed, so the mutant is the original code."
+  },
+  "c82075efff257fa3e073077b": {
+    "at": "src/recurring/recurring.aggregate.ts:30:33",
+    "mutant": "replace Recurring.evolve.Ticked.Stopped with stopped",
+    "reason": "The body is already stopped, so the mutant is the original code."
+  },
+  "419973ac2aad13a6ea72ae8c": {
+    "at": "src/recurring/recurring.aggregate.ts:31:33",
+    "mutant": "replace Recurring.evolve.Ticked.Unarmed with ({ \"_tag\": (\"Unarmed\" as const) })",
+    "reason": "The Unarmed state has no fields, so the state the branch passes through is this same value."
+  },
+  "f057ad61cbffc5a9d65fc042": {
+    "at": "src/recurring/recurring.aggregate.ts:31:33",
+    "mutant": "replace Recurring.evolve.Ticked.Unarmed with unarmed",
+    "reason": "The body is already unarmed, so the mutant is the original code."
+  },
+  "ce3da3954faa2f24c10f413d": {
+    "at": "src/recurring/tick/tick.command.ts:31:20",
+    "mutant": "replace decideTick.Stopped with []",
+    "reason": "The body is already [], so the mutant is the original code."
+  },
+  "8388dc2b8d8bdde8eaa79e60": {
+    "at": "src/recurring/tick/tick.command.ts:32:20",
+    "mutant": "replace decideTick.Unarmed with []",
+    "reason": "The body is already [], so the mutant is the original code."
+  }
+}

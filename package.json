@@ -15,6 +15,8 @@
     "lint:paths": "doc-paths --ignore tools/rules/src/oxlint/anti-slop/ --ignore tools/rules/tests/oxlint/anti-slop/",
     "lint:scripts": "check-scripts",
     "knip": "knip --no-progress",
+    "mutants": "mise exec -- turbo run mutants",
+    "mutants:diff": "mise exec -- turbo run mutants:diff",
     "ratchet": "ratchet",
     "sherif": "sherif",
     "gitleaks": "mise exec -- gitleaks git --no-banner --redact .",
