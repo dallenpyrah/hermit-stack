@@ -49,6 +49,11 @@ const localAuthDatabase = {
   rules: { "import/no-nodejs-modules": ["error", { allow: ["node:sqlite"] }] },
 } as const;
 
+const apnsStandIn = {
+  files: ["adapters/apns/tests/apns-api.fake.ts"],
+  rules: { "import/no-nodejs-modules": ["error", { allow: ["node:http2"] }] },
+} as const;
+
 export default defineConfig({
   ...base,
   ignorePatterns: [...(base.ignorePatterns ?? []), "tools/rules/**"],
@@ -61,5 +66,6 @@ export default defineConfig({
     flagBucketHash,
     localAuthDatabase,
     alchemyEntries,
+    apnsStandIn,
   ],
 });

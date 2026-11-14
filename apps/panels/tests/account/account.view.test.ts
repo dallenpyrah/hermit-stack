@@ -66,7 +66,7 @@ const depositsAndShowsTheNewBalance = (): void => {
     sceneExpect(role("button", { name: "Withdraw" })).toBeDisabled(),
     Command.resolve(Move, Message.Moved({ amount: 250, balance: 750, kind: "deposit" })),
     sceneExpect(text("$7.50")).toExist(),
-    sceneExpect(role("status")).toHaveText("Deposited $2.50"),
+    sceneExpect(role("alert")).toHaveText("Deposited $2.50"),
     sceneExpect(label("Amount")).toHaveValue(""),
   );
 };

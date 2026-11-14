@@ -1,0 +1,29 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    // The pages run in a browser and reach DOM types through FoldKit; the server entry builds Web Requests.
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "types": ["node"],
+    "plugins": [
+      {
+        "name": "@effect/language-service",
+        "allowedUnstableApis": [
+          "@effect/platform-node",
+          "@effect/vitest",
+          "effect/crypto",
+          "effect/http",
+          "effect/socket"
+        ],
+        "overrides": [
+          {
+            // The local run's routes are HttpRouter Layers, an unstable Effect module, so exporting them exposes its
+            // Types. Only the local origin exports them; the page entries expose no unstable type.
+            "include": ["src/server/*.layer.ts"],
+            "options": { "diagnosticSeverity": { "apiStabilityLeak": "off" } }
+          }
+        ]
+      }
+    ]
+  },
+  "include": ["src/**/*.ts", "tests/**/*.ts"]
+}
