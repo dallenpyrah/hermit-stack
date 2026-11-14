@@ -1,0 +1,22 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "plugins": [
+      {
+        "name": "@effect/language-service",
+        // The Stripe SDK calls through Effect's HttpClient, and the tests run on @effect/vitest with a local HTTP server and
+        // Sign webhooks with effect/crypto.
+        "allowedUnstableApis": ["@effect/platform-node", "@effect/vitest", "effect/crypto", "effect/http"],
+        "overrides": [
+          {
+            // Domain types Rejection.make as returning the plain fields, not the error class the Payments port fails
+            // With, so the adapter and its tests build each refusal with new.
+            "include": ["src/stripe-payments.layer.ts", "tests/**/*.ts"],
+            "options": { "diagnosticSeverity": { "newSchemaClass": "off" } }
+          }
+        ]
+      }
+    ]
+  },
+  "include": ["src/**/*.ts", "tests/**/*.ts"]
+}

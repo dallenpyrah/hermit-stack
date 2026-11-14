@@ -1,0 +1,26 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "plugins": [
+      {
+        "name": "@effect/language-service",
+        "allowedUnstableApis": ["@effect/vitest"],
+        "overrides": [
+          {
+            // Every Domain command carries its static rpc, an effect/rpc/Rpc marked unstable, and every aggregate,
+            // Policy, model and Api that names a command carries it too, so none can be exported without exposing it.
+            "include": ["src/**/*.command.ts", "src/**/*.aggregate.ts", "src/**/*.policy.ts", "src/**/*.model.ts"],
+            "options": { "diagnosticSeverity": { "apiStabilityLeak": "off" } }
+          },
+          {
+            // Domain types Rejection.make as returning the plain fields, not the error class decide, a fake and
+            // Story.rejected need, so a Rejection is built with new.
+            "include": ["src/**/*.command.ts", "tests/**/*.ts"],
+            "options": { "diagnosticSeverity": { "newSchemaClass": "off" } }
+          }
+        ]
+      }
+    ]
+  },
+  "include": ["src/**/*.ts", "tests/**/*.ts"]
+}
