@@ -100,6 +100,29 @@
       "outputs": [],
       "outputLogs": "errors-only"
     },
+    "mutants": {
+      "dependsOn": ["transit", "//#runtime-pins"],
+      "inputs": [
+        "src/**",
+        "tests/**",
+        "vitest.config.ts",
+        "package.json",
+        "tsconfig.json",
+        "mutants.config.json",
+        "mutants.equivalent.json",
+        "mutants.baseline.json",
+        "$TURBO_ROOT$/tsconfig.base.json",
+        "$TURBO_ROOT$/tools/rules/tsconfig.base.json",
+        "$TURBO_ROOT$/tools/rules/src/mutants/**"
+      ],
+      "outputs": [],
+      "outputLogs": "errors-only"
+    },
+    "mutants:diff": {
+      "dependsOn": ["transit", "//#runtime-pins"],
+      "cache": false,
+      "outputLogs": "errors-only"
+    },
     "build": {
       "dependsOn": ["^build"],
       "inputs": ["src/**", "package.json", "tsconfig.json", "$TURBO_ROOT$/tsconfig.base.json"],

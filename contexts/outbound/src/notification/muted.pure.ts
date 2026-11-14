@@ -10,20 +10,20 @@ interface Preference {
 
 const arity = 2;
 
+const mutedFor = (muted: Muted, preference: Preference): boolean =>
+  muted.kind === preference.kind && muted.channel === preference.channel;
+
 const mutes: {
   (preference: Preference): (muted: Muted) => boolean;
   (muted: Muted, preference: Preference): boolean;
-} = Fn.dual(
-  arity,
-  (muted: Muted, preference: Preference): boolean =>
-    muted.kind === preference.kind && muted.channel === preference.channel,
-);
+} = Fn.dual(arity, mutedFor);
+
+const anyMutes = (state: RecipientState, preference: Preference): boolean =>
+  Arr.some(state.muted, (muted) => mutedFor(muted, preference));
 
 const isMuted: {
   (preference: Preference): (state: RecipientState) => boolean;
   (state: RecipientState, preference: Preference): boolean;
-} = Fn.dual(arity, (state: RecipientState, preference: Preference): boolean =>
-  Arr.some(state.muted, (muted) => mutes(muted, preference)),
-);
+} = Fn.dual(arity, anyMutes);
 
 export { isMuted, mutes };

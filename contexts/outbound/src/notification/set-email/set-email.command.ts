@@ -13,15 +13,17 @@ class SetEmail extends Command(
 
 const decideArity = 2;
 
-const decideSetEmail: {
-  (command: SetEmail): (state: RecipientState) => readonly EmailSet[];
-  (state: RecipientState, command: SetEmail): readonly EmailSet[];
-} = Fn.dual(decideArity, (state: RecipientState, command: SetEmail): readonly EmailSet[] => {
+const setEmail = (state: RecipientState, command: SetEmail): readonly EmailSet[] => {
   if (Option.contains(state.email, command.address)) {
     return [];
   }
 
   return [EmailSet.make({ address: command.address })];
-});
+};
+
+const decideSetEmail: {
+  (command: SetEmail): (state: RecipientState) => readonly EmailSet[];
+  (state: RecipientState, command: SetEmail): readonly EmailSet[];
+} = Fn.dual(decideArity, setEmail);
 
 export { decideSetEmail, SetEmail };

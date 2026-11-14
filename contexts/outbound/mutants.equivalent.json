@@ -1,0 +1,112 @@
+{
+  "d485bc8fa57afedc13216bac": {
+    "at": "src/notification/recipient.aggregate.ts:36:38",
+    "mutant": "replace Recipient.evolve.NotificationQueued with state",
+    "reason": "The body already returns this value, so the mutant is the original code."
+  },
+  "d86731833707b3e5c19a36df": {
+    "at": "src/notification/recipient.aggregate.ts:35:38",
+    "mutant": "replace Recipient.evolve.NotificationFailed with state",
+    "reason": "The body already returns this value, so the mutant is the original code."
+  },
+  "d8babfcb62d1a9226ca1f72d": {
+    "at": "src/notification/recipient.aggregate.ts:37:36",
+    "mutant": "replace Recipient.evolve.NotificationRead with state",
+    "reason": "The body already returns this value, so the mutant is the original code."
+  },
+  "01ca6a8b139d5e647e74183d": {
+    "at": "src/notification/recipient.aggregate.ts:38:36",
+    "mutant": "replace Recipient.evolve.NotificationSent with state",
+    "reason": "The body already returns this value, so the mutant is the original code."
+  },
+  "7aba5b65601d6c99bdd6774e": {
+    "at": "src/webhook/attempt-delivery/attempt-delivery.command.ts:21:18",
+    "mutant": "replace decideAttemptDelivery.Fresh with []",
+    "reason": "The body already returns this value, so the mutant is the original code."
+  },
+  "f919203eaac0cc213ecbaa61": {
+    "at": "src/webhook/attempt-delivery/attempt-delivery.command.ts:23:20",
+    "mutant": "replace decideAttemptDelivery.Settled with []",
+    "reason": "The body already returns this value, so the mutant is the original code."
+  },
+  "3d7b90f57252dbb4b6969698": {
+    "at": "src/webhook/attempt-delivery/attempt-delivery.command.ts:22:20",
+    "mutant": "replace decideAttemptDelivery.Posting with []",
+    "reason": "The body already returns this value, so the mutant is the original code."
+  },
+  "2e6abeb39314db61a3bc23ac": {
+    "at": "src/webhook/delivery.aggregate.ts:27:25",
+    "mutant": "replace fromPosting.Fresh with ({ \"_tag\": (\"Fresh\" as const) })",
+    "reason": "The state has no fields, so { _tag: \"Fresh\" } is the value the branch passes through."
+  },
+  "b6257c45f660b815c4eeefaa": {
+    "at": "src/webhook/delivery.aggregate.ts:27:25",
+    "mutant": "replace fromPosting.Fresh with fresh",
+    "reason": "The body already returns this value, so the mutant is the original code."
+  },
+  "17ca5b7e64d550f49a018d1a": {
+    "at": "src/webhook/delivery.aggregate.ts:29:29",
+    "mutant": "replace fromPosting.Settled with settled",
+    "reason": "The body already returns this value, so the mutant is the original code."
+  },
+  "56b06abb4b9152d5a19ce598": {
+    "at": "src/webhook/delivery.aggregate.ts:30:29",
+    "mutant": "replace fromPosting.Waiting with waiting",
+    "reason": "The body already returns this value, so the mutant is the original code."
+  },
+  "bc4edbf73a3f2c1a1ff26faa": {
+    "at": "src/webhook/delivery.aggregate.ts:53:30",
+    "mutant": "replace Delivery.evolve.AttemptStarted.Settled with done",
+    "reason": "The body already returns this value, so the mutant is the original code."
+  },
+  "fd0991bf874cf6d492dec54a": {
+    "at": "src/webhook/delivery.aggregate.ts:52:33",
+    "mutant": "replace Delivery.evolve.AttemptStarted.Posting with posting",
+    "reason": "The body already returns this value, so the mutant is the original code."
+  },
+  "b4852ef2f8f7b1faa0f01041": {
+    "at": "src/webhook/delivery.aggregate.ts:51:29",
+    "mutant": "replace Delivery.evolve.AttemptStarted.Fresh with fresh",
+    "reason": "The body already returns this value, so the mutant is the original code."
+  },
+  "3f9d5c101b514dfa47b0c3eb": {
+    "at": "src/webhook/delivery.aggregate.ts:51:29",
+    "mutant": "replace Delivery.evolve.AttemptStarted.Fresh with ({ \"_tag\": (\"Fresh\" as const) })",
+    "reason": "The state has no fields, so { _tag: \"Fresh\" } is the value the branch passes through."
+  },
+  "04c349b409d71f15b8cb9307": {
+    "at": "src/webhook/record-attempt/record-attempt.command.ts:74:18",
+    "mutant": "replace decideRecordAttempt.Fresh with []",
+    "reason": "The body already returns this value, so the mutant is the original code."
+  },
+  "feca514d49f9ac014f9db03d": {
+    "at": "src/webhook/record-attempt/record-attempt.command.ts:83:20",
+    "mutant": "replace decideRecordAttempt.Waiting with []",
+    "reason": "The body already returns this value, so the mutant is the original code."
+  },
+  "d6f364824a64535e7227f70b": {
+    "at": "src/webhook/record-attempt/record-attempt.command.ts:82:20",
+    "mutant": "replace decideRecordAttempt.Settled with []",
+    "reason": "The body already returns this value, so the mutant is the original code."
+  },
+  "48b7dcf0f914c1f3ef29a05d": {
+    "at": "src/webhook/record-outcome/record-delivery-outcome.command.ts:55:21",
+    "mutant": "replace decideRecordDeliveryOutcome.onNone with []",
+    "reason": "The body already returns this value, so the mutant is the original code."
+  },
+  "602555dd8e3c39fea1365157": {
+    "at": "src/webhook/start-delivery/start-delivery.command.ts:31:20",
+    "mutant": "replace decideStartDelivery.Posting with []",
+    "reason": "The body already returns this value, so the mutant is the original code."
+  },
+  "836c4929c488d85fce1e537f": {
+    "at": "src/webhook/start-delivery/start-delivery.command.ts:32:20",
+    "mutant": "replace decideStartDelivery.Settled with []",
+    "reason": "The body already returns this value, so the mutant is the original code."
+  },
+  "a0f8809d026db9f64c17de2e": {
+    "at": "src/webhook/start-delivery/start-delivery.command.ts:33:20",
+    "mutant": "replace decideStartDelivery.Waiting with []",
+    "reason": "The body already returns this value, so the mutant is the original code."
+  }
+}

@@ -28,7 +28,9 @@
   "scripts": {
     "typecheck": "effect-tsgo tsrs --noEmit -p tsconfig.json",
     "lint": "effect-tsgo --tsrs-lint oxlint -c ../../oxlint.config.ts --type-aware --tsconfig tsconfig.json src tests",
-    "test": "vitest run"
+    "test": "vitest run",
+    "mutants": "VITEST_MAX_WORKERS=1 mutant-cafe --advisory && mutants --all",
+    "mutants:diff": "VITEST_MAX_WORKERS=1 mutant-cafe --in-diff-range main...HEAD --advisory && mutants"
   },
   "dependencies": {
     "@alchemy.run/domain": "catalog:",

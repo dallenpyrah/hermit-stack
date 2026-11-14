@@ -1,5 +1,6 @@
 # Runs hermit-stack's gate, `pnpm check`, on every pull request, and every night with the Turbo cache off,
-# so a pass replayed from the cache can't hide a check that now fails.
+# so a pass replayed from the cache can't hide a check that now fails. The nightly run also runs every package's
+# mutation tests.
 name: hermit-stack check
 
 on:
@@ -46,3 +47,23 @@ jobs:
 
       - name: Check
         run: mise exec -- pnpm check
+
+  # Every package's full mutation run (tools/rules/docs/mutants.md). It takes many minutes, so it runs nightly and by
+  # hand, never on a pull request.
+  mutants:
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      TURBO_TELEMETRY_DISABLED: "1"
+      TURBO_FORCE: "true"
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: jdx/mise-action@v2
+
+      - name: Install the locked dependencies
+        run: mise exec -- pnpm install --frozen-lockfile
+
+      - name: Mutants
+        run: mise exec -- pnpm mutants

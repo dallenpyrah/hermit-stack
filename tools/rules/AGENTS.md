@@ -28,7 +28,7 @@ Run each from the repo root through mise (`mise exec -- pnpm <script>`), so the 
 - `pnpm fmt`: format with oxfmt. It skips `fixtures/`, `src/oxlint/anti-slop/` and `tests/oxlint/anti-slop/`, which stay byte for byte as measured or vendored.
 - Git hooks (lefthook, installed by `pnpm install`): pre-commit formats staged files, checks the line cap and inline suppressions, scans for secrets, checks boundaries, then typechecks, lints and runs the file-role pass. Hooks never run tests.
 - `src/fence/git-fence.cli.mjs` (`git-fence`): a policy an agent hook can run before each shell command and file write. It answers in the form Claude Code, Cursor or Pi expects, but hermit-stack ships no agent config, so nothing runs it until a fork wires its own agent. It refuses `--no-verify`, `git commit -n`, `core.hooksPath` changes, `LEFTHOOK=0` and its relatives, `lefthook uninstall` and writes into `.git/hooks`. What it covers and what it cannot close is in `docs/git-fence.md`.
-- `src/mutants/mutants.cli.mjs` (`mutants`): reads `mutants.out/outcomes.json` after `mutant-cafe` and fails on a mutant no test kills or explains (`docs/mutants.md`). No package runs it yet.
+- `src/mutants/mutants.cli.mjs` (`mutants`): reads `mutants.out/outcomes.json` after `mutant-cafe` and fails on a mutant no test kills or explains (`docs/mutants.md`). `pnpm mutants` runs it in each package that adopted it; the nightly job runs it, `pnpm check` does not.
 
 ## Do not
 

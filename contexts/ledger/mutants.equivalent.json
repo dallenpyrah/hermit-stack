@@ -1,0 +1,42 @@
+{
+  "1572b60c9c5e7625c75cbb77": {
+    "at": "src/account/account.aggregate.ts:14:26",
+    "mutant": "replace withBalance.Closed with ({ \"_tag\": (\"Closed\" as const) })",
+    "reason": "The Closed state has no fields, so the state the branch passes through is this same value."
+  },
+  "789301e7cd6f89018bf2d1ef": {
+    "at": "src/account/account.aggregate.ts:14:26",
+    "mutant": "replace withBalance.Closed with current",
+    "reason": "The body is already current, so the mutant is the original code."
+  },
+  "065c7f6d461bb95ff0064681": {
+    "at": "src/account/account.aggregate.ts:16:28",
+    "mutant": "replace withBalance.Unopened with ({ \"_tag\": (\"Unopened\" as const) })",
+    "reason": "The Unopened state has no fields, so the state the branch passes through is this same value."
+  },
+  "be4c640023507b5204592743": {
+    "at": "src/account/account.aggregate.ts:16:28",
+    "mutant": "replace withBalance.Unopened with current",
+    "reason": "The body is already current, so the mutant is the original code."
+  },
+  "e68074637ffb71fe0c2d791a": {
+    "at": "src/account/account.aggregate.ts:21:19",
+    "mutant": "replace balanceOf.Closed with ({ \"balance\": 0 })",
+    "reason": "The body returns { balance: noCents }, and noCents is 0, so it is the same value."
+  },
+  "29721395e644f02832668c5a": {
+    "at": "src/account/account.aggregate.ts:22:21",
+    "mutant": "replace balanceOf.Open with open",
+    "reason": "The Domain kernel encodes a reply through the command's reply schema, { balance: Cents }, which drops the extra owner and _tag fields, so every caller receives the same { balance }."
+  },
+  "bdd4cdf683ae9717b1900fdb": {
+    "at": "src/account/account.aggregate.ts:23:21",
+    "mutant": "replace balanceOf.Unopened with ({ \"balance\": 0 })",
+    "reason": "The body returns { balance: noCents }, and noCents is 0, so it is the same value."
+  },
+  "85eb476faf6c36426e32583b": {
+    "at": "src/account/account.aggregate.ts:37:28",
+    "mutant": "replace Account.evolve.AccountClosed with ({ \"_tag\": (\"Closed\" as const) })",
+    "reason": "Closed.make({}) builds the plain object { _tag: \"Closed\" }, the same value."
+  }
+}

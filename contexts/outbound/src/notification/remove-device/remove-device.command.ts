@@ -13,14 +13,15 @@ class RemoveDevice extends Command(
 
 const decideArity = 2;
 
-const decideRemoveDevice: {
-  (command: RemoveDevice): (state: RecipientState) => readonly DeviceRemoved[];
-  (state: RecipientState, command: RemoveDevice): readonly DeviceRemoved[];
-} = Fn.dual(decideArity, (state: RecipientState, command: RemoveDevice): readonly DeviceRemoved[] =>
+const removeDevice = (state: RecipientState, command: RemoveDevice): readonly DeviceRemoved[] =>
   Arr.map(
     Arr.filter([command.token], (token) => Arr.contains(state.devices, token)),
     (token) => DeviceRemoved.make({ token }),
-  ),
-);
+  );
+
+const decideRemoveDevice: {
+  (command: RemoveDevice): (state: RecipientState) => readonly DeviceRemoved[];
+  (state: RecipientState, command: RemoveDevice): readonly DeviceRemoved[];
+} = Fn.dual(decideArity, removeDevice);
 
 export { decideRemoveDevice, RemoveDevice };

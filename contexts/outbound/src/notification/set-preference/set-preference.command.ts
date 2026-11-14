@@ -19,15 +19,17 @@ class SetPreference extends Command(
 
 const decideArity = 2;
 
-const decideSetPreference: {
-  (command: SetPreference): (state: RecipientState) => readonly PreferenceSet[];
-  (state: RecipientState, command: SetPreference): readonly PreferenceSet[];
-} = Fn.dual(decideArity, (state: RecipientState, command: SetPreference): readonly PreferenceSet[] => {
+const setPreference = (state: RecipientState, command: SetPreference): readonly PreferenceSet[] => {
   if (isMuted(state, command) !== command.enabled) {
     return [];
   }
 
   return [PreferenceSet.make({ channel: command.channel, enabled: command.enabled, kind: command.kind })];
-});
+};
+
+const decideSetPreference: {
+  (command: SetPreference): (state: RecipientState) => readonly PreferenceSet[];
+  (state: RecipientState, command: SetPreference): readonly PreferenceSet[];
+} = Fn.dual(decideArity, setPreference);
 
 export { decideSetPreference, SetPreference };
