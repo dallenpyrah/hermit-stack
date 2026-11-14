@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "plugins": [
+      {
+        "name": "@effect/language-service",
+        "diagnosticSeverity": {
+          // A host's platform Layer provides Effect's WorkflowEngine and its resources run on Effect's platform services, all typed with unstable Effect modules, so exporting the Layer exposes them by design.
+          "apiStabilityLeak": "off"
+        }
+      }
+    ]
+  },
+  "include": ["src/**/*.ts"]
+}
