@@ -7,8 +7,6 @@ interface CronSettings {
 
 const nextAfterArity = 2;
 
-// The next occurrence strictly after a time, read in the schedule's own time zone. Arm's input schema already accepted
-// The expression and the zone, so a parse that fails here has no next occurrence.
 const nextAfter: {
   (after: DateTime.Utc): (settings: CronSettings) => readonly DateTime.Utc[];
   (settings: CronSettings, after: DateTime.Utc): readonly DateTime.Utc[];

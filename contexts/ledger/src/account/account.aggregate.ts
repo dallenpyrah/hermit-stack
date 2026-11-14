@@ -9,8 +9,6 @@ import { decideDepositMoney, DepositMoney } from "#src/account/deposit/deposit-m
 import { decideOpenAccount, OpenAccount } from "#src/account/open/open-account.command.js";
 import { decideWithdrawMoney, WithdrawMoney } from "#src/account/withdraw/withdraw-money.command.js";
 
-// Decide refuses every money movement on an account that is not open, so these events only ever follow an Open state.
-// Any other state is kept as it is, which keeps evolve total.
 const withBalance = (state: AccountState, balance: number): AccountState =>
   Match.valueTags(state, {
     Closed: (current) => current,
@@ -25,8 +23,6 @@ const balanceOf = (state: AccountState): { readonly balance: number } =>
     Unopened: () => ({ balance: noCents }),
   });
 
-// Each command's rule lives in its own file beside its events and rejections; this file holds the state and how events
-// Change it.
 class Account extends Aggregate(
   "Account",
   {

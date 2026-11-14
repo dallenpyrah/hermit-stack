@@ -15,19 +15,14 @@ import {
 
 import { Telemetry } from "#src/telemetry.service.js";
 
-// The scalar values an OTLP attribute carries; anything else is recorded as its formatted text.
 type AttributeValue = string | number | boolean;
 
-// One ended span in the shape a test asserts on, whether it was recorded in memory or received by an OTLP collector.
 interface RecordedSpan {
   readonly attributes: Readonly<Record<string, AttributeValue>>;
   readonly name: string;
-  // The parent span's name when the parent is among the same spans; undefined for the root of the operation.
   readonly parent: string | undefined;
   readonly parentSpanId: string | undefined;
   readonly spanId: string;
-  // The OpenTelemetry status code, set the way Effect's OTLP exporter sets it: error when the span's effect failed,
-  // Unset otherwise, interruption included.
   readonly status: "error" | "unset";
   readonly traceId: string;
 }
@@ -80,7 +75,6 @@ const attributesOf = (span: Tracer.NativeSpan): Readonly<Record<string, Attribut
     Option.getOrElse(decodeScalar(value), () => Formatter.format(value)),
   );
 
-// Parents are named after every span has ended, because a child always ends before its parent.
 const withParentNames = <Span extends Omit<RecordedSpan, "parent">>(
   spans: readonly Span[],
 ): readonly (Span & Pick<RecordedSpan, "parent">)[] => {
@@ -111,14 +105,11 @@ const recordedSpans = (started: readonly Tracer.NativeSpan[]): readonly Recorded
   );
 };
 
-// Provides Telemetry to a test without exporting anything, so a host that requires it runs in memory.
 const layerRecording: Layer.Layer<Telemetry> = Layer.succeed(
   Telemetry,
   Telemetry.of({ backend: "recording", flush: Effect.void }),
 );
 
-// Runs one operation under its own tracer and returns how it ended with every span that ended inside it, in the order
-// They started. A tracer per call keeps concurrent operations from seeing each other's spans.
 const captureSpans = <Value, Failure, Services>(
   operation: Effect.Effect<Value, Failure, Services>,
 ): Effect.Effect<CapturedOperation<Value, Failure>, never, Services> =>

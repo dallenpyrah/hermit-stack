@@ -10,7 +10,6 @@ class MarkRead extends Command(
   { description: "Mark a notification in the inbox as read." },
 ) {}
 
-// Reading is recorded every time; the Inbox view counts a notification as read once.
 const decideMarkRead = (command: MarkRead): readonly NotificationRead[] => [
   NotificationRead.make({ notificationId: command.notificationId }),
 ];

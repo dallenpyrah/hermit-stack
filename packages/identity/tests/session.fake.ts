@@ -48,8 +48,6 @@ const adapterFrom = (sessions: Sessions): SessionAdapter["Service"] => ({
   }),
 });
 
-// Sessions are opaque tokens held in memory, so the fake refuses an unknown, altered or expired token the way a real
-// Adapter does, and a test of a command that lists Session runs without an auth vendor. The adapter assigns each id.
 const SessionFake: Layer.Layer<Session | SessionAdapter> = Layer.effectContext(
   Effect.gen(function* sessionFake() {
     const sessions: Sessions = yield* Ref.make(HashMap.empty<string, CurrentUser["Service"]>());

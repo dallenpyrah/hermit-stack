@@ -7,9 +7,6 @@ import { RecurringName } from "#src/recurring/recurring.id.js";
 import { RecurringState, Running, Stopped, Unarmed } from "#src/recurring/recurring-state.schema.js";
 import { decideTick, Tick } from "#src/recurring/tick/tick.command.js";
 
-// Recurring work as an aggregate that re-arms itself: each Ticked is the work's trigger, and the Rearm policy
-// Schedules the next Tick from it, so no cron service runs outside the model. Each command's rule lives in its own
-// File beside its event; this file holds the state and how events change it.
 class Recurring extends Aggregate(
   "Recurring",
   {

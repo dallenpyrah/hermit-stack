@@ -24,13 +24,11 @@ const DispatchNotificationLive = DispatchNotification.toLayer(
     return Effect.fn("DispatchNotification.handle")(function* handle({ event, source }) {
       const { channel } = event;
 
-      // The inbox is the Inbox view itself, so an inbox notification has nothing to send.
       if (channel === "inbox") {
         return;
       }
 
       const { body, title } = renderNotification(event.kind);
-      // Derived from the event, so a dispatch that runs twice asks the vendor with the same key.
       const idempotencyKey = `${event.notificationId}:${source.id}:${channel}:${event.to}`;
 
       const result = yield* Match.value(channel).pipe(

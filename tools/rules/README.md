@@ -13,7 +13,7 @@ hermit-stack's rulebook: an Oxlint base with every category at error and one off
 | `@repo/rules/oxlint/anti-slop`        | Vendored anti-slop core rules                                                                                                     |
 | `@repo/rules/oxlint/anti-slop-effect` | Vendored anti-slop Effect rules                                                                                                   |
 | `@repo/rules/tsconfig.base.json`      | Strict TypeScript and the Effect diagnostics                                                                                      |
-| `@repo/rules/git-fence`               | The agent hook that refuses skipping the git hooks, loaded by the Claude Code and Pi hooks                                        |
+| `@repo/rules/git-fence`               | The agent hook policy that refuses skipping the git hooks; no agent config ships with it                                          |
 | `git-fence` (bin)                     | The same hook as a command                                                                                                        |
 | `file-fence` (bin)                    | Refuses a file over 500 lines or an inline rule suppression, on the staged files                                                  |
 | `ratchet` (bin)                       | Fails when an exception count leaves its baseline in `ratchets.json`                                                              |

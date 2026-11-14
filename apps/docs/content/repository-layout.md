@@ -62,7 +62,6 @@ Packages are named `@repo/<name>` and consumed as TypeScript source. A package's
 ```ts
 import { spanName } from "@repo/kernel/span-name";
 
-// Spans are named <context>.<operation> in kebab case, whatever case the code uses.
 const name = spanName("ledger", "OpenAccount");
 ```
 

@@ -10,8 +10,6 @@ type ArgFields = Readonly<Record<string, Schema.Codec<unknown, unknown>>>;
 
 type ArgsOf<Fields extends ArgFields> = Schema.Struct.Type<Fields>;
 
-// The args are typed as a plain codec in the Messages, so a constructor takes decoded args even while the fields are
-// Generic.
 type ArgsCodec<Fields extends ArgFields> = Schema.Codec<ArgsOf<Fields>, Schema.Struct.Encoded<Fields>>;
 
 type FetchedSchema<Value, Encoded> = Schema.Struct<{
@@ -33,16 +31,11 @@ interface CachedQueryConfig<
   readonly data: Schema.Codec<Value, Encoded>;
   readonly error: Schema.Codec<Failure, FailureEncoded>;
   readonly execute: (args: ArgsOf<Fields>) => Effect.Effect<Value, Failure, Services>;
-  // How the arguments are spelled as one string. FoldKit keys its entries with the same function, so the cap removes the
-  // Entry FoldKit stored.
   readonly toKey: (args: ArgsOf<Fields>) => string;
-  // A read younger than this is served from the Model; an older one is shown while a new request runs.
   readonly staleTime: Duration.Input;
-  // The most keyed entries the query keeps; reading one more drops the least recently used.
   readonly maxEntries: number;
 }
 
-// The FoldKit query underneath: its data is the configured data with the time the reply arrived.
 type InnerQuery<
   Name extends string,
   Value,
@@ -66,7 +59,6 @@ type CachedModel<InnerModel extends Schema.Top> = Schema.Struct<{
   readonly recent: Schema.$Array<typeof Schema.String>;
 }>;
 
-// The query's reply is a plain codec here for the same reason as the args.
 type CachedMessage<Fields extends ArgFields, Reply extends Schema.Top> = MessageUnion<{
   readonly CheckedFreshness: { readonly args: ArgsCodec<Fields>; readonly now: typeof Schema.Finite };
   readonly GotQueryMessage: { readonly message: Schema.Codec<Reply["Type"], Reply["Encoded"]> };
@@ -92,7 +84,6 @@ interface CachedQuery<
   Fields extends ArgFields,
   Services,
 > {
-  // The FoldKit query, for its Fetch Command and reply Message in tests.
   readonly query: InnerQuery<Name, Value, Encoded, Failure, FailureEncoded, Fields, Services>;
   readonly Model: CachedModel<this["query"]["Model"]>;
   readonly Message: CachedMessage<Fields, this["query"]["Message"]>;
@@ -112,7 +103,6 @@ type Kept = Readonly<{
   recent: readonly string[];
 }>;
 
-// Marks the key as just used and drops the least recently used keys beyond the cap, from the order and from FoldKit.
 const touch = <Model extends Kept>(model: Model, key: string, maxEntries: number): Model => {
   const used = Arr.append(
     Arr.filter(model.recent, (recentKey) => recentKey !== key),
@@ -153,7 +143,6 @@ const messagesOf = <Fields extends ArgFields, Reply extends Schema.Top>(
     Requested: { args },
   });
 
-// Reading the clock is a Command, so a Story test answers it with the time it chooses.
 const checkFreshnessOf = <Name extends string, Fields extends ArgFields, Reply extends Schema.Top>(
   name: Name,
   args: ArgsCodec<Fields>,
@@ -217,11 +206,6 @@ const updateOf = <Name extends string, Value, Encoded, Failure, FailureEncoded, 
     });
 };
 
-/**
- * A keyed FoldKit Query with the policy FoldKit leaves to the application: a stale time, a least-recently-used cap, and
- * Messages for prefetching and for revalidating at a known time. Each reply carries the time it arrived, read from
- * Effect's Clock in the Fetch Command, so the Model alone decides whether an entry is fresh.
- */
 const define = <
   Name extends string,
   Value,

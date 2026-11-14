@@ -19,7 +19,6 @@ import {
 import { layoutOf } from "../../src/ratchet/layout.pure.mjs";
 
 const root = path.resolve(import.meta.dirname, "../..");
-// The repo's own wiring lives at the monorepo root, two folders up from this package.
 const workspaceRoot = path.resolve(root, "../..");
 const cli = path.join(root, "src", "ratchet", "ratchet.cli.mjs");
 const run = promisify(execFile);

@@ -30,7 +30,6 @@ interface Sidebar {
   readonly groups: readonly SidebarGroup[];
 }
 
-// Shown in the search palette before anything is typed.
 const suggestedHrefs: readonly string[] = [
   "/quickstart",
   "/why-hermit-stack",
@@ -53,7 +52,6 @@ const itemOf = (titles: PageTitles, slug: string): SidebarItem => {
   };
 };
 
-// The Welcome page is not a file in content/, so it joins the first group here.
 const pagesOf = (group: NavigationGroup, index: number): readonly string[] => {
   if (index === FIRST_GROUP) {
     return [welcomeSlug, ...group.pages];

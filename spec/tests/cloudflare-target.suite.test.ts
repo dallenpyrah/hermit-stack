@@ -10,14 +10,10 @@ import { ledgerConformance } from "@repo/conformance/ledger";
 import { AccountId } from "@repo/ledger/account-id";
 import { LedgerApi } from "@repo/ledger/api";
 
-// The Cloudflare target on Cloudflare's own local runtime: `alchemy dev` bundles the ledger's Worker, runs it in
-// Workerd and keeps each Durable Object's storage on disk. No Cloudflare account is involved: the CLI gets the
-// Placeholder account id Alchemy uses for local dev and no other environment, so no credential on this machine reaches it.
 class StateDirectory extends Context.Service<StateDirectory, { readonly path: string }>()(
   "@repo/spec/tests/cloudflare-target.suite.test/StateDirectory",
 ) {}
 
-// Every run starts from empty storage, and both Workers of the restart check share it.
 const stateDirectory = Layer.effect(
   StateDirectory,
   Effect.flatMap(FileSystem.FileSystem, (fs) =>
@@ -50,7 +46,6 @@ const devCommand = Effect.gen(function* devCommandCase() {
   });
 });
 
-// Yields the Worker's address once workerd serves it, or dies with the CLI's output if the CLI stops first.
 const servedAddress = Effect.fn("servedAddress")(function* servedAddressCase(
   child: ChildProcessSpawner.ChildProcessHandle,
 ) {
@@ -72,7 +67,6 @@ const servedAddress = Effect.fn("servedAddress")(function* servedAddressCase(
   return yield* Effect.raceFirst(Deferred.await(ready), exited);
 });
 
-// Starts `alchemy dev` on the ledger's local stack. Closing the Scope stops the CLI, which stops workerd with it.
 const startWorker = Effect.gen(function* startWorkerCase() {
   const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
   const command = yield* devCommand;
@@ -83,7 +77,6 @@ const startWorker = Effect.gen(function* startWorkerCase() {
 
 const workerProtocol = Layer.unwrap(Effect.map(startWorker, (url) => protocolHttp(`${url}/rpc`)));
 
-// The typed client over HTTP to the Worker, the way any other process reaches it.
 const ledgerOnWorker = LedgerApi.layerClient.pipe(
   Layer.provide(workerProtocol),
   Layer.provide([FetchHttpClient.layer, nodeServices]),
@@ -98,12 +91,9 @@ const openBeforeRestart = Effect.gen(function* openBeforeRestartCase() {
 
   const receipt = yield* ledger.DepositMoney(keptAccount, { amount: 25 });
 
-  // The view has the deposit before this Worker stops, so the next one can read it without a receipt.
   yield* ledger.Balance.get(keptAccount, { atLeast: receipt });
 });
 
-// A first Worker opens an account and deposits into it, then stops before any test runs. It is built fresh, so it is
-// Never the same Worker the tests reach.
 const firstWorker = Layer.fresh(ledgerOnWorker);
 
 const openedOnFirstWorker = Effect.flatMap(Layer.build(firstWorker), (services) =>
@@ -112,8 +102,6 @@ const openedOnFirstWorker = Effect.flatMap(Layer.build(firstWorker), (services) 
 
 const restarted = Layer.effectDiscard(Effect.scoped(openedOnFirstWorker));
 
-// Every test talks to a second Worker: a new process with nothing in memory, which can know the account only from
-// The storage workerd kept on disk.
 const readsTheKeptAccount = Effect.fn("readsTheKeptAccount")(function* readsTheKeptAccountCase() {
   const ledger = yield* LedgerApi.Client;
   const balance = yield* ledger.Balance.get(keptAccount);

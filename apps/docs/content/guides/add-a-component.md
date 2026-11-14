@@ -38,12 +38,11 @@ const styles = create({
   },
 });
 
-// An alert is announced by screen readers as soon as it appears.
 const alertView = (message: string, html: HtmlBuilder<never>): Html =>
   html.div([html.Role("alert"), ...styleAttributes(styles.alert)], [message]);
 ```
 
-Look at `packages/ui/src/badge/badge.view.ts` for the complete pattern: the variant schema, the `render` function, the `Fn.dual` export and the `data-variant` attribute tests read.
+`html.Role("alert")` makes screen readers announce the alert as soon as it appears. Look at `packages/ui/src/badge/badge.view.ts` for the complete pattern: the variant schema, the `render` function, the `Fn.dual` export and the `data-variant` attribute tests read.
 
 ## 3. Export it
 

@@ -19,7 +19,6 @@ const abandonedOnGone = (): Effect.Effect<void, StoryFailure> =>
     succeed(WebhookTransport.post, { retryAfterSeconds: Option.none(), status: 410 }),
     then(delivery, Abandoned.make({ attempt: 1 })),
     Story.state(delivery, { attempts: 1, outcome: "gone" }),
-    // One 410 is enough: the endpoint is disabled without counting failures first.
     then(endpoints, EndpointDisabled.make({ endpointId, reason: "gone" })),
     Story.advance("7 days"),
     then(delivery),

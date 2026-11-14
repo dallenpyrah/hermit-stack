@@ -9,7 +9,6 @@ import { OldCheckout, PaymentsKillSwitch } from "#tests/fixtures/expired/old-che
 
 const success = 0;
 
-// Each run starts Node and Vite, which takes seconds on a machine busy with the rest of pnpm check.
 const runTimeout = 120_000;
 
 interface CheckRun {
@@ -17,7 +16,6 @@ interface CheckRun {
   readonly output: string;
 }
 
-// Runs the real command, as pnpm flags:check does, with a fixture folder as the workspace it scans.
 const runCheck = (
   fixture: string,
 ): Effect.Effect<CheckRun, PlatformError, ChildProcessSpawner.ChildProcessSpawner | Path.Path> =>

@@ -6,7 +6,6 @@ import { RearmLive, Rearm } from "#src/recurring/tick/rearm.policy.js";
 import { Recurring } from "#src/recurring/recurring.aggregate.js";
 import { Ticked } from "#src/recurring/tick/ticked.event.js";
 
-// The work a schedule triggers in these stories: one report per occurrence, keyed like the schedule.
 const ReportId = Schema.String.pipe(Schema.brand("ReportId"));
 
 const ReportCompiled = Event("ReportCompiled", { scheduledFor: Schema.DateTimeUtc });
@@ -44,8 +43,6 @@ const Reporting = Model("Reporting", { aggregates: [Recurring, Report], policies
 
 const story = Story.make(Reporting, { layer: Layer.mergeAll(RearmLive, CompileOnTickLive) });
 
-// Typed as a plain ref, because a ref that names its aggregate carries the commands' unstable Rpc types. A story
-// Only reads what the report recorded, so it needs no more.
 const report: Aggregate.Ref = Report.ref("nightly-report");
 
 export { report, ReportCompiled, story };

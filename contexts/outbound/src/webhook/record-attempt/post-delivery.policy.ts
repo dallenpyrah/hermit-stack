@@ -22,7 +22,6 @@ const PostDeliveryLive = PostDelivery.toLayer(
     return Effect.fn("PostDelivery.handle")(function* handle({ source }) {
       const state = yield* deliveries.get(source);
 
-      // A repeat of an event whose attempt is already answered finds the delivery past Posting and posts nothing.
       yield* Match.valueTags(state, {
         Fresh: () => Effect.void,
         Posting: (posting) =>

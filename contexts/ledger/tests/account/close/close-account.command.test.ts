@@ -14,7 +14,6 @@ const story = Story.make(Ledger);
 
 type Case = () => ReturnType<typeof story>;
 
-// Story.then is renamed because a lint rule reads any .then( call as a Promise chain.
 const { then: recorded } = Story;
 
 const account = Account.ref("acc-1");

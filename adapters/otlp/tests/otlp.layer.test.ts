@@ -15,14 +15,12 @@ const deposit = Effect.fn("ledger.deposit")(function* deposit(amount: number) {
   yield* Effect.annotateCurrentSpan("ledger.amount", amount);
 });
 
-// The sample program stands in for a host: it yields Telemetry, so it typechecks only once a target picks a backend.
 const openAccount = Effect.gen(function* openAccount() {
   const { backend } = yield* Telemetry;
   yield* Effect.annotateCurrentSpan("telemetry.backend", backend);
   yield* deposit(depositAmount);
 }).pipe(Effect.withSpan(spanName("ledger", "OpenAccount"), { attributes: { "ledger.account": "acc-1" } }));
 
-// What both backends must show for one run of the sample, sorted by name because the exporter sends spans as they end.
 const expectedSpans = (backend: string): readonly Partial<RecordedSpan>[] => [
   { attributes: { "ledger.amount": depositAmount }, name: "ledger.deposit", parent: "ledger.open-account" },
   { attributes: { "ledger.account": "acc-1", "telemetry.backend": backend }, name: "ledger.open-account" },
@@ -41,7 +39,6 @@ const environment = (env: Record<string, string>): Layer.Layer<never> =>
 const otlpWith = (env: Record<string, string>): Layer.Layer<Telemetry, ConfigError> =>
   layerOtlp.pipe(Layer.provide(environment(env)));
 
-// Builds the telemetry Layer, runs the sample under it and closes it, which flushes whatever the exporter buffered.
 const runSample = <Failure>(telemetry: Layer.Layer<Telemetry, Failure>): Effect.Effect<void, Failure> =>
   Effect.scoped(
     Effect.gen(function* buildAndRun() {
@@ -88,9 +85,6 @@ const failsWithoutAnEndpoint = Effect.fn("failsWithoutAnEndpoint")(function* fai
   expect(Exit.isFailure(exit)).toBe(true);
 });
 
-// A target is a Layer that runs the host, started with Layer.launch or a runtime's runMain, and both accept only a
-// Layer that needs no services. So a target that composes no telemetry Layer is a type error, and the one line a
-// Target writes to pick a backend is Layer.provide(layerOtlp) or Layer.provide(layerRecording).
 const needsATelemetryLayer = (): void => {
   const target = Layer.effectDiscard(openAccount);
 
