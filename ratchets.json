@@ -6,6 +6,8 @@
   "oxlint-structure.config.ts rules off": 0,
   "oxlint-structure.config.ts override rules per glob": 16,
   "oxlint-structure.config.ts ignore patterns": 5,
+  "adapters/archil/tsconfig.json override diagnostics per glob": 2,
+  "adapters/archil/tsconfig.json allowed unstable APIs": 8,
   "adapters/axiom/tsconfig.json allowed unstable APIs": 4,
   "adapters/better-auth/tsconfig.json allowed unstable APIs": 3,
   "adapters/otlp/tsconfig.json allowed unstable APIs": 4,

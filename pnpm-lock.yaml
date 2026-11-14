@@ -164,12 +164,18 @@ settings:
 
 catalogs:
   default:
+    '@alchemy.run/archil':
+      specifier: 2.0.0-beta.87
+      version: 2.0.0-beta.87
     '@alchemy.run/better-auth':
       specifier: 2.0.0-beta.87
       version: 2.0.0-beta.87
     '@alchemy.run/domain':
       specifier: 2.0.0-beta.87
       version: 2.0.0-beta.87
+    '@distilled.cloud/archil':
+      specifier: 1.0.0-rc.20
+      version: 1.0.0-rc.20
     '@distilled.cloud/stripe':
       specifier: 1.0.0-rc.20
       version: 1.0.0-rc.20
@@ -375,6 +381,37 @@ importers:
       typescript:
         specifier: 'catalog:'
         version: 7.0.2
+
+  adapters/archil:
+    dependencies:
+      '@alchemy.run/archil':
+        specifier: 'catalog:'
+        version: 2.0.0-beta.87(@effect/platform-node@4.1.4(effect@4.1.4))(alchemy@2.0.0-beta.87(@effect/platform-node@4.1.4(effect@4.1.4))(@types/react@19.2.2)(effect@4.1.4)(vite@8.3.8(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.23.0))(effect@4.1.4)
+      '@distilled.cloud/archil':
+        specifier: 'catalog:'
+        version: 1.0.0-rc.20(effect@4.1.4)
+      '@repo/storage':
+        specifier: workspace:*
+        version: link:../../packages/storage
+      alchemy:
+        specifier: 'catalog:'
+        version: 2.0.0-beta.87(@effect/platform-node@4.1.4(effect@4.1.4))(@types/react@19.2.2)(effect@4.1.4)(vite@8.3.8(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.23.0)
+      effect:
+        specifier: 'catalog:'
+        version: 4.1.4
+    devDependencies:
+      '@effect/platform-node':
+        specifier: 'catalog:'
+        version: 4.1.4(effect@4.1.4)
+      '@effect/vitest':
+        specifier: 'catalog:'
+        version: 4.1.4(effect@4.1.4)(vitest@5.1.0(@types/node@24.19.2)(vite@8.3.8(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)))
+      vite:
+        specifier: 'catalog:'
+        version: 8.3.8(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)
+      vitest:
+        specifier: 'catalog:'
+        version: 5.1.0(@types/node@24.19.2)(vite@8.3.8(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
 
   adapters/axiom:
     dependencies:
@@ -802,6 +839,22 @@ importers:
         specifier: 'catalog:'
         version: 5.1.0(@types/node@24.19.2)(vite@8.3.8(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
 
+  packages/storage:
+    dependencies:
+      effect:
+        specifier: 'catalog:'
+        version: 4.1.4
+    devDependencies:
+      '@effect/vitest':
+        specifier: 'catalog:'
+        version: 4.1.4(effect@4.1.4)(vitest@5.1.0(@types/node@24.19.2)(vite@8.3.8(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)))
+      vite:
+        specifier: 'catalog:'
+        version: 8.3.8(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)
+      vitest:
+        specifier: 'catalog:'
+        version: 5.1.0(@types/node@24.19.2)(vite@8.3.8(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
+
   packages/telemetry:
     dependencies:
       '@effect/platform-node':
@@ -958,6 +1011,19 @@ importers:
 
 packages:
 
+  '@alchemy.run/archil@2.0.0-beta.87':
+    resolution: {integrity: sha512-4h9lpMkpRbCShN62dle3SAffQ2U4jpfh2RPC76vf+2PmOZWL/VWGR1NpRWp9zKjPu3Rj2W9fZ1ofrEmUG+sAbQ==}
+    peerDependencies:
+      '@alchemy.run/aws': 2.0.0-beta.87
+      '@effect/platform-node': ^4.1.4
+      alchemy: 2.0.0-beta.87
+      effect: ^4.1.4
+    peerDependenciesMeta:
+      '@alchemy.run/aws':
+        optional: true
+      '@effect/platform-node':
+        optional: true
+
   '@alchemy.run/better-auth@2.0.0-beta.87':
     resolution: {integrity: sha512-Dj79b2YTB3OQeF9xLUWJMhwclkSKTI7vRiBW+XqgBb6RHLZH0GUuglghOOoy/Sqs3GZM0cM5mIlUIq1ynmTRKA==}
     peerDependencies:
@@ -994,6 +1060,16 @@ packages:
       mysql2:
         optional: true
       pg:
+        optional: true
+
+  '@alchemy.run/docker@2.0.0-beta.87':
+    resolution: {integrity: sha512-xs+5UV4FqvmeXf9aS2I66R11FJzGUKQtR6pIMdNIf5AYXO9gIBHSE6LSCjlUgcaJqiY98m4HyJQZi/2uREjOag==}
+    peerDependencies:
+      '@effect/platform-bun': ^4.1.4
+      alchemy: 2.0.0-beta.87
+      effect: ^4.1.4
+    peerDependenciesMeta:
+      '@effect/platform-bun':
         optional: true
 
   '@alchemy.run/domain@2.0.0-beta.87':
@@ -1222,6 +1298,16 @@ packages:
 
   '@better-fetch/fetch@1.3.3':
     resolution: {integrity: sha512-U6SlDt/GUWtK2JAxS/NhdoYTEim+EL1G5byz2TUj83KjLZBUpYzb5SmX0aXaCnbGkAjFKnV/o/0+cyXMbEcqqg==}
+
+  '@distilled.cloud/archil@1.0.0-rc.20':
+    resolution: {integrity: sha512-2YIveCM9qkpxU6mTvfIrSHuLfoZFiSfG5DSiENKPrURTv+ylIyBkgeYk34UsGoNYUXpkaanBqwYWSPa64Ry/8g==}
+    peerDependencies:
+      effect: ^4.1.2
+
+  '@distilled.cloud/aws4signer@1.0.0-rc.20':
+    resolution: {integrity: sha512-7lYmG5Pj7/hqEhygqMmkeb4eph0Z8BEJFDlGDrNrHNxa03F39JqmZpp+YXO8v85Jx0O5G92Fl9UnfwHxvY4D1w==}
+    peerDependencies:
+      effect: ^4.1.2
 
   '@distilled.cloud/core@1.0.0-rc.20':
     resolution: {integrity: sha512-uoZ8W5QhxcSyyM6/XZzRJCKc55FC4fZfXWX2ypx8AOIC4PTOtdyDZ3fswGpVp/SRiC4ua0HYGhAgFA8Ub7Ot5Q==}
@@ -4763,6 +4849,19 @@ packages:
 
 snapshots:
 
+  '@alchemy.run/archil@2.0.0-beta.87(@effect/platform-node@4.1.4(effect@4.1.4))(alchemy@2.0.0-beta.87(@effect/platform-node@4.1.4(effect@4.1.4))(@types/react@19.2.2)(effect@4.1.4)(vite@8.3.8(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.23.0))(effect@4.1.4)':
+    dependencies:
+      '@alchemy.run/docker': 2.0.0-beta.87(alchemy@2.0.0-beta.87(@effect/platform-node@4.1.4(effect@4.1.4))(@types/react@19.2.2)(effect@4.1.4)(vite@8.3.8(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.23.0))(effect@4.1.4)
+      '@distilled.cloud/archil': 1.0.0-rc.20(effect@4.1.4)
+      '@distilled.cloud/core': 1.0.0-rc.20(effect@4.1.4)
+      alchemy: 2.0.0-beta.87(@effect/platform-node@4.1.4(effect@4.1.4))(@types/react@19.2.2)(effect@4.1.4)(vite@8.3.8(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.23.0)
+      effect: 4.1.4
+      rolldown: 1.2.16
+    optionalDependencies:
+      '@effect/platform-node': 4.1.4(effect@4.1.4)
+    transitivePeerDependencies:
+      - '@effect/platform-bun'
+
   '@alchemy.run/better-auth@2.0.0-beta.87(@better-auth/drizzle-adapter@1.7.22(@better-auth/core@1.7.22(@better-auth/utils@0.5.1)(@better-fetch/fetch@1.3.3)(better-call@1.4.5(zod@4.6.7))(jose@6.2.17)(kysely@0.29.9)(nanostores@1.5.5))(@better-auth/utils@0.5.1))(alchemy@2.0.0-beta.87(@effect/platform-node@4.1.4(effect@4.1.4))(@types/react@19.2.2)(effect@4.1.4)(vite@8.3.8(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.23.0))(better-auth@1.7.22(next@16.4.6(@babel/core@7.29.13)(@types/node@24.19.2)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(vitest@5.1.0(@types/node@24.19.2)(vite@8.3.8(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))))(effect@4.1.4)(kysely@0.29.9)':
     dependencies:
       '@alchemy.run/sql': 2.0.0-beta.87(alchemy@2.0.0-beta.87(@effect/platform-node@4.1.4(effect@4.1.4))(@types/react@19.2.2)(effect@4.1.4)(vite@8.3.8(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.23.0))(effect@4.1.4)
@@ -4776,6 +4875,12 @@ snapshots:
       - '@effect/sql-libsql'
       - '@effect/sql-mysql2'
       - '@effect/sql-pg'
+
+  '@alchemy.run/docker@2.0.0-beta.87(alchemy@2.0.0-beta.87(@effect/platform-node@4.1.4(effect@4.1.4))(@types/react@19.2.2)(effect@4.1.4)(vite@8.3.8(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.23.0))(effect@4.1.4)':
+    dependencies:
+      alchemy: 2.0.0-beta.87(@effect/platform-node@4.1.4(effect@4.1.4))(@types/react@19.2.2)(effect@4.1.4)(vite@8.3.8(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.23.0)
+      effect: 4.1.4
+      rolldown: 1.2.16
 
   '@alchemy.run/domain@2.0.0-beta.87(alchemy@2.0.0-beta.87(@effect/platform-node@4.1.4(effect@4.1.4))(@types/react@19.2.2)(effect@4.1.4)(vite@8.3.8(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.23.0))(effect@4.1.4)(foldkit@0.170.0(@effect/platform-browser@4.1.4(effect@4.1.4))(effect@4.1.4))':
     dependencies:
@@ -4964,6 +5069,17 @@ snapshots:
       '@noble/hashes': 2.4.0
 
   '@better-fetch/fetch@1.3.3': {}
+
+  '@distilled.cloud/archil@1.0.0-rc.20(effect@4.1.4)':
+    dependencies:
+      '@distilled.cloud/aws4signer': 1.0.0-rc.20(effect@4.1.4)
+      '@distilled.cloud/core': 1.0.0-rc.20(effect@4.1.4)
+      effect: 4.1.4
+
+  '@distilled.cloud/aws4signer@1.0.0-rc.20(effect@4.1.4)':
+    dependencies:
+      '@distilled.cloud/core': 1.0.0-rc.20(effect@4.1.4)
+      effect: 4.1.4
 
   '@distilled.cloud/core@1.0.0-rc.20(effect@4.1.4)':
     dependencies:
